@@ -46,7 +46,7 @@ function CheckIcon({ active }) {
 }
 
 const CARD_CLASSES =
-  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/15 p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-2xl transition duration-300 hover:border-white/30'
+  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
 export function Focus() {
   const initialFocus = readStoredFocus()
