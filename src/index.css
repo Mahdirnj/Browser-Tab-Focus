@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --body-bg: #0f172a;
+  --body-text: #f8fafc;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --body-bg: #f1f5f9;
+  --body-text: #0f172a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: theme('fontFamily.sans');
+  background-color: var(--body-bg);
+  color: var(--body-text);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
