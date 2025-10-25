@@ -4,6 +4,7 @@ import BackgroundLayer from './components/BackgroundLayer'
 import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
+import { Weather } from './components/Weather'
 import SettingsPanel from './components/SettingsPanel'
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
@@ -36,6 +37,9 @@ function App() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundLayer imageUrl={activeBackground?.url} />
+      <div className="absolute left-6 top-6 z-20">
+        <Weather />
+      </div>
       <SettingsPanel
         backgrounds={availableBackgrounds}
         selectedBackgroundId={activeBackground?.id ?? DEFAULT_BACKGROUND_ID}

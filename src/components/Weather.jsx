@@ -31,7 +31,7 @@ function readCachedWeather(city) {
 }
 
 const PANEL_CLASSES =
-  'w-full rounded-[28px] border border-white/15 bg-white/[0.13] px-6 py-7 shadow-[0_45px_80px_-45px_rgba(11,20,45,0.85)] backdrop-blur-2xl transition duration-500 hover:border-white/25'
+  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/[0.12] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-sm transition duration-300 hover:border-white/30'
 
 export function Weather() {
   const apiKey = useMemo(
@@ -145,122 +145,168 @@ export function Weather() {
         .join(' ')
     : ''
 
+  const displayCity = weather?.city ?? city ?? ''
+  const hasCity = Boolean(city)
+  const canRefresh = hasCity && Boolean(apiKey)
+
+  let content
+  if (!apiKey) {
+    content = (
+      <p className="text-xs text-white/70">
+        Add your OpenWeather API key to see live conditions.
+      </p>
+    )
+  } else if (isEditing) {
+    content = (
+      <div className="flex w-full flex-col gap-2">
+        <input
+          id="weather-city"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="City name"
+          className="w-full rounded-2xl border border-white/25 bg-white/[0.1] px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleCitySubmit}
+            className="flex-1 rounded-full bg-sky-400/90 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_15px_30px_-20px_rgba(56,189,248,0.9)] transition hover:bg-sky-300 disabled:opacity-40"
+            disabled={!inputValue.trim()}
+          >
+            Save
+          </button>
+          {hasCity && (
+            <button
+              type="button"
+              onClick={() => {
+                setInputValue(city)
+                setIsEditing(false)
+              }}
+              className="flex-1 rounded-full border border-white/25 bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:border-white/40 hover:text-white"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  } else if (!hasCity) {
+    content = (
+      <button
+        type="button"
+        onClick={() => setIsEditing(true)}
+        className="rounded-full border border-white/25 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/75 transition hover:border-white/40 hover:text-white"
+      >
+        Choose City
+      </button>
+    )
+  } else if (loading) {
+    content = <p className="text-xs text-white/70">Updating...</p>
+  } else if (weather) {
+    content = (
+      <div className="relative flex flex-col items-center">
+        <div className="absolute inset-0 -z-10 rounded-full bg-sky-400/35 blur-2xl" />
+        <p className="text-4xl font-semibold tracking-tight text-white drop-shadow-lg">
+          {weather.temp}
+          <span className="ml-1 text-base font-light text-white/75">
+            {'\u00B0'}C
+          </span>
+        </p>
+        {formattedDescription ? (
+          <p className="mt-2 text-[0.65rem] uppercase tracking-[0.3em] text-white/70">
+            {formattedDescription}
+          </p>
+        ) : null}
+      </div>
+    )
+  } else {
+    content = (
+      <p className="text-xs text-white/70">Tap refresh to load weather.</p>
+    )
+  }
+
   return (
     <section className={PANEL_CLASSES}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-[0.65rem] font-semibold uppercase tracking-[0.45em] text-white/70">
-          Weather
-        </h2>
-        {!isEditing && city && (
-          <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-white/60">
+            Weather
+          </p>
+          <p
+            className={`mt-1 text-sm font-medium ${
+              displayCity ? 'text-white/90' : 'text-white/60'
+            }`}
+          >
+            {displayCity || 'Set City'}
+          </p>
+        </div>
+        {!isEditing && (
+          <div className="flex gap-2">
+            {canRefresh ? (
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-white/75 transition hover:border-white/40 hover:text-white disabled:opacity-50"
+                disabled={loading}
+                aria-label="Refresh weather"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-3.5 w-3.5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6a8 8 0 0113.657-2.657L20 6m0 0h-4m4 0v-4"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M20 18a8 8 0 01-13.657 2.657L4 18m0 0h4m-4 0v4"
+                  />
+                </svg>
+              </button>
+            ) : null}
             <button
               type="button"
-              onClick={handleRefresh}
-              className="rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.35em] text-white/65 transition hover:border-white/35 hover:text-white"
-              disabled={loading}
+              onClick={() => {
+                setInputValue(city)
+                setIsEditing(true)
+              }}
+              className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-white/75 transition hover:border-white/40 hover:text-white"
+              aria-label={hasCity ? 'Change city' : 'Set city'}
             >
-              Refresh
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.35em] text-white/65 transition hover:border-white/35 hover:text-white"
-            >
-              City
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                className="h-3.5 w-3.5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 3 20l1.537-5.25 12.325-11.263z"
+                />
+              </svg>
             </button>
           </div>
         )}
       </div>
-
-      {!apiKey ? (
-        <p className="mt-5 rounded-2xl border border-white/20 bg-white/[0.08] px-5 py-4 text-sm text-white/70">
-          Missing OpenWeather API key. Update your `.env` file to enable weather data.
+      <div className="mt-3 flex flex-1 flex-col items-center justify-center text-center">
+        {content}
+      </div>
+      {error ? (
+        <p className="mt-3 rounded-2xl border border-rose-400/40 bg-rose-500/20 px-3 py-2 text-[0.65rem] text-rose-50/90">
+          {error}
         </p>
-      ) : isEditing ? (
-        <div className="mt-5 space-y-4">
-          <div>
-            <label
-              htmlFor="weather-city"
-              className="text-[0.65rem] uppercase tracking-[0.4em] text-white/50"
-            >
-              Choose City
-            </label>
-            <input
-              id="weather-city"
-              value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="e.g. San Francisco"
-              className="mt-3 w-full rounded-2xl border border-white/20 bg-white/[0.08] px-4 py-3 text-sm text-white/90 placeholder:text-white/45 focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleCitySubmit}
-              className="rounded-full bg-sky-400/90 px-4 py-2 text-sm font-medium text-white shadow-[0_15px_35px_-20px_rgba(56,189,248,0.9)] transition hover:bg-sky-300"
-            >
-              Save
-            </button>
-            {city && (
-              <button
-                type="button"
-                onClick={() => {
-                  setInputValue(city)
-                  setIsEditing(false)
-                }}
-                className="rounded-full border border-white/20 bg-white/[0.08] px-4 py-2 text-sm font-medium text-white/70 transition hover:border-white/35 hover:text-white"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </div>
-      ) : !city ? (
-        <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-6 text-sm text-white/70">
-          <p>Set your city to get personalised weather updates.</p>
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="mt-4 rounded-full bg-sky-400/90 px-4 py-2 text-sm font-medium text-white shadow-[0_15px_35px_-20px_rgba(56,189,248,0.9)] transition hover:bg-sky-300"
-          >
-            Choose City
-          </button>
-        </div>
-      ) : (
-        <div className="mt-6 space-y-4 text-white">
-          {loading ? (
-            <p className="text-sm text-white/70">Fetching latest weather...</p>
-          ) : weather ? (
-            <>
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] px-6 py-6">
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-400/30 blur-3xl" />
-                <p className="text-5xl font-semibold tracking-tight text-white">
-                  {weather.temp}
-                  <span className="ml-1 text-lg font-light text-white/70">
-                    {'\u00B0'}C
-                  </span>
-                </p>
-                <p className="mt-2 text-sm uppercase tracking-[0.35em] text-white/60">
-                  {formattedDescription}
-                </p>
-                <p className="mt-6 text-sm font-medium uppercase tracking-[0.3em] text-white/45">
-                  {weather.city}
-                </p>
-              </div>
-            </>
-          ) : (
-            <p className="text-sm text-white/70">
-              No weather data yet. Refresh to fetch the latest details.
-            </p>
-          )}
-          {error && (
-            <p className="rounded-2xl border border-rose-400/40 bg-rose-500/20 px-4 py-3 text-sm text-rose-100">
-              {error}
-            </p>
-          )}
-        </div>
-      )}
+      ) : null}
     </section>
   )
 }
