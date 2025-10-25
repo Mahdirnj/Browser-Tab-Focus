@@ -48,6 +48,8 @@ export function SettingsPanel({
   backgrounds,
   selectedBackgroundId,
   onBackgroundSelect,
+  currentName,
+  onNameEditRequest,
 }) {
   const [open, setOpen] = useState(false)
   const panelRef = useRef(null)
@@ -271,6 +273,29 @@ export function SettingsPanel({
             </div>
 
             <div className="mt-5 space-y-5">
+              <section>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+                  Profile
+                </p>
+                <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/15 bg-white/5 px-4 py-3">
+                  <div className="text-left">
+                    <p className="text-xs uppercase tracking-[0.22em] text-white/45">
+                      Name
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-white/90">
+                      {currentName ? currentName : 'Not set'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onNameEditRequest?.()}
+                    className="rounded-full border border-white/20 bg-white/[0.12] px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/75 transition hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/35"
+                    disabled={!onNameEditRequest}
+                  >
+                    Edit
+                  </button>
+                </div>
+              </section>
               <section>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
                   Background

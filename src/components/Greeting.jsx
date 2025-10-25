@@ -11,7 +11,7 @@ function greetingForHour(date = new Date()) {
   return 'Good night'
 }
 
-export function Greeting() {
+export function Greeting({ editSignal = 0, onNameChange }) {
   const initialName =
     typeof window !== 'undefined'
       ? window.localStorage.getItem(USER_NAME_KEY) ?? ''
@@ -22,6 +22,7 @@ export function Greeting() {
   const [isEditing, setIsEditing] = useState(() => !initialName)
   const [greeting, setGreeting] = useState(() => greetingForHour())
   const inputRef = useRef(null)
+  const lastEditSignalRef = useRef(editSignal)
 
   useEffect(() => {
     if (!name) {
@@ -43,6 +44,22 @@ export function Greeting() {
     const id = window.setTimeout(() => inputRef.current?.focus(), 20)
     return () => window.clearTimeout(id)
   }, [isEditing])
+
+  useEffect(() => {
+    if (lastEditSignalRef.current !== editSignal) {
+      lastEditSignalRef.current = editSignal
+      setIsEditing(true)
+      const timeout = window.setTimeout(() => inputRef.current?.focus(), 20)
+      return () => window.clearTimeout(timeout)
+    }
+    return undefined
+  }, [editSignal])
+
+  useEffect(() => {
+    if (typeof onNameChange === 'function') {
+      onNameChange(name)
+    }
+  }, [name, onNameChange])
 
   const handleSubmit = () => {
     const trimmed = inputValue.trim()
@@ -90,13 +107,6 @@ export function Greeting() {
           <h1 className="bg-gradient-to-r from-white via-white/95 to-white/80 bg-clip-text text-4xl font-semibold text-transparent leading-tight drop-shadow-[0_12px_30px_rgba(15,23,42,0.4)] md:text-6xl md:leading-snug">
             {greeting}, {name}.
           </h1>
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="rounded-full border border-white/25 bg-white/[0.08] px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/70 transition hover:border-white/35 hover:text-white"
-          >
-            Change Name
-          </button>
         </>
       )}
     </section>

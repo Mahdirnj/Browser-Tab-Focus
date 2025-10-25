@@ -8,16 +8,24 @@ import { Weather } from './components/Weather'
 import SettingsPanel from './components/SettingsPanel'
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
+const USER_NAME_KEY = 'focus_dashboard_userName'
 
 function readStoredValue(key, fallback) {
   if (typeof window === 'undefined') return fallback
   return window.localStorage.getItem(key) ?? fallback
 }
 
+function readStoredName() {
+  if (typeof window === 'undefined') return ''
+  return window.localStorage.getItem(USER_NAME_KEY) ?? ''
+}
+
 function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
     readStoredValue(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
   )
+  const [nameEditSignal, setNameEditSignal] = useState(0)
+  const [userName, setUserName] = useState(() => readStoredName())
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -44,6 +52,10 @@ function App() {
         backgrounds={availableBackgrounds}
         selectedBackgroundId={activeBackground?.id ?? DEFAULT_BACKGROUND_ID}
         onBackgroundSelect={setBackgroundId}
+        onNameEditRequest={() =>
+          setNameEditSignal((current) => current + 1)
+        }
+        currentName={userName}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
@@ -51,7 +63,10 @@ function App() {
         >
           <header className="flex flex-col items-center gap-5 text-center">
             <Clock />
-            <Greeting />
+            <Greeting
+              editSignal={nameEditSignal}
+              onNameChange={setUserName}
+            />
             <SearchBar />
           </header>
         </div>
