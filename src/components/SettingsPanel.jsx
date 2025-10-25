@@ -257,7 +257,7 @@ export function SettingsPanel({
           <div
             id="settings-panel"
             ref={panelRef}
-            className="absolute right-0 top-full mt-3 w-80 rounded-3xl border border-white/15 bg-slate-900/80 p-5 text-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.95)] backdrop-blur-2xl"
+            className="absolute right-0 top-full mt-3 max-h-[92vh] w-80 rounded-3xl border border-white/15 bg-slate-900/80 p-4 text-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.95)] backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.28em]">
@@ -272,7 +272,7 @@ export function SettingsPanel({
               </button>
             </div>
 
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-5 overflow-y-auto pr-1 custom-scroll">
               <section>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
                   Profile
