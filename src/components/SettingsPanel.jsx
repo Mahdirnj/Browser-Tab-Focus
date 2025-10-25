@@ -52,12 +52,29 @@ export function SettingsPanel({
   onNameEditRequest,
   clockPosition = 'middle',
   onClockPositionChange,
+  widgetsEnabled,
+  onWidgetToggle,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
   const panelRef = useRef(null)
   const thumbnailCacheRef = useRef(new Map())
   const [thumbRevision, bumpThumbRevision] = useReducer((count) => count + 1, 0)
+  const widgetStates = useMemo(
+    () => ({
+      weather: widgetsEnabled?.weather !== false,
+      focus: widgetsEnabled?.focus !== false,
+    }),
+    [widgetsEnabled],
+  )
+
+  const handleWidgetToggle = useCallback(
+    (key) => {
+      const nextValue = !widgetStates[key]
+      onWidgetToggle?.(key, nextValue)
+    },
+    [onWidgetToggle, widgetStates],
+  )
 
   const openPanel = useCallback(() => {
     setVisible(true)
@@ -320,6 +337,74 @@ export function SettingsPanel({
                   >
                     Edit
                   </button>
+                </div>
+              </section>
+              <section>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+                  Widgets
+                </p>
+                <div className="mt-3 space-y-3">
+                  {[
+                    {
+                      id: 'weather',
+                      label: 'Weather',
+                      description: 'Shows current conditions for your selected city.',
+                    },
+                    {
+                      id: 'focus',
+                      label: 'Focus',
+                      description:
+                        'Keeps your single most important task for today, lets you mark it done, and clears automatically tomorrow.',
+                    },
+                  ].map((item) => {
+                    const enabled = widgetStates[item.id]
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3"
+                      >
+                        <div className="flex items-center gap-2 text-left">
+                          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+                            {item.label}
+                          </p>
+                          <span className="group relative inline-flex h-4 w-4 items-center justify-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.4"
+                              className="h-4 w-4 text-white/65"
+                            >
+                              <circle cx="10" cy="10" r="8" strokeOpacity="0.5" />
+                              <circle cx="10" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+                              <path d="M10 9v4.6" strokeLinecap="round" />
+                            </svg>
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-52 -translate-x-1/2 rounded-xl border border-white/15 bg-slate-900/95 px-3 py-2 text-[0.6rem] text-white/75 opacity-0 shadow-lg transition duration-200 group-hover:opacity-100">
+                              {item.description}
+                            </span>
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleWidgetToggle(item.id)}
+                          role="switch"
+                          aria-checked={enabled}
+                          className={`relative inline-flex h-7 w-14 items-center rounded-full border px-1 transition-colors duration-200 ${
+                            enabled
+                              ? 'border-sky-200 bg-sky-400/80'
+                              : 'border-white/20 bg-white/10'
+                          }`}
+                        >
+                          <span
+                            className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                              enabled ? 'translate-x-7' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    )
+                  })}
                 </div>
               </section>
               <section>

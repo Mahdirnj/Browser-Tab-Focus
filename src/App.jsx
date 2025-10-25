@@ -5,11 +5,18 @@ import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
 import { Weather } from './components/Weather'
+import { Focus } from './components/Focus'
 import SettingsPanel from './components/SettingsPanel'
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
 const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_POSITION_KEY = 'focus_dashboard_clockPosition'
+const WIDGETS_KEY = 'focus_dashboard_widgets'
+
+const DEFAULT_WIDGET_SETTINGS = {
+  weather: true,
+  focus: true,
+}
 
 function readStoredValue(key, fallback) {
   if (typeof window === 'undefined') return fallback
@@ -26,6 +33,22 @@ function readStoredClockPosition() {
   return window.localStorage.getItem(CLOCK_POSITION_KEY) ?? 'middle'
 }
 
+function readStoredWidgets() {
+  if (typeof window === 'undefined') return DEFAULT_WIDGET_SETTINGS
+  try {
+    const raw = window.localStorage.getItem(WIDGETS_KEY)
+    if (!raw) return DEFAULT_WIDGET_SETTINGS
+    const parsed = JSON.parse(raw)
+    return {
+      ...DEFAULT_WIDGET_SETTINGS,
+      ...(parsed ?? {}),
+    }
+  } catch (error) {
+    console.warn('Unable to parse stored widget settings', error)
+    return DEFAULT_WIDGET_SETTINGS
+  }
+}
+
 function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
     readStoredValue(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
@@ -34,6 +57,9 @@ function App() {
   const [userName, setUserName] = useState(() => readStoredName())
   const [clockPosition, setClockPosition] = useState(() =>
     readStoredClockPosition(),
+  )
+  const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
+    readStoredWidgets(),
   )
 
   useEffect(() => {
@@ -46,6 +72,11 @@ function App() {
     window.localStorage.setItem(CLOCK_POSITION_KEY, clockPosition)
   }, [clockPosition])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(WIDGETS_KEY, JSON.stringify(widgetsEnabled))
+  }, [widgetsEnabled])
+
   const availableBackgrounds = backgroundOptions
   const activeBackground = useMemo(() => {
     return (
@@ -55,6 +86,15 @@ function App() {
   }, [availableBackgrounds, backgroundId])
 
   const panelClasses = 'text-white'
+  const toggleWidget = (key, value) => {
+    setWidgetsEnabled((current) => ({
+      ...current,
+      [key]: value,
+    }))
+  }
+  const showWeather = widgetsEnabled.weather !== false
+  const showFocus = widgetsEnabled.focus !== false
+  const showUtilityColumn = showWeather || showFocus
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -66,9 +106,12 @@ function App() {
           </div>
         </div>
       ) : null}
-      <div className="absolute left-6 top-6 z-20">
-        <Weather />
-      </div>
+      {showUtilityColumn ? (
+        <div className="absolute left-6 top-6 z-20 space-y-3">
+          {showWeather ? <Weather /> : null}
+          {showFocus ? <Focus /> : null}
+        </div>
+      ) : null}
       <SettingsPanel
         backgrounds={availableBackgrounds}
         selectedBackgroundId={activeBackground?.id ?? DEFAULT_BACKGROUND_ID}
@@ -79,6 +122,8 @@ function App() {
         currentName={userName}
         clockPosition={clockPosition}
         onClockPositionChange={setClockPosition}
+        widgetsEnabled={widgetsEnabled}
+        onWidgetToggle={toggleWidget}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
