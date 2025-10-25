@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 const TODOS_KEY = 'focus_dashboard_todos'
 const MAX_TODOS = 5
@@ -37,12 +38,21 @@ function CheckIcon({ active }) {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
       fill="none"
-      className={`h-3 w-3 stroke-[3] ${active ? 'stroke-white' : 'stroke-transparent'}`}
+      stroke="currentColor"
+      className="h-3 w-3 text-white/95"
     >
       <polyline
         points="4 10.5 8 14.5 16 6.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="2.6"
+        strokeDasharray="16"
+        strokeDashoffset={active ? 0 : 16}
+        opacity={active ? 1 : 0}
+        style={{
+          transition:
+            'stroke-dashoffset 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease-out',
+        }}
       />
     </svg>
   )
@@ -69,12 +79,17 @@ function TrashIcon() {
 }
 
 const CARD_CLASSES =
-  'flex h-95 w-48 flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/12 p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-2xl transition duration-300 hover:border-white/30'
+  'flex h-90 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
 export function TodoList() {
   const [todos, setTodos] = useState(() => readStoredTodos())
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
+  const [listParent] = useAutoAnimate({
+    duration: 280,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    respectReducedMotion: true,
+  })
 
   useEffect(() => {
     if (!todos.length) {
@@ -103,7 +118,6 @@ export function TodoList() {
     () => [...pendingTodos, ...completedTodos],
     [pendingTodos, completedTodos],
   )
-
   const maxTodosReached = orderedTodos.length >= MAX_TODOS
 
   const handleInputKeyDown = (event) => {
@@ -149,20 +163,24 @@ export function TodoList() {
 
       <div className="mt-3 flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/5">
         <div className="custom-scroll flex-1 overflow-y-scroll px-1 py-2">
-          {orderedTodos.length ? (
-            <ul className="space-y-2">
-              {orderedTodos.map((todo) => {
+          <ul
+            ref={listParent}
+            className="flex min-h-full flex-col gap-2 list-none"
+          >
+            {orderedTodos.length ? (
+              orderedTodos.map((todo) => {
                 const completed = todo.completed
                 return (
                   <li
                     key={todo.id}
-                    className="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-white/90 transition hover:border-white/25 hover:bg-white/[0.12]"
+                    data-completed={completed ? 'true' : 'false'}
+                    className="todo-item group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-white/90 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-white/25 hover:bg-white/[0.12]"
                   >
                     <button
                       type="button"
                       onClick={() => toggleTodo(todo.id)}
                       aria-pressed={completed}
-                      className={`flex h-6 w-6 items-center justify-center rounded-full border transition ${
+                      className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
                         completed
                           ? 'border-sky-200 bg-sky-500/80 shadow-[0_12px_25px_-15px_rgba(56,189,248,0.9)]'
                           : 'border-white/30 bg-transparent hover:border-white/45'
@@ -176,8 +194,8 @@ export function TodoList() {
                       <CheckIcon active={completed} />
                     </button>
                     <p
-                      className={`flex-1 text-xs font-medium ${
-                        completed ? 'text-white/55 line-through' : ''
+                      className={`flex-1 text-xs font-medium transition-colors duration-300 ease-out ${
+                        completed ? 'text-white/55 line-through' : 'text-white/90'
                       }`}
                     >
                       {todo.text}
@@ -185,20 +203,23 @@ export function TodoList() {
                     <button
                       type="button"
                       onClick={() => deleteTodo(todo.id)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border border-white/15 text-white/45 opacity-0 transition group-hover:opacity-100 hover:border-rose-200/60 hover:text-rose-200/90"
+                      className="flex h-6 w-6 items-center justify-center rounded-full border border-white/15 text-white/45 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:border-rose-200/60 hover:text-rose-200/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200/60"
                       aria-label="Delete todo"
                     >
                       <TrashIcon />
                     </button>
                   </li>
                 )
-              })}
-            </ul>
-          ) : (
-            <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.04] px-4 py-6 text-center text-[0.6rem] text-white/55">
-              No todos yet. Add a task to keep it top of mind.
-            </div>
-          )}
+              })
+            ) : (
+              <li
+                key="empty-state"
+                className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.04] px-4 py-6 text-center text-[0.6rem] text-white/55"
+              >
+                No todos yet. Add a task to keep it top of mind.
+              </li>
+            )}
+          </ul>
         </div>
         <div className="border-t border-white/10 px-2 py-2">
           <input

@@ -51,3 +51,15 @@ body {
 .custom-scroll:hover::-webkit-scrollbar {
   opacity: 1;
 }
+
+.todo-item {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-item,
+  .todo-item button,
+  .todo-item p {
+    transition-duration: 0.001ms !important;
+  }
+}
