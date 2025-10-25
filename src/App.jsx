@@ -31,8 +31,7 @@ function App() {
     )
   }, [availableBackgrounds, backgroundId])
 
-  const panelClasses =
-    'text-white shadow-[0_35px_70px_-40px_rgba(10,18,42,0.85)]'
+  const panelClasses = 'text-white'
 
   return (
     <div className="relative min-h-screen overflow-hidden">
