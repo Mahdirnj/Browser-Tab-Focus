@@ -134,7 +134,7 @@ export function SearchBar() {
             </svg>
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full z-10 mt-2 w-44 rounded-2xl border border-white/15 bg-white/10 p-2 shadow-[0_25px_45px_-25px_rgba(15,23,42,0.75)] backdrop-blur-lg">
+            <div className="absolute right-0 top-full z-10 mt-2 w-44 rounded-2xl border border-white/20 bg-slate-900/25 p-2 shadow-[0_25px_55px_-25px_rgba(15,23,42,0.95)] backdrop-blur-3xl">
               <ul className="space-y-1">
                 {SEARCH_ENGINES.filter((item) => item.id !== engine.id).map(
                   (item) => (
