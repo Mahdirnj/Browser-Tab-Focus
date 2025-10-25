@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export function SearchBar({ theme = 'dark' }) {
+export function SearchBar() {
   const [query, setQuery] = useState('')
 
   const handleSubmit = (event) => {
@@ -11,18 +11,12 @@ export function SearchBar({ theme = 'dark' }) {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
-  const isLight = theme === 'light'
-
   return (
     <form
       onSubmit={handleSubmit}
-      className={`mx-auto flex w-full max-w-2xl items-center rounded-full border pl-5 pr-2 shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-2xl focus-within:border-white/30 ${
-        isLight
-          ? 'border-slate-900/10 bg-white/80 focus-within:bg-white/90'
-          : 'border-white/15 bg-white/10 focus-within:bg-white/15'
-      }`}
+      className="mx-auto flex w-full max-w-2xl items-center rounded-full border border-white/15 bg-white/10 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-2xl focus-within:border-white/30 focus-within:bg-white/15"
     >
-      <span className={isLight ? 'text-slate-500' : 'text-white/60'}>
+      <span className="text-white/60">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -40,19 +34,11 @@ export function SearchBar({ theme = 'dark' }) {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search Google or type a URL"
-        className={`flex-1 bg-transparent px-4 py-3 text-base focus:outline-none ${
-          isLight
-            ? 'text-slate-900 placeholder:text-slate-500'
-            : 'text-white placeholder:text-white/50'
-        }`}
+        className="flex-1 bg-transparent px-4 py-3 text-base text-white placeholder:text-white/50 focus:outline-none"
       />
       <button
         type="submit"
-        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-          isLight
-            ? 'bg-slate-900 text-white hover:bg-slate-800'
-            : 'bg-white text-slate-900 hover:bg-slate-100'
-        }`}
+        className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
       >
         Search
       </button>

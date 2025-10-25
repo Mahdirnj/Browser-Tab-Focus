@@ -12,12 +12,6 @@
   --body-text: #f8fafc;
 }
 
-:root[data-theme='light'] {
-  color-scheme: light;
-  --body-bg: #f1f5f9;
-  --body-text: #0f172a;
-}
-
 html,
 body,
 #root {
