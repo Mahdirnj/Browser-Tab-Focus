@@ -28,11 +28,33 @@ const SEARCH_ENGINES = [
   },
 ]
 
+const SEARCH_BUTTON_ANIMATION_STYLE_ID = 'search-button-animations'
+
+function ensureSearchButtonAnimations() {
+  if (typeof document === 'undefined') return
+  if (document.getElementById(SEARCH_BUTTON_ANIMATION_STYLE_ID)) return
+
+  const style = document.createElement('style')
+  style.id = SEARCH_BUTTON_ANIMATION_STYLE_ID
+  style.textContent = `
+@keyframes searchBeamHue {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(180deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+`
+  document.head.appendChild(style)
+}
+
 export function SearchBar() {
   const [query, setQuery] = useState('')
   const [engine, setEngine] = useState(SEARCH_ENGINES[0])
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+
+  useEffect(() => {
+    ensureSearchButtonAnimations()
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -132,12 +154,7 @@ export function SearchBar() {
             </div>
           )}
         </div>
-        <button
-          type="submit"
-          className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-        >
-          Search
-        </button>
+        <SearchButton />
       </div>
     </form>
   )
@@ -231,6 +248,25 @@ function SearchEngineIcon({ type, className }) {
         </svg>
       )
   }
+}
+
+function SearchButton() {
+  return (
+    <button
+      type="submit"
+      className="group relative overflow-hidden rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
+    >
+      <span className="relative z-10">Search</span>
+      <span
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-90 blur-[2px]"
+        style={{ filter: 'hue-rotate(0deg)' }}
+      />
+      <span
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-90"
+        style={{ animation: 'searchBeamHue 4.5s linear infinite' }}
+      />
+    </button>
+  )
 }
 
 export default SearchBar
