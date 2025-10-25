@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 const TODOS_KEY = 'focus_dashboard_todos'
@@ -85,11 +85,59 @@ export function TodoList() {
   const [todos, setTodos] = useState(() => readStoredTodos())
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
-  const [listParent] = useAutoAnimate({
-    duration: 280,
-    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-    respectReducedMotion: true,
-  })
+  const smoothListAnimations = useCallback((el, action, newCoords, oldCoords) => {
+    if (typeof KeyframeEffect === 'undefined') return undefined
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (prefersReducedMotion) return undefined
+
+    const baseEasing = 'cubic-bezier(0.22, 1, 0.36, 1)'
+
+    if (action === 'add') {
+      return new KeyframeEffect(
+        el,
+        [
+          { opacity: 0, transform: 'translateY(14px) scale(0.95)' },
+          { opacity: 1, transform: 'translateY(0) scale(1)' },
+        ],
+        { duration: 320, easing: baseEasing, fill: 'both' },
+      )
+    }
+
+    if (action === 'remove') {
+      return new KeyframeEffect(
+        el,
+        [
+          { opacity: 1, transform: 'translateY(0) scale(1)' },
+          { opacity: 0, transform: 'translateY(-12px) scale(0.94)' },
+        ],
+        { duration: 240, easing: 'cubic-bezier(0.33, 1, 0.68, 1)', fill: 'both' },
+      )
+    }
+
+    if (action === 'remain' && oldCoords && newCoords) {
+      const deltaX = oldCoords.left - newCoords.left
+      const deltaY = oldCoords.top - newCoords.top
+
+      if (deltaX || deltaY) {
+        return new KeyframeEffect(
+          el,
+          [
+            { transform: `translate(${deltaX}px, ${deltaY}px)` },
+            { transform: 'translate(0, 0)' },
+          ],
+          { duration: 360, easing: baseEasing, fill: 'both' },
+        )
+      }
+    }
+
+    return undefined
+  }, [])
+  const [listParent] = useAutoAnimate(smoothListAnimations)
 
   useEffect(() => {
     if (!todos.length) {
@@ -126,14 +174,13 @@ export function TodoList() {
     const trimmed = inputValue.trim()
     if (!trimmed || maxTodosReached) return
 
-    setTodos((current) => [
-      ...current,
-      {
-        id: createId(),
-        text: trimmed,
-        completed: false,
-      },
-    ])
+    const newTodo = {
+      id: createId(),
+      text: trimmed,
+      completed: false,
+    }
+
+    setTodos((current) => [...current, newTodo])
     setInputValue('')
   }
 
@@ -161,7 +208,7 @@ export function TodoList() {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/5">
+      <div className="mt-3 flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/15">
         <div className="custom-scroll flex-1 overflow-y-scroll px-1 py-2">
           <ul
             ref={listParent}
@@ -182,7 +229,7 @@ export function TodoList() {
                       aria-pressed={completed}
                       className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
                         completed
-                          ? 'border-sky-200 bg-sky-500/80 shadow-[0_12px_25px_-15px_rgba(56,189,248,0.9)]'
+                          ? 'border-emerald-200 bg-emerald-500/80 shadow-[0_12px_25px_-15px_rgba(16,185,129,0.9)]'
                           : 'border-white/30 bg-transparent hover:border-white/45'
                       }`}
                       aria-label={
