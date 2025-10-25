@@ -5,7 +5,7 @@ import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
 import { Weather } from './components/Weather'
-import { Focus } from './components/Focus'
+import { TodoList } from './components/TodoList'
 import SettingsPanel from './components/SettingsPanel'
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
@@ -15,7 +15,7 @@ const WIDGETS_KEY = 'focus_dashboard_widgets'
 
 const DEFAULT_WIDGET_SETTINGS = {
   weather: true,
-  focus: true,
+  todo: true,
 }
 
 function readStoredValue(key, fallback) {
@@ -93,8 +93,8 @@ function App() {
     }))
   }
   const showWeather = widgetsEnabled.weather !== false
-  const showFocus = widgetsEnabled.focus !== false
-  const showUtilityColumn = showWeather || showFocus
+  const showTodo = widgetsEnabled.todo !== false
+  const showUtilityColumn = showWeather || showTodo
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -109,7 +109,7 @@ function App() {
       {showUtilityColumn ? (
         <div className="absolute left-6 top-6 z-20 space-y-3">
           {showWeather ? <Weather /> : null}
-          {showFocus ? <Focus /> : null}
+          {showTodo ? <TodoList /> : null}
         </div>
       ) : null}
       <SettingsPanel

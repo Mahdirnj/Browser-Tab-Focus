@@ -63,7 +63,7 @@ export function SettingsPanel({
   const widgetStates = useMemo(
     () => ({
       weather: widgetsEnabled?.weather !== false,
-      focus: widgetsEnabled?.focus !== false,
+      todo: widgetsEnabled?.todo !== false,
     }),
     [widgetsEnabled],
   )
@@ -351,10 +351,10 @@ export function SettingsPanel({
                       description: 'Shows current conditions for your selected city.',
                     },
                     {
-                      id: 'focus',
-                      label: 'Focus',
+                      id: 'todo',
+                      label: 'Todo List',
                       description:
-                        'Keeps your single most important task for today, lets you mark it done, and clears automatically tomorrow.',
+                        'Track and complete multiple tasks. Items persist locally until you clear them.',
                     },
                   ].map((item) => {
                     const enabled = widgetStates[item.id]
@@ -390,11 +390,12 @@ export function SettingsPanel({
                           onClick={() => handleWidgetToggle(item.id)}
                           role="switch"
                           aria-checked={enabled}
+                          disabled={!onWidgetToggle}
                           className={`relative inline-flex h-7 w-14 items-center rounded-full border px-1 transition-colors duration-200 ${
                             enabled
                               ? 'border-sky-200 bg-sky-400/80'
                               : 'border-white/20 bg-white/10'
-                          }`}
+                          } ${!onWidgetToggle ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                           <span
                             className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
