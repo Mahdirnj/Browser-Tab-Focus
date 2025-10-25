@@ -258,11 +258,11 @@ function SearchButton() {
     >
       <span className="relative z-10">Search</span>
       <span
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-90 blur-[2px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-80 blur-[3px]"
         style={{ filter: 'hue-rotate(0deg)' }}
       />
       <span
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-90"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] rounded-full bg-gradient-to-r from-pink-400 via-indigo-400 to-sky-300 opacity-95"
         style={{ animation: 'searchBeamHue 4.5s linear infinite' }}
       />
     </button>
