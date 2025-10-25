@@ -14,7 +14,7 @@ export function SearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex w-full max-w-2xl items-center rounded-full border border-white/15 bg-white/10 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-2xl focus-within:border-white/30 focus-within:bg-white/15"
+      className="mx-auto flex w-full max-w-2xl items-center rounded-full bg-white/10 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm focus-within:bg-white/15 focus-within:backdrop-blur-md"
     >
       <span className="text-white/60">
         <svg
