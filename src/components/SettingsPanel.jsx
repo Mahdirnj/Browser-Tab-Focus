@@ -3,13 +3,18 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
 } from 'react'
 
+const THUMB_MAX_WIDTH = 320
+const THUMB_MAX_HEIGHT = 190
+const THUMB_QUALITY = 0.72
+
 const BackgroundOption = memo(function BackgroundOption({
   label,
-  url,
+  thumbnailUrl,
   isSelected,
   onSelect,
 }) {
@@ -24,7 +29,7 @@ const BackgroundOption = memo(function BackgroundOption({
       aria-pressed={isSelected}
     >
       <img
-        src={url}
+        src={thumbnailUrl}
         alt=""
         loading="lazy"
         decoding="async"
@@ -46,7 +51,8 @@ export function SettingsPanel({
 }) {
   const [open, setOpen] = useState(false)
   const panelRef = useRef(null)
-  const preloadedRef = useRef(new Set())
+  const thumbnailCacheRef = useRef(new Map())
+  const [thumbRevision, bumpThumbRevision] = useReducer((count) => count + 1, 0)
 
   const toggleOpen = useCallback(() => {
     setOpen((prev) => !prev)
@@ -80,31 +86,126 @@ export function SettingsPanel({
     if (typeof window === 'undefined') return
     if (!backgrounds.length) return
 
+    const cache = thumbnailCacheRef.current
+    const pending = backgrounds.filter((item) => !cache.has(item.id))
+    if (!pending.length) return
+
     let cancelled = false
-    const preload = () => {
-      backgrounds.forEach((item) => {
-        if (cancelled || preloadedRef.current.has(item.id)) return
+
+    const createThumbnail = async (item) => {
+      if (thumbnailCacheRef.current.has(item.id)) {
+        return thumbnailCacheRef.current.get(item.id)
+      }
+
+      const drawBitmapToCanvas = (bitmap) => {
+        if (!bitmap) return null
+        const scale = Math.min(
+          1,
+          THUMB_MAX_WIDTH / bitmap.width,
+          THUMB_MAX_HEIGHT / bitmap.height,
+        )
+        const targetWidth = Math.max(1, Math.round(bitmap.width * scale))
+        const targetHeight = Math.max(1, Math.round(bitmap.height * scale))
+        const canvas = document.createElement('canvas')
+        canvas.width = targetWidth
+        canvas.height = targetHeight
+        const context = canvas.getContext('2d', { alpha: true })
+        if (!context) return null
+        context.drawImage(bitmap, 0, 0, targetWidth, targetHeight)
+        if (typeof bitmap.close === 'function') {
+          bitmap.close()
+        }
+        return canvas.toDataURL('image/webp', THUMB_QUALITY)
+      }
+
+      try {
+        if (typeof window.fetch === 'function' && 'createImageBitmap' in window) {
+          const response = await fetch(item.url)
+          if (!response.ok) throw new Error('Failed to fetch image')
+          const blob = await response.blob()
+          const bitmap = await window.createImageBitmap(blob, {
+            resizeWidth: THUMB_MAX_WIDTH,
+          })
+          return drawBitmapToCanvas(bitmap)
+        }
+      } catch {
+        // Ignore and try fallback
+      }
+
+      return new Promise((resolve) => {
         const image = new Image()
+        image.decoding = 'async'
+        image.crossOrigin = 'anonymous'
         image.src = item.url
-        const decode = image.decode ? image.decode() : Promise.resolve()
-        decode
-          .catch(() => null)
-          .finally(() => preloadedRef.current.add(item.id))
+
+        const cleanup = () => {
+          image.onload = null
+          image.onerror = null
+        }
+
+        image.onload = () => {
+          const scale = Math.min(
+            1,
+            THUMB_MAX_WIDTH / image.naturalWidth,
+            THUMB_MAX_HEIGHT / image.naturalHeight,
+          )
+          const targetWidth = Math.max(1, Math.round(image.naturalWidth * scale))
+          const targetHeight = Math.max(
+            1,
+            Math.round(image.naturalHeight * scale),
+          )
+          const canvas = document.createElement('canvas')
+          canvas.width = targetWidth
+          canvas.height = targetHeight
+          const context = canvas.getContext('2d', { alpha: true })
+          if (!context) {
+            cleanup()
+            resolve(null)
+            return
+          }
+          context.drawImage(image, 0, 0, targetWidth, targetHeight)
+          const dataUrl = canvas.toDataURL('image/webp', THUMB_QUALITY)
+          cleanup()
+          resolve(dataUrl)
+        }
+
+        image.onerror = () => {
+          cleanup()
+          resolve(null)
+        }
       })
     }
 
-    const requestIdle =
-      window.requestIdleCallback ?? ((cb) => window.setTimeout(cb, 180))
-    const cancelIdle =
-      window.cancelIdleCallback ?? ((handle) => window.clearTimeout(handle))
+    const processQueue = async () => {
+      for (const item of pending) {
+        if (cancelled) break
+        try {
+          const result = await createThumbnail(item)
+          if (cancelled || !result) continue
+          if (!thumbnailCacheRef.current.has(item.id)) {
+            thumbnailCacheRef.current.set(item.id, result)
+            bumpThumbRevision()
+          }
+        } catch {
+          // Swallow errors; fall back to full asset
+        }
+      }
+    }
 
-    const handle = requestIdle(preload)
+    const schedule =
+      typeof window.requestIdleCallback === 'function'
+        ? window.requestIdleCallback(processQueue)
+        : window.setTimeout(processQueue, 120)
 
     return () => {
       cancelled = true
-      cancelIdle(handle)
+      if (typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(schedule)
+      } else {
+        window.clearTimeout(schedule)
+      }
     }
-  }, [backgrounds])
+  }, [backgrounds, bumpThumbRevision])
 
   const backgroundItems = useMemo(
     () =>
@@ -113,8 +214,9 @@ export function SettingsPanel({
         label: item.label,
         url: item.url,
         isSelected: selectedBackgroundId === item.id,
+        thumbnailUrl: thumbnailCacheRef.current.get(item.id) ?? item.url,
       })),
-    [backgrounds, selectedBackgroundId],
+    [backgrounds, selectedBackgroundId, thumbRevision],
   )
 
   return (
@@ -178,7 +280,7 @@ export function SettingsPanel({
                     <BackgroundOption
                       key={item.id}
                       label={item.label}
-                      url={item.url}
+                      thumbnailUrl={item.thumbnailUrl}
                       isSelected={item.isSelected}
                       onSelect={() => handleBackgroundSelect(item.id)}
                     />
