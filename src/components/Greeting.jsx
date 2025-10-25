@@ -66,7 +66,7 @@ export function Greeting() {
   return (
     <section className="flex flex-col items-center gap-4 text-center">
       {isEditing ? (
-        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/[0.12] p-6 text-white shadow-[0_45px_80px_-45px_rgba(11,20,45,0.85)] backdrop-blur-2xl">
+        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/[0.12] p-6 text-white shadow-[0_45px_80px_-45px_rgba(11,20,45,0.85)] backdrop-blur-sm">
           <label
             htmlFor="user-name"
             className="block text-[0.7rem] font-semibold uppercase tracking-[0.45em] text-white/60"
