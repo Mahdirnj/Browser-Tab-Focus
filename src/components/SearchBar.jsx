@@ -28,7 +28,7 @@ const SEARCH_ENGINES = [
   },
 ]
 
-const SEARCH_BUTTON_ANIMATION_STYLE_ID = 'search-button-animations'
+const SEARCH_BUTTON_ANIMATION_STYLE_ID = 'search-enhancement-animations'
 
 function ensureSearchButtonAnimations() {
   if (typeof document === 'undefined') return
@@ -41,6 +41,20 @@ function ensureSearchButtonAnimations() {
   0% { filter: hue-rotate(0deg); }
   50% { filter: hue-rotate(180deg); }
   100% { filter: hue-rotate(360deg); }
+}
+@keyframes searchMenuReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 `
   document.head.appendChild(style)
@@ -89,7 +103,7 @@ export function SearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex w-full max-w-2xl items-center rounded-full bg-white/10 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm focus-within:bg-white/15 focus-within:backdrop-blur-md"
+      className="mx-auto flex w-full max-w-2xl items-center rounded-full bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter] duration-500 ease-out focus-within:bg-white/20 focus-within:backdrop-blur-[14px]"
     >
       <span className="text-white/60">
         <svg
@@ -134,7 +148,12 @@ export function SearchBar() {
             </svg>
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full z-10 mt-2 w-44 rounded-2xl border border-white/20 bg-slate-900/25 p-2 shadow-[0_25px_55px_-25px_rgba(15,23,42,0.95)] backdrop-blur-3xl">
+            <div
+              className="absolute right-0 top-full z-10 mt-2 w-44 origin-top-right rounded-2xl border border-white/25 bg-slate-900/30 p-2 shadow-[0_35px_60px_-25px_rgba(15,23,42,0.9)] backdrop-blur-3xl"
+              style={{
+                animation: 'searchMenuReveal 220ms cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            >
               <ul className="space-y-1">
                 {SEARCH_ENGINES.filter((item) => item.id !== engine.id).map(
                   (item) => (
