@@ -50,19 +50,35 @@ export function SettingsPanel({
   onBackgroundSelect,
   currentName,
   onNameEditRequest,
+  clockPosition = 'middle',
+  onClockPositionChange,
 }) {
   const [open, setOpen] = useState(false)
+  const [visible, setVisible] = useState(false)
   const panelRef = useRef(null)
   const thumbnailCacheRef = useRef(new Map())
   const [thumbRevision, bumpThumbRevision] = useReducer((count) => count + 1, 0)
 
-  const toggleOpen = useCallback(() => {
-    setOpen((prev) => !prev)
+  const openPanel = useCallback(() => {
+    setVisible(true)
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => setOpen(true))
+    } else {
+      setOpen(true)
+    }
   }, [])
 
   const closePanel = useCallback(() => {
     setOpen(false)
   }, [])
+
+  const toggleOpen = useCallback(() => {
+    if (open) {
+      closePanel()
+    } else {
+      openPanel()
+    }
+  }, [open, closePanel, openPanel])
 
   const handleBackgroundSelect = useCallback(
     (id) => {
@@ -72,7 +88,7 @@ export function SettingsPanel({
   )
 
   useEffect(() => {
-    if (!open) return
+    if (!visible) return
 
     const handleClick = (event) => {
       if (!panelRef.current?.contains(event.target)) {
@@ -82,7 +98,7 @@ export function SettingsPanel({
 
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
-  }, [open])
+  }, [visible])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -253,11 +269,21 @@ export function SettingsPanel({
           </svg>
         </button>
 
-        {open && (
+        {visible && (
           <div
             id="settings-panel"
             ref={panelRef}
-            className="absolute right-0 top-full mt-3 max-h-[92vh] w-80 rounded-3xl border border-white/15 bg-slate-900/80 p-4 text-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.95)] backdrop-blur-2xl"
+            className={`absolute right-0 top-full mt-3 h-[84vh] w-80 rounded-3xl border border-white/15 bg-slate-900/80 p-4 text-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.95)] backdrop-blur-2xl flex flex-col transform transition-all duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${
+              open
+                ? 'pointer-events-auto scale-100 opacity-100 translate-y-0'
+                : 'pointer-events-none scale-[0.97] opacity-0 translate-y-2'
+            }`}
+            onTransitionEnd={(event) => {
+              if (event.target !== event.currentTarget) return
+              if (!open) {
+                setVisible(false)
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.28em]">
@@ -272,7 +298,7 @@ export function SettingsPanel({
               </button>
             </div>
 
-            <div className="mt-4 space-y-5 overflow-y-auto pr-1 custom-scroll">
+            <div className="mt-4 flex-1 space-y-5 overflow-y-scroll pr-1 custom-scroll">
               <section>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
                   Profile
@@ -294,6 +320,32 @@ export function SettingsPanel({
                   >
                     Edit
                   </button>
+                </div>
+              </section>
+              <section>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+                  Clock Position
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {['middle', 'top'].map((position) => {
+                    const isActive = clockPosition === position
+                    const label = position === 'middle' ? 'Middle' : 'Top'
+                    return (
+                      <button
+                        key={position}
+                        type="button"
+                        onClick={() => onClockPositionChange?.(position)}
+                        className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] transition ${
+                          isActive
+                            ? 'border-white/70 bg-white/20 text-white'
+                            : 'border-white/15 bg-white/5 text-white/65 hover:border-white/35 hover:text-white'
+                        }`}
+                        disabled={!onClockPositionChange}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
                 </div>
               </section>
               <section>
