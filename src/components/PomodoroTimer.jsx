@@ -157,8 +157,6 @@ export function PomodoroTimer({ isObscured = false }) {
   }, [startPhase])
 
 
-  const phaseLabel = phase === 'focus' ? 'Focus' : phase === 'longBreak' ? 'Long Break' : 'Break'
-
   const nextPhaseLabel = useMemo(() => {
     if (phase === 'focus') {
       const nextCount = cyclesCompleted + 1

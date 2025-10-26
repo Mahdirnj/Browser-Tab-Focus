@@ -262,7 +262,7 @@ export function SettingsPanel({
 
   return (
     <div className="absolute right-6 top-6 z-20">
-      <div className="relative">
+      <div className="relative inline-flex flex-col items-end">
         <button
           type="button"
           onClick={toggleOpen}
@@ -296,7 +296,7 @@ export function SettingsPanel({
           <div
             id="settings-panel"
             ref={panelRef}
-            className={`absolute right-0 top-full mt-3 h-[84vh] w-80 rounded-3xl border border-white/15 bg-slate-900/80 p-4 text-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.95)] backdrop-blur-2xl flex flex-col transform transition-all duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${
+            className={`absolute right-0 top-full mt-3 h-[84vh] w-80 overflow-hidden rounded-[30px] border border-white/20 bg-white/[0.08] p-[1.05rem] text-white shadow-[0_32px_70px_-38px_rgba(15,23,42,0.95)] backdrop-blur transition-all duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)] hover:border-white/30 hover:shadow-[0_42px_95px_-45px_rgba(15,23,42,0.95)] flex flex-col relative before:pointer-events-none before:absolute before:inset-0 before:rounded-[28px] before:bg-gradient-to-br before:from-white/[0.16] before:via-white/[0.05] before:to-transparent before:opacity-0 before:transition before:duration-300  ${
               open
                 ? 'pointer-events-auto scale-100 opacity-100 translate-y-0'
                 : 'pointer-events-none scale-[0.97] opacity-0 translate-y-2'
@@ -308,75 +308,75 @@ export function SettingsPanel({
               }
             }}
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.28em]">
+            <div className="relative z-[1] flex items-center justify-between rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 shadow-[0_22px_55px_-45px_rgba(15,23,42,0.95)]">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.32em] text-white/80">
                 Settings
               </h2>
               <button
                 type="button"
                 onClick={closePanel}
-                className="rounded-full border border-white/10 px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-white/70 transition hover:border-white/30 hover:text-white"
+                className="rounded-full border border-white/20 bg-white/[0.12] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.32em] text-white/80 transition hover:border-white/35 hover:text-white"
               >
                 Close
               </button>
             </div>
 
-            <div className="mt-4 flex-1 space-y-5 overflow-y-scroll pr-1 custom-scroll">
-              <section>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+            <div className="relative z-[1] mt-4 flex-1 space-y-5 overflow-y-scroll pr-1 custom-scroll">
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
                   Profile
                 </p>
-                <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/15 bg-white/5 px-4 py-3">
+                <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-white/[0.1] px-4 py-3">
                   <div className="text-left">
-                    <p className="text-xs uppercase tracking-[0.22em] text-white/45">
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/55">
                       Name
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-white/90">
+                    <p className="mt-1 text-sm font-semibold text-white">
                       {currentName ? currentName : 'Not set'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onNameEditRequest?.()}
-                    className="rounded-full border border-white/20 bg-white/[0.12] px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/75 transition hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/35"
+                    className="rounded-full border border-white/25 bg-white/[0.18] px-4 py-2 text-xs font-semibold uppercase tracking-[0.34em] text-white/80 transition hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/35"
                     disabled={!onNameEditRequest}
                   >
                     Edit
                   </button>
                 </div>
               </section>
-              <section>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
                   Widgets
                 </p>
                 <div className="mt-3 space-y-3">
                   {[
-                  {
-                    id: 'weather',
-                    label: 'Weather',
-                    description: 'Shows current conditions for your selected city.',
-                  },
-                  {
-                    id: 'todo',
-                    label: 'Todo List',
-                    description:
-                      'Track and complete multiple tasks. Items persist locally until you clear them.',
-                  },
-                  {
-                    id: 'pomodoro',
-                    label: 'Pomodoro',
-                    description:
-                      'Guides you through focus and break cycles. Timer runs locally and resets anytime you need.',
-                  },
-                ].map((item) => {
+                    {
+                      id: 'weather',
+                      label: 'Weather',
+                      description: 'Shows current conditions for your selected city.',
+                    },
+                    {
+                      id: 'todo',
+                      label: 'Todo List',
+                      description:
+                        'Track and complete multiple tasks. Items persist locally until you clear them.',
+                    },
+                    {
+                      id: 'pomodoro',
+                      label: 'Pomodoro',
+                      description:
+                        'Guides you through focus and break cycles. Timer runs locally and resets anytime you need.',
+                    },
+                  ].map((item) => {
                     const enabled = widgetStates[item.id]
                     return (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3"
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/[0.1] px-4 py-3 shadow-[0_24px_55px_-48px_rgba(15,23,42,0.95)]"
                       >
                         <div className="flex items-center gap-2 text-left">
-                          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+                          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/75">
                             {item.label}
                           </p>
                           <span className="group relative inline-flex h-4 w-4 items-center justify-center">
@@ -392,7 +392,7 @@ export function SettingsPanel({
                               <circle cx="10" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
                               <path d="M10 9v4.6" strokeLinecap="round" />
                             </svg>
-                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-52 -translate-x-1/2 rounded-xl border border-white/15 bg-slate-900/95 px-3 py-2 text-[0.6rem] text-white/75 opacity-0 shadow-lg transition duration-200 group-hover:opacity-100">
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-52 -translate-x-1/2 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-[0.6rem] text-white/80 opacity-0 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.95)] backdrop-blur-2xl transition duration-200 group-hover:opacity-100">
                               {item.description}
                             </span>
                           </span>
@@ -405,13 +405,13 @@ export function SettingsPanel({
                           disabled={!onWidgetToggle}
                           className={`relative inline-flex h-7 w-14 items-center rounded-full border px-1 transition-colors duration-200 ${
                             enabled
-                              ? 'border-sky-200 bg-sky-400/80'
-                              : 'border-white/20 bg-white/10'
+                              ? 'border-emerald-200/80 bg-emerald-400/85'
+                              : 'border-white/20 bg-white/12'
                           } ${!onWidgetToggle ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                           <span
-                            className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                              enabled ? 'translate-x-7' : 'translate-x-0'
+                            className={`block h-5 w-5 rounded-full bg-white shadow-[0_12px_20px_-10px_rgba(148,163,184,0.9)] transition-transform duration-200 ease-out ${
+                              enabled ? 'translate-x-7 bg-white' : 'translate-x-0'
                             }`}
                           />
                         </button>
@@ -420,8 +420,8 @@ export function SettingsPanel({
                   })}
                 </div>
               </section>
-              <section>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
                   Clock Position
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -435,8 +435,8 @@ export function SettingsPanel({
                         onClick={() => onClockPositionChange?.(position)}
                         className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] transition ${
                           isActive
-                            ? 'border-white/70 bg-white/20 text-white'
-                            : 'border-white/15 bg-white/5 text-white/65 hover:border-white/35 hover:text-white'
+                            ? 'border-emerald-200/80 bg-emerald-400/25 text-white shadow-[0_18px_38px_-30px_rgba(16,185,129,0.85)]'
+                            : 'border-white/20 bg-white/10 text-white/70 hover:border-white/35 hover:text-white'
                         }`}
                         disabled={!onClockPositionChange}
                       >
@@ -446,8 +446,8 @@ export function SettingsPanel({
                   })}
                 </div>
               </section>
-              <section>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
                   Background
                 </p>
                 <div className="mt-3 grid grid-cols-3 gap-2">
