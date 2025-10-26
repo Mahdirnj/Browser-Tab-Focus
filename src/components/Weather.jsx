@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const CITY_KEY = 'focus_dashboard_city'
 const WEATHER_CACHE_KEY = 'focus_dashboard_weatherCache'
@@ -493,6 +493,53 @@ export function Weather() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const fetchWeather = useCallback(
+    async (targetCity) => {
+      const nextCity = targetCity ?? city
+      if (!nextCity || !apiKey) return
+      setLoading(true)
+      setError('')
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(nextCity)}&units=metric&appid=${apiKey}`,
+        )
+
+        if (!response.ok) {
+          throw new Error('Unable to fetch weather for that city.')
+        }
+
+        const payload = await response.json()
+        const result = {
+          city: payload.name,
+          temp: Math.round(payload.main?.temp ?? 0),
+          description: payload.weather?.[0]?.description ?? '',
+          condition: payload.weather?.[0]?.main ?? '',
+          icon: payload.weather?.[0]?.icon ?? '',
+        }
+
+        setWeather(result)
+        window.localStorage.setItem(
+          WEATHER_CACHE_KEY,
+          JSON.stringify({
+            timestamp: Date.now(),
+            data: result,
+          }),
+        )
+      } catch (err) {
+        console.error(err)
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Something went wrong fetching the weather.',
+        )
+      } finally {
+        setLoading(false)
+      }
+    },
+    [apiKey, city],
+  )
+
   useEffect(() => {
     ensureWeatherAnimations()
   }, [])
@@ -519,50 +566,18 @@ export function Weather() {
     }
 
     fetchWeather(city)
-  }, [city, apiKey])
+  }, [city, apiKey, fetchWeather])
 
-  const fetchWeather = async (targetCity) => {
-    const nextCity = targetCity ?? city
-    if (!nextCity || !apiKey) return
-    setLoading(true)
-    setError('')
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    if (!city || !apiKey) return undefined
 
-    try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(nextCity)}&units=metric&appid=${apiKey}`,
-      )
+    const intervalId = window.setInterval(() => {
+      fetchWeather(city)
+    }, 5 * 60 * 1000)
 
-      if (!response.ok) {
-        throw new Error('Unable to fetch weather for that city.')
-      }
-
-      const payload = await response.json()
-      const result = {
-        city: payload.name,
-        temp: Math.round(payload.main?.temp ?? 0),
-        description: payload.weather?.[0]?.description ?? '',
-        condition: payload.weather?.[0]?.main ?? '',
-        icon: payload.weather?.[0]?.icon ?? '',
-      }
-
-      setWeather(result)
-      window.localStorage.setItem(
-        WEATHER_CACHE_KEY,
-        JSON.stringify({
-          timestamp: Date.now(),
-          data: result,
-        }),
-      )
-    } catch (err) {
-      console.error(err)
-      setError(
-        err instanceof Error ? err.message : 'Something went wrong fetching the weather.',
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
-
+    return () => window.clearInterval(intervalId)
+  }, [city, apiKey, fetchWeather])
   const handleCitySubmit = () => {
     const trimmed = inputValue.trim()
     if (!trimmed) return

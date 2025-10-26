@@ -65,9 +65,15 @@ export function SearchBar() {
   const [engine, setEngine] = useState(SEARCH_ENGINES[0])
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     ensureSearchButtonAnimations()
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    inputRef.current?.focus()
   }, [])
 
   useEffect(() => {
@@ -123,6 +129,7 @@ export function SearchBar() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder={`Search ${engine.label} or type a URL`}
+        ref={inputRef}
         className="flex-1 bg-transparent px-4 py-3 text-base text-white placeholder:text-white/50 focus:outline-none"
       />
       <div className="ml-1 flex items-center gap-1">
