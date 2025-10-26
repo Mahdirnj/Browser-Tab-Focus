@@ -54,6 +54,7 @@ export function SettingsPanel({
   onClockPositionChange,
   widgetsEnabled,
   onWidgetToggle,
+  onOpenChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -64,6 +65,7 @@ export function SettingsPanel({
     () => ({
       weather: widgetsEnabled?.weather !== false,
       todo: widgetsEnabled?.todo !== false,
+      pomodoro: widgetsEnabled?.pomodoro !== false,
     }),
     [widgetsEnabled],
   )
@@ -103,6 +105,10 @@ export function SettingsPanel({
     },
     [onBackgroundSelect],
   )
+
+  useEffect(() => {
+    onOpenChange?.(open)
+  }, [open, onOpenChange])
 
   useEffect(() => {
     if (!visible) return
@@ -345,18 +351,24 @@ export function SettingsPanel({
                 </p>
                 <div className="mt-3 space-y-3">
                   {[
-                    {
-                      id: 'weather',
-                      label: 'Weather',
-                      description: 'Shows current conditions for your selected city.',
-                    },
-                    {
-                      id: 'todo',
-                      label: 'Todo List',
-                      description:
-                        'Track and complete multiple tasks. Items persist locally until you clear them.',
-                    },
-                  ].map((item) => {
+                  {
+                    id: 'weather',
+                    label: 'Weather',
+                    description: 'Shows current conditions for your selected city.',
+                  },
+                  {
+                    id: 'todo',
+                    label: 'Todo List',
+                    description:
+                      'Track and complete multiple tasks. Items persist locally until you clear them.',
+                  },
+                  {
+                    id: 'pomodoro',
+                    label: 'Pomodoro',
+                    description:
+                      'Guides you through focus and break cycles. Timer runs locally and resets anytime you need.',
+                  },
+                ].map((item) => {
                     const enabled = widgetStates[item.id]
                     return (
                       <div

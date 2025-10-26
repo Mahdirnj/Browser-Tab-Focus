@@ -6,6 +6,7 @@ import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
 import { Weather } from './components/Weather'
 import { TodoList } from './components/TodoList'
+import { PomodoroTimer } from './components/PomodoroTimer'
 import SettingsPanel from './components/SettingsPanel'
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
@@ -16,6 +17,7 @@ const WIDGETS_KEY = 'focus_dashboard_widgets'
 const DEFAULT_WIDGET_SETTINGS = {
   weather: true,
   todo: true,
+  pomodoro: true,
 }
 
 function readStoredValue(key, fallback) {
@@ -61,6 +63,7 @@ function App() {
   const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
     readStoredWidgets(),
   )
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -94,6 +97,7 @@ function App() {
   }
   const showWeather = widgetsEnabled.weather !== false
   const showTodo = widgetsEnabled.todo !== false
+  const showPomodoro = widgetsEnabled.pomodoro !== false
   const showUtilityColumn = showWeather || showTodo
 
   return (
@@ -124,6 +128,7 @@ function App() {
         onClockPositionChange={setClockPosition}
         widgetsEnabled={widgetsEnabled}
         onWidgetToggle={toggleWidget}
+        onOpenChange={setSettingsOpen}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
@@ -143,6 +148,17 @@ function App() {
           </header>
         </div>
       </main>
+      {showPomodoro ? (
+        <div
+          className={`pointer-events-auto absolute bottom-6 right-6 z-10 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            settingsOpen
+              ? 'pointer-events-none translate-y-3 opacity-0'
+              : 'translate-y-0 opacity-100'
+          }`}
+        >
+          <PomodoroTimer isObscured={settingsOpen} />
+        </div>
+      ) : null}
     </div>
   )
 }
