@@ -147,11 +147,6 @@ export function TodoList() {
     window.localStorage.setItem(TODOS_KEY, JSON.stringify(todos))
   }, [todos])
 
-  useEffect(() => {
-    const id = window.setTimeout(() => inputRef.current?.focus(), 80)
-    return () => window.clearTimeout(id)
-  }, [])
-
   const pendingTodos = useMemo(
     () => todos.filter((todo) => !todo.completed),
     [todos],

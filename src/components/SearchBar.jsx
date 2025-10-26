@@ -73,7 +73,7 @@ export function SearchBar() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    inputRef.current?.focus()
+    window.setTimeout(() => inputRef.current?.focus(), 0)
   }, [])
 
   useEffect(() => {
