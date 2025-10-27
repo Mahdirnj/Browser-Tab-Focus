@@ -161,7 +161,7 @@ export function SearchBar() {
                 })
                 .filter(Boolean)
             : []
-          const nextSuggestions = phrases.slice(0, 8)
+        const nextSuggestions = phrases.slice(0, 4)
 
           setSuggestions(nextSuggestions)
           setSuggestionsOpen(nextSuggestions.length > 0)
@@ -372,12 +372,12 @@ export function SearchBar() {
       {isSuggestionPanelVisible && (
         <div
           id="search-suggestions-panel"
-          className="absolute inset-x-0 top-full z-40 mt-3"
+          className="absolute inset-x-0 top-full z-40 mt-3 px-1.5 sm:px-2"
           style={{
             animation: 'searchSuggestionsReveal 240ms cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          <div className="overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-white/18 via-white/10 to-white/5 text-sm text-white shadow-[0_45px_95px_-35px_rgba(15,23,42,0.85)] ring-1 ring-white/20 backdrop-blur-2xl">
+          <div className="overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-white/18 via-white/10 to-white/5 text-sm text-white shadow-[0_45px_95px_-35px_rgba(15,23,42,0.85)] ring-1 ring-white/20 backdrop-blur-md">
             {suggestions.length ? (
               <ul
                 id="search-suggestions-list"

@@ -306,7 +306,7 @@ export function SettingsPanel({
               if (!open) {
                 setVisible(false)
               }
-            }}
+            }} 
           >
             <div className="relative z-[1] flex items-center justify-between rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 shadow-[0_22px_55px_-45px_rgba(15,23,42,0.95)]">
               <h2 className="text-sm font-semibold uppercase tracking-[0.32em] text-white/80">
