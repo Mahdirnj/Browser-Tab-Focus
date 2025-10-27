@@ -56,6 +56,20 @@ function ensureSearchButtonAnimations() {
     transform: translateY(0) scale(1);
   }
 }
+@keyframes searchSuggestionsReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 `
   document.head.appendChild(style)
 }
@@ -64,8 +78,15 @@ export function SearchBar() {
   const [query, setQuery] = useState('')
   const [engine, setEngine] = useState(SEARCH_ENGINES[0])
   const [menuOpen, setMenuOpen] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [highlightIndex, setHighlightIndex] = useState(-1)
+  const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false)
   const menuRef = useRef(null)
   const inputRef = useRef(null)
+  const containerRef = useRef(null)
+  const debounceRef = useRef(null)
+  const suggestionsAbortRef = useRef(null)
 
   useEffect(() => {
     ensureSearchButtonAnimations()
@@ -87,16 +108,126 @@ export function SearchBar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [menuOpen])
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    window.clearTimeout(debounceRef.current)
+    debounceRef.current = null
+    if (suggestionsAbortRef.current) {
+      suggestionsAbortRef.current.abort()
+      suggestionsAbortRef.current = null
+    }
+
     const trimmed = query.trim()
+    if (!trimmed) {
+      setSuggestions([])
+      setSuggestionsOpen(false)
+      setHighlightIndex(-1)
+      setIsFetchingSuggestions(false)
+      return undefined
+    }
+
+    debounceRef.current = window.setTimeout(() => {
+      setIsFetchingSuggestions(true)
+      setSuggestionsOpen(true)
+      setHighlightIndex(-1)
+      setSuggestions([])
+
+      const controller = new AbortController()
+      suggestionsAbortRef.current = controller
+      const requestUrl = `https://corsproxy.io/?https://duckduckgo.com/ac/?q=${encodeURIComponent(trimmed)}`
+
+      fetch(requestUrl, {
+        signal: controller.signal,
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(
+              `DuckDuckGo suggestion request failed with status ${response.status}`,
+            )
+          }
+          return response.json()
+        })
+        .then((payload) => {
+          const phrases = Array.isArray(payload)
+            ? payload
+                .map((item) => {
+                  if (typeof item === 'string') return item
+                  if (item && typeof item.phrase === 'string') return item.phrase
+                  return null
+                })
+                .filter(Boolean)
+            : []
+          const nextSuggestions = phrases.slice(0, 8)
+
+          setSuggestions(nextSuggestions)
+          setSuggestionsOpen(nextSuggestions.length > 0)
+          setHighlightIndex(-1)
+          if (suggestionsAbortRef.current === controller) {
+            suggestionsAbortRef.current = null
+          }
+          setIsFetchingSuggestions(false)
+        })
+        .catch((error) => {
+          if (error?.name === 'AbortError') {
+            return
+          }
+          console.error('Failed to fetch search suggestions', error)
+          setSuggestions([])
+          setSuggestionsOpen(false)
+          setHighlightIndex(-1)
+          if (suggestionsAbortRef.current === controller) {
+            suggestionsAbortRef.current = null
+          }
+          setIsFetchingSuggestions(false)
+        })
+    }, 220)
+
+    return () => {
+      window.clearTimeout(debounceRef.current)
+      debounceRef.current = null
+      if (suggestionsAbortRef.current) {
+        suggestionsAbortRef.current.abort()
+        suggestionsAbortRef.current = null
+      }
+    }
+  }, [query])
+
+  useEffect(() => {
+    if (!suggestionsOpen || typeof document === 'undefined') return undefined
+
+    const handleClick = (event) => {
+      if (!containerRef.current?.contains(event.target)) {
+        setSuggestionsOpen(false)
+        setHighlightIndex(-1)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [suggestionsOpen])
+
+  const openSearchForTerm = (rawQuery) => {
+    const trimmed = rawQuery.trim()
     if (!trimmed) return
+    setSuggestionsOpen(false)
+    setHighlightIndex(-1)
     const url = `${engine.baseUrl}${encodeURIComponent(trimmed)}`
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    openSearchForTerm(query)
+  }
+
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev)
+    setSuggestionsOpen(false)
+    setHighlightIndex(-1)
   }
 
   const handleEngineSelect = (nextEngineId) => {
@@ -104,84 +235,229 @@ export function SearchBar() {
     if (!next) return
     setEngine(next)
     setMenuOpen(false)
+    setSuggestionsOpen(false)
+    setHighlightIndex(-1)
   }
+
+  const isSuggestionPanelVisible =
+    suggestionsOpen || (isFetchingSuggestions && query.trim().length > 0)
 
   return (
     <form
+      ref={containerRef}
       onSubmit={handleSubmit}
-      className="mx-auto flex w-full max-w-2xl items-center rounded-full bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter] duration-500 ease-out focus-within:bg-white/20 focus-within:backdrop-blur-[14px]"
+      className="relative mx-auto w-full max-w-2xl"
     >
-      <span className="text-white/60">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          className="h-5 w-5"
-        >
-          <circle cx="11" cy="11" r="6" />
-          <line x1="20" y1="20" x2="16.65" y2="16.65" />
-        </svg>
-      </span>
-      <input
-        aria-label="Search the web"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={`Search ${engine.label} or type a URL`}
-        ref={inputRef}
-        className="flex-1 bg-transparent px-4 py-3 text-base text-white placeholder:text-white/50 focus:outline-none"
-      />
-      <div className="ml-1 flex items-center gap-1">
-        <div className="relative" ref={menuRef}>
-          <button
-            type="button"
-            onClick={toggleMenu}
-            className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/75 transition hover:border-white/35 hover:text-white"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
+      <div className="flex items-center rounded-full bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter] duration-500 ease-out focus-within:bg-white/20 focus-within:backdrop-blur-[14px]">
+        <span className="text-white/60">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            className="h-5 w-5"
           >
-            <SearchEngineIcon type={engine.id} className="h-4 w-4" />
-            <span className="hidden sm:inline">{engine.label}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              className="h-3.5 w-3.5"
+            <circle cx="11" cy="11" r="6" />
+            <line x1="20" y1="20" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+        <input
+          aria-label="Search the web"
+          role="combobox"
+          aria-expanded={isSuggestionPanelVisible}
+          aria-controls={
+            isSuggestionPanelVisible ? 'search-suggestions-panel' : undefined
+          }
+          aria-activedescendant={
+            suggestionsOpen && highlightIndex >= 0
+              ? `search-suggestion-${highlightIndex}`
+              : undefined
+          }
+          autoComplete="off"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown') {
+              if (!suggestions.length) return
+              event.preventDefault()
+              setSuggestionsOpen(true)
+              setHighlightIndex((current) => {
+                const next = current + 1
+                return next >= suggestions.length ? 0 : next
+              })
+            } else if (event.key === 'ArrowUp') {
+              if (!suggestions.length) return
+              event.preventDefault()
+              setSuggestionsOpen(true)
+              setHighlightIndex((current) => {
+                if (current <= 0) return suggestions.length - 1
+                return current - 1
+              })
+            } else if (event.key === 'Enter') {
+              if (highlightIndex >= 0 && highlightIndex < suggestions.length) {
+                event.preventDefault()
+                const selected = suggestions[highlightIndex]
+                setQuery(selected)
+                openSearchForTerm(selected)
+              }
+            } else if (event.key === 'Escape') {
+              if (suggestionsOpen) {
+                event.preventDefault()
+                setSuggestionsOpen(false)
+                setHighlightIndex(-1)
+              }
+            }
+          }}
+          onFocus={() => {
+            if (suggestions.length) {
+              setSuggestionsOpen(true)
+            }
+          }}
+          placeholder={`Search ${engine.label} or type a URL`}
+          ref={inputRef}
+          className="flex-1 bg-transparent px-4 py-3 text-base text-white placeholder:text-white/50 focus:outline-none"
+        />
+        <div className="ml-1 flex items-center gap-1">
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={toggleMenu}
+              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/75 transition hover:border-white/35 hover:text-white"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
             >
-              <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          {menuOpen && (
-            <div
-              className="absolute right-0 top-full z-10 mt-2 w-44 origin-top-right rounded-2xl border border-white/25 bg-slate-900/30 p-2 shadow-[0_35px_60px_-25px_rgba(15,23,42,0.9)] backdrop-blur-3xl"
-              style={{
-                animation: 'searchMenuReveal 220ms cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              <ul className="space-y-1">
-                {SEARCH_ENGINES.filter((item) => item.id !== engine.id).map(
-                  (item) => (
-                    <li key={item.id}>
+              <SearchEngineIcon type={engine.id} className="h-4 w-4" />
+              <span className="hidden sm:inline">{engine.label}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                className="h-3.5 w-3.5"
+              >
+                <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute right-0 top-full z-50 mt-2 w-44 origin-top-right rounded-2xl border border-white/25 bg-slate-900/30 p-2 shadow-[0_35px_60px_-25px_rgba(15,23,42,0.9)] backdrop-blur-3xl"
+                style={{
+                  animation: 'searchMenuReveal 220ms cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                <ul className="space-y-1">
+                  {SEARCH_ENGINES.filter((item) => item.id !== engine.id).map(
+                    (item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => handleEngineSelect(item.id)}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/70 transition hover:bg-white/15 hover:text-white"
+                        >
+                          <SearchEngineIcon type={item.id} className="h-4 w-4" />
+                          <span>{item.label}</span>
+                        </button>
+                      </li>
+                    ),
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+          <SearchButton />
+        </div>
+      </div>
+      {isSuggestionPanelVisible && (
+        <div
+          id="search-suggestions-panel"
+          className="absolute inset-x-0 top-full z-40 mt-3"
+          style={{
+            animation: 'searchSuggestionsReveal 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <div className="overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-white/18 via-white/10 to-white/5 text-sm text-white shadow-[0_45px_95px_-35px_rgba(15,23,42,0.85)] ring-1 ring-white/20 backdrop-blur-2xl">
+            {suggestions.length ? (
+              <ul
+                id="search-suggestions-list"
+                role="listbox"
+                className="max-h-[min(320px,45vh)] overflow-y-auto divide-y divide-white/10"
+              >
+                {suggestions.map((item, index) => {
+                  const isActive = index === highlightIndex
+                  return (
+                    <li key={`${item}-${index}`}>
                       <button
                         type="button"
-                        onClick={() => handleEngineSelect(item.id)}
-                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/70 transition hover:bg-white/15 hover:text-white"
+                        id={`search-suggestion-${index}`}
+                        role="option"
+                        aria-selected={isActive}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                          setQuery(item)
+                          openSearchForTerm(item)
+                        }}
+                        className={`flex w-full items-center justify-between px-5 py-3 text-left transition duration-150 ease-out ${
+                          isActive
+                            ? 'bg-white/25 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] backdrop-blur-sm'
+                            : 'text-white/75 hover:bg-white/15 hover:text-white'
+                        }`}
                       >
-                        <SearchEngineIcon type={item.id} className="h-4 w-4" />
-                        <span>{item.label}</span>
+                        <span className="truncate text-sm">{item}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          className="h-3.5 w-3.5 text-white/40"
+                        >
+                          <path d="M6 4l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </button>
                     </li>
-                  ),
-                )}
+                  )
+                })}
               </ul>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center gap-3 px-5 py-4 text-white/70">
+                {isFetchingSuggestions ? (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      className="h-4 w-4 animate-spin text-white/60"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        className="opacity-25"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      />
+                      <path
+                        d="M21 12a9 9 0 00-9-9"
+                        className="opacity-60"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                    <span>Searching for suggestions...</span>
+                  </>
+                ) : (
+                  <span>No suggestions found</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-        <SearchButton />
-      </div>
+      )}
     </form>
   )
 }
