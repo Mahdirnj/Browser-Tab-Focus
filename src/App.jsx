@@ -14,6 +14,15 @@ const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_POSITION_KEY = 'focus_dashboard_clockPosition'
 const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
 const WIDGETS_KEY = 'focus_dashboard_widgets'
+const BRAND_NAME = 'FocusLoom'
+
+function BrandMark() {
+  return (
+    <span className="text-xs font-semibold uppercase tracking-[0.5em] text-white/65 md:text-sm">
+      {BRAND_NAME}
+    </span>
+  )
+}
 
 const DEFAULT_WIDGET_SETTINGS = {
   weather: true,
@@ -125,7 +134,8 @@ function App() {
       <BackgroundLayer imageUrl={activeBackground?.url} />
       {clockPosition === 'top' ? (
         <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center">
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto flex flex-col items-center gap-2">
+            <BrandMark />
             <Clock timezone={clockTimezone} />
           </div>
         </div>
@@ -162,7 +172,10 @@ function App() {
             }`}
           >
             {clockPosition === 'middle' ? (
-              <Clock timezone={clockTimezone} />
+              <div className="flex flex-col items-center gap-2">
+                <BrandMark />
+                <Clock timezone={clockTimezone} />
+              </div>
             ) : null}
             <Greeting
               editSignal={nameEditSignal}
