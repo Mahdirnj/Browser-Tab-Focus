@@ -248,7 +248,7 @@ export function SearchBar() {
       onSubmit={handleSubmit}
       className="relative mx-auto w-full max-w-2xl"
     >
-      <div className="flex items-center rounded-full bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter] duration-500 ease-out focus-within:bg-white/20 focus-within:backdrop-blur-[14px]">
+      <div className="flex items-center rounded-full border border-white/15 bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter,border-color] duration-500 ease-out focus-within:border-white/30 focus-within:bg-white/20 focus-within:backdrop-blur-[14px]">
         <span className="text-white/60">
           <svg
             xmlns="http://www.w3.org/2000/svg"
