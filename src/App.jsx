@@ -12,6 +12,7 @@ import SettingsPanel from './components/SettingsPanel'
 const BACKGROUND_KEY = 'focus_dashboard_background'
 const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_POSITION_KEY = 'focus_dashboard_clockPosition'
+const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
 const WIDGETS_KEY = 'focus_dashboard_widgets'
 
 const DEFAULT_WIDGET_SETTINGS = {
@@ -33,6 +34,17 @@ function readStoredName() {
 function readStoredClockPosition() {
   if (typeof window === 'undefined') return 'middle'
   return window.localStorage.getItem(CLOCK_POSITION_KEY) ?? 'middle'
+}
+
+function readStoredClockTimezone() {
+  const fallback =
+    typeof Intl !== 'undefined'
+      ? Intl.DateTimeFormat().resolvedOptions().timeZone
+      : 'UTC'
+
+  if (typeof window === 'undefined') return fallback
+  const stored = window.localStorage.getItem(CLOCK_TIMEZONE_KEY)
+  return stored ?? fallback
 }
 
 function readStoredWidgets() {
@@ -60,6 +72,9 @@ function App() {
   const [clockPosition, setClockPosition] = useState(() =>
     readStoredClockPosition(),
   )
+  const [clockTimezone, setClockTimezone] = useState(() =>
+    readStoredClockTimezone(),
+  )
   const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
     readStoredWidgets(),
   )
@@ -74,6 +89,11 @@ function App() {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(CLOCK_POSITION_KEY, clockPosition)
   }, [clockPosition])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(CLOCK_TIMEZONE_KEY, clockTimezone)
+  }, [clockTimezone])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -106,7 +126,7 @@ function App() {
       {clockPosition === 'top' ? (
         <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center">
           <div className="pointer-events-auto">
-            <Clock />
+            <Clock timezone={clockTimezone} />
           </div>
         </div>
       ) : null}
@@ -126,6 +146,8 @@ function App() {
         currentName={userName}
         clockPosition={clockPosition}
         onClockPositionChange={setClockPosition}
+        clockTimezone={clockTimezone}
+        onClockTimezoneChange={setClockTimezone}
         widgetsEnabled={widgetsEnabled}
         onWidgetToggle={toggleWidget}
         onOpenChange={setSettingsOpen}
@@ -139,7 +161,9 @@ function App() {
               clockPosition === 'top' ? 'mt-32' : ''
             }`}
           >
-            {clockPosition === 'middle' ? <Clock /> : null}
+            {clockPosition === 'middle' ? (
+              <Clock timezone={clockTimezone} />
+            ) : null}
             <Greeting
               editSignal={nameEditSignal}
               onNameChange={setUserName}

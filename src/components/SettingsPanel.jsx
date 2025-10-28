@@ -11,6 +11,114 @@ import {
 const THUMB_MAX_WIDTH = 320
 const THUMB_MAX_HEIGHT = 190
 const THUMB_QUALITY = 0.72
+const MAX_TIMEZONE_RESULTS = 80
+const FALLBACK_TIMEZONES = [
+  'UTC',
+  'Atlantic/Reykjavik',
+  'Europe/London',
+  'Europe/Dublin',
+  'Europe/Lisbon',
+  'Europe/Paris',
+  'Europe/Brussels',
+  'Europe/Berlin',
+  'Europe/Amsterdam',
+  'Europe/Stockholm',
+  'Europe/Madrid',
+  'Europe/Rome',
+  'Europe/Warsaw',
+  'Europe/Athens',
+  'Europe/Helsinki',
+  'Europe/Istanbul',
+  'Europe/Moscow',
+  'Africa/Cairo',
+  'Africa/Johannesburg',
+  'Asia/Jerusalem',
+  'Asia/Dubai',
+  'Asia/Kolkata',
+  'Asia/Kathmandu',
+  'Asia/Bangkok',
+  'Asia/Ho_Chi_Minh',
+  'Asia/Jakarta',
+  'Asia/Shanghai',
+  'Asia/Hong_Kong',
+  'Asia/Taipei',
+  'Asia/Singapore',
+  'Asia/Kuala_Lumpur',
+  'Asia/Manila',
+  'Asia/Seoul',
+  'Asia/Tokyo',
+  'Asia/Colombo',
+  'Asia/Karachi',
+  'Asia/Tashkent',
+  'Australia/Perth',
+  'Australia/Adelaide',
+  'Australia/Sydney',
+  'Pacific/Auckland',
+  'Pacific/Honolulu',
+  'America/Anchorage',
+  'America/Los_Angeles',
+  'America/Denver',
+  'America/Phoenix',
+  'America/Chicago',
+  'America/New_York',
+  'America/Toronto',
+  'America/Halifax',
+  'America/St_Johns',
+  'America/Mexico_City',
+  'America/Bogota',
+  'America/Lima',
+  'America/Santiago',
+  'America/Sao_Paulo',
+  'America/Argentina/Buenos_Aires',
+  'America/Montevideo',
+  'America/Caracas',
+  'America/Panama',
+  'Indian/Mauritius',
+  'Indian/Maldives',
+]
+
+function normalizeTimeZoneLabel(zone) {
+  return zone
+    .split('/')
+    .map((part) => part.replace(/_/g, ' '))
+    .join(' — ')
+}
+
+function describeTimeZoneOffset(zone) {
+  try {
+    if (
+      typeof Intl === 'undefined' ||
+      typeof Intl.DateTimeFormat !== 'function'
+    ) {
+      return ''
+    }
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone,
+      timeZoneName: 'shortOffset',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    const offsetPart = formatter
+      .formatToParts(new Date())
+      .find((part) => part.type === 'timeZoneName')
+    if (!offsetPart) return ''
+    return offsetPart.value.replace('GMT', 'UTC')
+  } catch (error) {
+    try {
+      const fallbackFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: zone,
+        timeZoneName: 'short',
+      })
+      const offsetPart = fallbackFormatter
+        .formatToParts(new Date())
+        .find((part) => part.type === 'timeZoneName')
+      return offsetPart ? offsetPart.value : ''
+    } catch (innerError) {
+      console.warn('Unable to resolve timezone offset', zone, innerError)
+      return ''
+    }
+  }
+}
 
 const BackgroundOption = memo(function BackgroundOption({
   label,
@@ -52,6 +160,8 @@ export function SettingsPanel({
   onNameEditRequest,
   clockPosition = 'middle',
   onClockPositionChange,
+  clockTimezone,
+  onClockTimezoneChange,
   widgetsEnabled,
   onWidgetToggle,
   onOpenChange,
@@ -69,6 +179,50 @@ export function SettingsPanel({
     }),
     [widgetsEnabled],
   )
+  const [timezoneQuery, setTimezoneQuery] = useState('')
+  const availableTimeZones = useMemo(() => {
+    let zones = []
+    if (
+      typeof Intl !== 'undefined' &&
+      typeof Intl.supportedValuesOf === 'function'
+    ) {
+      try {
+        zones = Intl.supportedValuesOf('timeZone')
+      } catch (error) {
+        console.warn('Unable to read supported time zones', error)
+        zones = []
+      }
+    }
+    if (!zones || zones.length === 0) {
+      zones = FALLBACK_TIMEZONES
+    }
+    if (clockTimezone && !zones.includes(clockTimezone)) {
+      zones = [...zones, clockTimezone]
+    }
+    return Array.from(new Set(zones)).sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' }),
+    )
+  }, [clockTimezone])
+  const filteredTimeZones = useMemo(() => {
+    const normalized = timezoneQuery.trim().toLowerCase()
+    if (!normalized) return []
+    return availableTimeZones.filter((zone) =>
+      zone.toLowerCase().includes(normalized),
+    )
+  }, [availableTimeZones, timezoneQuery])
+  const displayedTimeZones = useMemo(
+    () => filteredTimeZones.slice(0, MAX_TIMEZONE_RESULTS),
+    [filteredTimeZones],
+  )
+  const activeTimeZone =
+    clockTimezone && availableTimeZones.includes(clockTimezone)
+      ? clockTimezone
+      : availableTimeZones[0] ?? 'UTC'
+  const activeTimeZoneLabel = useMemo(
+    () => normalizeTimeZoneLabel(activeTimeZone),
+    [activeTimeZone],
+  )
+  const hasTimezoneQuery = timezoneQuery.trim().length > 0
 
   const handleWidgetToggle = useCallback(
     (key) => {
@@ -444,6 +598,126 @@ export function SettingsPanel({
                       </button>
                     )
                   })}
+                </div>
+              </section>
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                  Clock Timezone
+                </p>
+                <div className="mt-3 space-y-3">
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.08] px-4 py-2 text-white/75 shadow-[0_18px_38px_-36px_rgba(15,23,42,0.95)]">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold uppercase tracking-[0.32em] text-white/60">
+                        Current
+                      </span>
+                      <span className="text-sm font-medium tracking-wide text-white">
+                        {activeTimeZoneLabel}
+                      </span>
+                    </div>
+                    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/45">
+                      {describeTimeZoneOffset(activeTimeZone)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-[0_18px_45px_-40px_rgba(15,23,42,0.95)]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      className="h-4 w-4 text-white/60"
+                    >
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      value={timezoneQuery}
+                      onChange={(event) => setTimezoneQuery(event.target.value)}
+                      placeholder="Search world time zones"
+                      className="h-7 w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
+                    />
+                  </div>
+                  <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                    {hasTimezoneQuery ? (
+                      displayedTimeZones.length ? (
+                        displayedTimeZones.map((zone) => {
+                          const label = normalizeTimeZoneLabel(zone)
+                          const offset = describeTimeZoneOffset(zone)
+                          const isActive = zone === activeTimeZone
+                          return (
+                            <button
+                              key={zone}
+                              type="button"
+                              onClick={() => onClockTimezoneChange?.(zone)}
+                              className={`flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left transition duration-150 ${
+                                isActive
+                                  ? 'border-emerald-300/70 bg-emerald-400/25 text-white shadow-[0_24px_40px_-30px_rgba(16,185,129,0.65)]'
+                                  : 'border-white/12 bg-white/10 text-white/75 hover:border-white/35 hover:text-white'
+                              } ${!onClockTimezoneChange ? 'cursor-not-allowed opacity-60' : ''}`}
+                              disabled={!onClockTimezoneChange}
+                            >
+                              <span className="flex flex-col gap-1">
+                                <span className="text-sm font-semibold tracking-wide">
+                                  {label}
+                                </span>
+                                {offset ? (
+                                  <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/50">
+                                    {offset}
+                                  </span>
+                                ) : null}
+                              </span>
+                              {isActive ? (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.8"
+                                  className="h-4 w-4 text-emerald-200"
+                                >
+                                  <path
+                                    d="M5 11l3 3 7-7"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.4"
+                                  className="h-4 w-4 text-white/35"
+                                >
+                                  <path
+                                    d="M7 4l6 6-6 6"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          )
+                        })
+                      ) : (
+                        <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/65">
+                          No time zones match your search. Try a different city or region.
+                        </p>
+                      )
+                    ) : (
+                      <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/65">
+                        Start typing a city, region, or time zone name to see suggestions.
+                      </p>
+                    )}
+                  </div>
+                  {hasTimezoneQuery &&
+                  filteredTimeZones.length > displayedTimeZones.length ? (
+                    <p className="text-[0.65rem] uppercase tracking-[0.3em] text-white/45">
+                      Showing first {displayedTimeZones.length} of {filteredTimeZones.length} matches.
+                    </p>
+                  ) : null}
                 </div>
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
