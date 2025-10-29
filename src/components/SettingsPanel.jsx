@@ -706,7 +706,10 @@ export function SettingsPanel({
                           No time zones match your search. Try a different city or region.
                         </p>
                       )
-                    ) : null}
+                    ) : (
+                      <p className="text-sm text-white/50">
+                      </p>
+                    )}
                   </div>
                   {hasTimezoneQuery &&
                   filteredTimeZones.length > displayedTimeZones.length ? (
