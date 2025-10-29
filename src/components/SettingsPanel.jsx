@@ -158,8 +158,6 @@ export function SettingsPanel({
   onBackgroundSelect,
   currentName,
   onNameEditRequest,
-  clockPosition = 'middle',
-  onClockPositionChange,
   clockTimezone,
   onClockTimezoneChange,
   widgetsEnabled,
@@ -590,32 +588,6 @@ export function SettingsPanel({
                           />
                         </button>
                       </div>
-                    )
-                  })}
-                </div>
-              </section>
-              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
-                  Clock Position
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {['middle', 'top'].map((position) => {
-                    const isActive = clockPosition === position
-                    const label = position === 'middle' ? 'Middle' : 'Top'
-                    return (
-                      <button
-                        key={position}
-                        type="button"
-                        onClick={() => onClockPositionChange?.(position)}
-                        className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] transition ${
-                          isActive
-                            ? 'border-emerald-200/80 bg-emerald-400/25 text-[color:var(--dashboard-text-100)] shadow-[0_18px_38px_-30px_rgba(16,185,129,0.85)]'
-                            : 'border-white/20 bg-white/10 text-[color:var(--dashboard-text-70)] hover:border-white/35 hover:text-[color:var(--dashboard-text-100)]'
-                        }`}
-                        disabled={!onClockPositionChange}
-                      >
-                        {label}
-                      </button>
                     )
                   })}
                 </div>
