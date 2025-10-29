@@ -165,6 +165,9 @@ export function SettingsPanel({
   widgetsEnabled,
   onWidgetToggle,
   onOpenChange,
+  textColorOptions,
+  selectedTextColorId,
+  onTextColorChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -258,6 +261,13 @@ export function SettingsPanel({
       onBackgroundSelect(id)
     },
     [onBackgroundSelect],
+  )
+
+  const handleTextColorSelect = useCallback(
+    (id) => {
+      onTextColorChange?.(id)
+    },
+    [onTextColorChange],
   )
 
   useEffect(() => {
@@ -402,6 +412,16 @@ export function SettingsPanel({
     }
   }, [backgrounds, bumpThumbRevision])
 
+  const textColorItems = useMemo(
+    () =>
+      (textColorOptions ?? []).map((item) => ({
+        id: item.id,
+        label: item.label,
+        hex: item.hex,
+        isSelected: item.id === selectedTextColorId,
+      })),
+    [textColorOptions, selectedTextColorId],
+  )
   const backgroundItems = useMemo(
     () =>
       backgrounds.map((item) => ({
@@ -420,7 +440,7 @@ export function SettingsPanel({
         <button
           type="button"
           onClick={toggleOpen}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_20px_40px_-20px_rgba(15,23,42,0.9)] transition hover:border-white/35 hover:bg-white/20"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[color:var(--dashboard-text-100)] shadow-[0_20px_40px_-20px_rgba(15,23,42,0.9)] transition hover:border-white/35 hover:bg-white/20"
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls="settings-panel"
@@ -450,7 +470,7 @@ export function SettingsPanel({
           <div
             id="settings-panel"
             ref={panelRef}
-            className={`absolute right-0 top-full mt-3 h-[84vh] w-80 overflow-hidden rounded-[30px] border border-white/20 bg-white/[0.08] p-[1.05rem] text-white shadow-[0_32px_70px_-38px_rgba(15,23,42,0.95)] backdrop-blur transition-all duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)] hover:border-white/30 hover:shadow-[0_42px_95px_-45px_rgba(15,23,42,0.95)] flex flex-col relative before:pointer-events-none before:absolute before:inset-0 before:rounded-[28px] before:bg-gradient-to-br before:from-white/[0.16] before:via-white/[0.05] before:to-transparent before:opacity-0 before:transition before:duration-300  ${
+            className={`absolute right-0 top-full mt-3 h-[84vh] w-80 overflow-hidden rounded-[30px] border border-white/20 bg-white/[0.08] p-[1.05rem] text-[color:var(--dashboard-text-100)] shadow-[0_32px_70px_-38px_rgba(15,23,42,0.95)] backdrop-blur transition-all duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)] hover:border-white/30 hover:shadow-[0_42px_95px_-45px_rgba(15,23,42,0.95)] flex flex-col relative before:pointer-events-none before:absolute before:inset-0 before:rounded-[28px] before:bg-gradient-to-br before:from-white/[0.16] before:via-white/[0.05] before:to-transparent before:opacity-0 before:transition before:duration-300  ${
               open
                 ? 'pointer-events-auto scale-100 opacity-100 translate-y-0'
                 : 'pointer-events-none scale-[0.97] opacity-0 translate-y-2'
@@ -463,13 +483,13 @@ export function SettingsPanel({
             }} 
           >
             <div className="relative z-[1] flex items-center justify-between rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-3 shadow-[0_22px_55px_-45px_rgba(15,23,42,0.95)]">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.32em] text-white/80">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-80)]">
                 Settings
               </h2>
               <button
                 type="button"
                 onClick={closePanel}
-                className="rounded-full border border-white/20 bg-white/[0.12] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.32em] text-white/80 transition hover:border-white/35 hover:text-white"
+                className="rounded-full border border-white/20 bg-white/[0.12] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-80)] transition hover:border-white/35 hover:text-[color:var(--dashboard-text-100)]"
               >
                 Close
               </button>
@@ -477,22 +497,22 @@ export function SettingsPanel({
 
             <div className="relative z-[1] mt-4 flex-1 space-y-5 overflow-y-scroll pr-1 custom-scroll">
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Profile
                 </p>
                 <div className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-white/[0.1] px-4 py-3">
                   <div className="text-left">
-                    <p className="text-xs uppercase tracking-[0.24em] text-white/55">
+                    <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--dashboard-text-55)]">
                       Name
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-white">
+                    <p className="mt-1 text-sm font-semibold text-[color:var(--dashboard-text-100)]">
                       {currentName ? currentName : 'Not set'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onNameEditRequest?.()}
-                    className="rounded-full border border-white/25 bg-white/[0.18] px-4 py-2 text-xs font-semibold uppercase tracking-[0.34em] text-white/80 transition hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/35"
+                    className="rounded-full border border-white/25 bg-white/[0.18] px-4 py-2 text-xs font-semibold uppercase tracking-[0.34em] text-[color:var(--dashboard-text-80)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)] disabled:cursor-not-allowed disabled:border-white/10 disabled:text-[color:var(--dashboard-text-35)]"
                     disabled={!onNameEditRequest}
                   >
                     Edit
@@ -500,7 +520,7 @@ export function SettingsPanel({
                 </div>
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Widgets
                 </p>
                 <div className="mt-3 space-y-3">
@@ -530,7 +550,7 @@ export function SettingsPanel({
                         className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/[0.1] px-4 py-3 shadow-[0_24px_55px_-48px_rgba(15,23,42,0.95)]"
                       >
                         <div className="flex items-center gap-2 text-left">
-                          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/75">
+                          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--dashboard-text-75)]">
                             {item.label}
                           </p>
                           <span className="group relative inline-flex h-4 w-4 items-center justify-center">
@@ -540,13 +560,13 @@ export function SettingsPanel({
                               fill="none"
                               stroke="currentColor"
                               strokeWidth="1.4"
-                              className="h-4 w-4 text-white/65"
+                              className="h-4 w-4 text-[color:var(--dashboard-text-65)]"
                             >
                               <circle cx="10" cy="10" r="8" strokeOpacity="0.5" />
                               <circle cx="10" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
                               <path d="M10 9v4.6" strokeLinecap="round" />
                             </svg>
-                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-52 -translate-x-1/2 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-[0.6rem] text-white/80 opacity-0 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.95)] backdrop-blur-2xl transition duration-200 group-hover:opacity-100">
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-52 -translate-x-1/2 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-[0.6rem] text-[color:var(--dashboard-text-80)] opacity-0 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.95)] backdrop-blur-2xl transition duration-200 group-hover:opacity-100">
                               {item.description}
                             </span>
                           </span>
@@ -575,7 +595,7 @@ export function SettingsPanel({
                 </div>
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Clock Position
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -589,8 +609,8 @@ export function SettingsPanel({
                         onClick={() => onClockPositionChange?.(position)}
                         className={`rounded-2xl border px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] transition ${
                           isActive
-                            ? 'border-emerald-200/80 bg-emerald-400/25 text-white shadow-[0_18px_38px_-30px_rgba(16,185,129,0.85)]'
-                            : 'border-white/20 bg-white/10 text-white/70 hover:border-white/35 hover:text-white'
+                            ? 'border-emerald-200/80 bg-emerald-400/25 text-[color:var(--dashboard-text-100)] shadow-[0_18px_38px_-30px_rgba(16,185,129,0.85)]'
+                            : 'border-white/20 bg-white/10 text-[color:var(--dashboard-text-70)] hover:border-white/35 hover:text-[color:var(--dashboard-text-100)]'
                         }`}
                         disabled={!onClockPositionChange}
                       >
@@ -601,20 +621,20 @@ export function SettingsPanel({
                 </div>
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Clock Timezone
                 </p>
                 <div className="mt-3 space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.08] px-4 py-2 text-white/75 shadow-[0_18px_38px_-36px_rgba(15,23,42,0.95)]">
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.08] px-4 py-2 text-[color:var(--dashboard-text-75)] shadow-[0_18px_38px_-36px_rgba(15,23,42,0.95)]">
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold uppercase tracking-[0.32em] text-white/60">
+                      <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-60)]">
                         Current
                       </span>
-                      <span className="text-sm font-medium tracking-wide text-white">
+                      <span className="text-sm font-medium tracking-wide text-[color:var(--dashboard-text-100)]">
                         {activeTimeZoneLabel}
                       </span>
                     </div>
-                    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/45">
+                    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[color:var(--dashboard-text-45)]">
                       {describeTimeZoneOffset(activeTimeZone)}
                     </span>
                   </div>
@@ -625,7 +645,7 @@ export function SettingsPanel({
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.6"
-                      className="h-4 w-4 text-white/60"
+                      className="h-4 w-4 text-[color:var(--dashboard-text-60)]"
                     >
                       <circle cx="11" cy="11" r="7" />
                       <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
@@ -635,7 +655,7 @@ export function SettingsPanel({
                       value={timezoneQuery}
                       onChange={(event) => setTimezoneQuery(event.target.value)}
                       placeholder="Search world time zones"
-                      className="h-7 w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
+                      className="h-7 w-full bg-transparent text-sm text-[color:var(--dashboard-text-100)] placeholder:text-[color:var(--dashboard-text-40)] focus:outline-none"
                     />
                   </div>
                   <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
@@ -652,8 +672,8 @@ export function SettingsPanel({
                               onClick={() => onClockTimezoneChange?.(zone)}
                               className={`flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left transition duration-150 ${
                                 isActive
-                                  ? 'border-emerald-300/70 bg-emerald-400/25 text-white shadow-[0_24px_40px_-30px_rgba(16,185,129,0.65)]'
-                                  : 'border-white/12 bg-white/10 text-white/75 hover:border-white/35 hover:text-white'
+                                  ? 'border-emerald-300/70 bg-emerald-400/25 text-[color:var(--dashboard-text-100)] shadow-[0_24px_40px_-30px_rgba(16,185,129,0.65)]'
+                                  : 'border-white/12 bg-white/10 text-[color:var(--dashboard-text-75)] hover:border-white/35 hover:text-[color:var(--dashboard-text-100)]'
                               } ${!onClockTimezoneChange ? 'cursor-not-allowed opacity-60' : ''}`}
                               disabled={!onClockTimezoneChange}
                             >
@@ -662,7 +682,7 @@ export function SettingsPanel({
                                   {label}
                                 </span>
                                 {offset ? (
-                                  <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/50">
+                                  <span className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[color:var(--dashboard-text-50)]">
                                     {offset}
                                   </span>
                                 ) : null}
@@ -689,7 +709,7 @@ export function SettingsPanel({
                                   fill="none"
                                   stroke="currentColor"
                                   strokeWidth="1.4"
-                                  className="h-4 w-4 text-white/35"
+                                  className="h-4 w-4 text-[color:var(--dashboard-text-35)]"
                                 >
                                   <path
                                     d="M7 4l6 6-6 6"
@@ -702,25 +722,73 @@ export function SettingsPanel({
                           )
                         })
                       ) : (
-                        <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/65">
+                        <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-[color:var(--dashboard-text-65)]">
                           No time zones match your search. Try a different city or region.
                         </p>
                       )
-                    ) : (
-                      <p className="text-sm text-white/50">
-                      </p>
-                    )}
+                    ) : null}
                   </div>
                   {hasTimezoneQuery &&
                   filteredTimeZones.length > displayedTimeZones.length ? (
-                    <p className="text-[0.65rem] uppercase tracking-[0.3em] text-white/45">
+                    <p className="text-[0.65rem] uppercase tracking-[0.3em] text-[color:var(--dashboard-text-45)]">
                       Showing first {displayedTimeZones.length} of {filteredTimeZones.length} matches.
                     </p>
                   ) : null}
                 </div>
               </section>
+              {textColorItems.length ? (
+                <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
+                    Text Color
+                  </p>
+                  <div className="mt-4 rounded-[22px] border border-white/12 bg-white/[0.04] px-1.5 py-3 shadow-[0_26px_52px_-40px_rgba(15,23,42,0.9)] backdrop-blur">
+                    <div className="relative flex items-center justify-between">
+                      <span className="pointer-events-none absolute left-2 right-2 top-1/2 h-px -translate-y-1/2 bg-white/12" />
+                      {textColorItems.map((item) => {
+                        const isSelected = item.isSelected
+                        const isDisabled = !onTextColorChange
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => handleTextColorSelect(item.id)}
+                            aria-pressed={isSelected}
+                            aria-label={`Use ${item.label} text color`}
+                            disabled={isDisabled}
+                            className={`group relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-all duration-250 ${
+                              isSelected
+                                ? 'scale-[1.1] shadow-[0_30px_48px_-28px_rgba(94,234,212,0.65)]'
+                                : 'shadow-[0_22px_40px_-30px_rgba(15,23,42,0.7)] hover:scale-110'
+                            } ${isDisabled ? 'cursor-not-allowed opacity-55' : 'cursor-pointer'}`}
+                          >
+                            <span
+                              className={`absolute inset-0 rounded-full transition-colors duration-250 ${
+                                isSelected
+                                  ? 'bg-emerald-200/15 ring-2 ring-emerald-200/80'
+                                  : 'bg-white/[0.08] group-hover:bg-white/[0.13]'
+                              }`}
+                            />
+                            <span className="absolute inset-[3px] rounded-full bg-white/18 opacity-0 blur-md transition-opacity duration-250 group-hover:opacity-55" />
+                            <span
+                              className="relative h-6 w-6 rounded-full"
+                              style={{ backgroundColor: item.hex }}
+                            />
+                            {isSelected ? (
+                              <span className="absolute inset-0 rounded-full border-2 border-emerald-200/60 opacity-90" />
+                            ) : null}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <div className="mt-5 flex items-center justify-center gap-2">
+                      <span className="h-1 w-14 rounded-full bg-white/15" />
+                      <span className="h-1 w-10 rounded-full bg-white/8" />
+                    </div>
+                  </div>
+                </section>
+              ) : null}
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Background
                 </p>
                 <div className="mt-3 grid grid-cols-3 gap-2">

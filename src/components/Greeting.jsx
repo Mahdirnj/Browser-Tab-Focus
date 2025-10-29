@@ -83,10 +83,10 @@ export function Greeting({ editSignal = 0, onNameChange }) {
   return (
     <section className="flex flex-col items-center gap-4 text-center">
       {isEditing ? (
-        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/[0.12] p-6 text-white shadow-[0_45px_80px_-45px_rgba(11,20,45,0.85)] backdrop-blur-sm">
+        <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/[0.12] p-6 text-[color:var(--dashboard-text-95)] shadow-[0_45px_80px_-45px_rgba(11,20,45,0.85)] backdrop-blur-sm">
           <label
             htmlFor="user-name"
-            className="block text-[0.7rem] font-semibold uppercase tracking-[0.45em] text-white/60"
+            className="block text-[0.7rem] font-semibold uppercase tracking-[0.45em] text-[color:var(--dashboard-text-60)]"
           >
             What is your name?
           </label>
@@ -97,14 +97,13 @@ export function Greeting({ editSignal = 0, onNameChange }) {
             onChange={(event) => setInputValue(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your name"
-            className="mt-3 w-full rounded-2xl border border-white/20 bg-white/[0.08] px-4 py-3 text-base text-white/90 placeholder:text-white/45 focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+            className="mt-3 w-full rounded-2xl border border-white/20 bg-white/[0.08] px-4 py-3 text-base text-[color:var(--dashboard-text-90)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
           />
-          <p className="mt-3 text-xs text-white/60">Press Enter to save.</p>
+          <p className="mt-3 text-xs text-[color:var(--dashboard-text-60)]">Press Enter to save.</p>
         </div>
       ) : (
         <>
-        
-          <h1 className="bg-gradient-to-r from-white via-white/95 to-white/80 bg-clip-text text-4xl font-semibold text-transparent leading-tight drop-shadow-[0_12px_30px_rgba(15,23,42,0.4)] md:text-6xl md:leading-snug">
+          <h1 className="bg-gradient-to-r from-[color:var(--dashboard-text-100)] via-[color:var(--dashboard-text-95)] to-[color:var(--dashboard-text-80)] bg-clip-text text-4xl font-semibold text-transparent leading-tight drop-shadow-[0_12px_30px_rgba(15,23,42,0.4)] md:text-6xl md:leading-snug">
             {greeting}, {name}.
           </h1>
         </>

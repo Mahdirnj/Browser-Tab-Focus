@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const CARD_CLASSES =
-  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
 const FOCUS_DURATION = 25 * 60 * 1000
 const SHORT_BREAK_DURATION = 5 * 60 * 1000
@@ -192,17 +192,17 @@ export function PomodoroTimer({ isObscured = false }) {
     >
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-[0.5rem] font-semibold uppercase tracking-[0.38em] text-white/70">
+          <h2 className="text-[0.5rem] font-semibold uppercase tracking-[0.38em] text-[color:var(--dashboard-text-70)]">
             Pomodoro
           </h2>
-          <p className="mt-1 text-[0.5rem] uppercase tracking-[0.28em] text-white/45">
+          <p className="mt-1 text-[0.5rem] uppercase tracking-[0.28em] text-[color:var(--dashboard-text-45)]">
             Next: {nextPhaseLabel}
           </p>
         </div>
         <button
           type="button"
           onClick={handleReset}
-          className="group flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 text-white/65 transition hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          className="group flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 text-[color:var(--dashboard-text-65)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           aria-label="Restart current cycle"
         >
           <svg
@@ -232,7 +232,7 @@ export function PomodoroTimer({ isObscured = false }) {
       >
         <svg
           viewBox="0 0 160 160"
-          className="h-36 w-36 text-white/20"
+          className="h-36 w-36 text-[color:var(--dashboard-text-20)]"
           role="presentation"
         >
           <circle
@@ -256,23 +256,23 @@ export function PomodoroTimer({ isObscured = false }) {
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className={`pomodoro-time text-xl font-semibold tracking-[0.18em] text-white transition-opacity duration-300 ${
+            className={`pomodoro-time text-xl font-semibold tracking-[0.18em] text-[color:var(--dashboard-text-100)] transition-opacity duration-300 ${
               isRunning ? 'animate-none' : 'opacity-95'
             }`}
           >
             {formattedTime}
           </span>
-          <span className="mt-2 text-[0.45rem] uppercase tracking-[0.26em] text-white/45 transition-opacity duration-300 pomodoro-time-sub">
+          <span className="mt-2 text-[0.45rem] uppercase tracking-[0.26em] text-[color:var(--dashboard-text-45)] transition-opacity duration-300 pomodoro-time-sub">
             Cycle {cycleDisplay}
           </span>
         </div>
         <button
           type="button"
           onClick={toggleRunning}
-          className={`pomodoro-play absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.32em] text-white/85 opacity-0 transition-opacity duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80`}
+          className={`pomodoro-play absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-85)] opacity-0 transition-opacity duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80`}
           aria-pressed={isRunning}
         >
-          <span className="rounded-full border border-white/25 bg-white/15 px-4 py-2 text-[0.6rem] text-white shadow-[0_18px_35px_-25px_rgba(148,163,184,0.9)]">
+          <span className="rounded-full border border-white/25 bg-white/15 px-4 py-2 text-[0.6rem] text-[color:var(--dashboard-text-100)] shadow-[0_18px_35px_-25px_rgba(148,163,184,0.9)]">
             {isRunning ? 'Pause' : 'Start'}
           </span>
         </button>
@@ -284,8 +284,8 @@ export function PomodoroTimer({ isObscured = false }) {
           onClick={toggleRunning}
           className={`rounded-full border px-3 py-2 text-[0.55rem] font-semibold uppercase tracking-[0.28em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${
             isRunning
-              ? 'border-white/25 bg-white/20 text-white hover:border-white/35'
-              : 'border-white/20 bg-white/10 text-white/80 hover:border-white/35 hover:text-white'
+              ? 'border-white/25 bg-white/20 text-[color:var(--dashboard-text-100)] hover:border-white/35'
+              : 'border-white/20 bg-white/10 text-[color:var(--dashboard-text-80)] hover:border-white/35 hover:text-[color:var(--dashboard-text-100)]'
           }`}
           aria-pressed={isRunning}
         >

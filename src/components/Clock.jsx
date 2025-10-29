@@ -50,11 +50,11 @@ export function Clock({ timezone }) {
   }, [])
 
   return (
-    <div className="flex flex-col items-center rounded-full border border-white/15 bg-white/[0.08] px-8 py-4 text-white/95 shadow-[0_25px_70px_-40px_rgba(11,20,45,0.7)] backdrop-blur-[1px] md:px-12">
+    <div className="flex flex-col items-center rounded-full border border-white/15 bg-white/[0.08] px-8 py-4 text-[color:var(--dashboard-text-95)] shadow-[0_25px_70px_-40px_rgba(11,20,45,0.7)] backdrop-blur-[1px] md:px-12">
       <span className="tabular-nums text-6xl font-light tracking-tight md:text-8xl">
         {displayTime}
       </span>
-      <span className="mt-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/60 md:text-sm">
+      <span className="mt-2 text-xs font-semibold uppercase tracking-[0.35em] text-[color:var(--dashboard-text-60)] md:text-sm">
         {zoneLabel}
       </span>
     </div>

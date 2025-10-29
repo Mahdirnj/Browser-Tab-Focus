@@ -31,7 +31,7 @@ function readCachedWeather(city) {
 }
 
 const PANEL_CLASSES =
-  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
 const WEATHER_VARIANTS = {
   clear: {
@@ -39,9 +39,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-amber-200/20',
     glyph: 'sun',
     glyphClass: 'text-amber-100',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/80',
-    degreeColor: 'text-white/70',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-80)]',
+    degreeColor: 'text-[color:var(--dashboard-text-70)]',
     particles: [
       {
         className:
@@ -94,9 +94,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-slate-300/18',
     glyph: 'cloud',
     glyphClass: 'text-slate-100',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/80',
-    degreeColor: 'text-white/70',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-80)]',
+    degreeColor: 'text-[color:var(--dashboard-text-70)]',
     particles: [
       {
         className:
@@ -136,9 +136,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-sky-500/18',
     glyph: 'rain',
     glyphClass: 'text-sky-200',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/80',
-    degreeColor: 'text-white/70',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-80)]',
+    degreeColor: 'text-[color:var(--dashboard-text-70)]',
     particles: [
       {
         className:
@@ -206,7 +206,7 @@ const WEATHER_VARIANTS = {
     glow: 'bg-yellow-300/15',
     glyph: 'storm',
     glyphClass: 'text-amber-200',
-    tempColor: 'text-white',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
     descriptionColor: 'text-amber-100/80',
     degreeColor: 'text-amber-100/70',
     particles: [
@@ -232,9 +232,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-blue-100/22',
     glyph: 'snow',
     glyphClass: 'text-sky-100',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/85',
-    degreeColor: 'text-white/75',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-85)]',
+    degreeColor: 'text-[color:var(--dashboard-text-75)]',
     particles: [
       {
         className:
@@ -296,9 +296,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-slate-200/18',
     glyph: 'fog',
     glyphClass: 'text-slate-50',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/70',
-    degreeColor: 'text-white/65',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-70)]',
+    degreeColor: 'text-[color:var(--dashboard-text-65)]',
     particles: [
       {
         className:
@@ -338,9 +338,9 @@ const WEATHER_VARIANTS = {
     glow: 'bg-emerald-200/16',
     glyph: 'wind',
     glyphClass: 'text-emerald-100',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/75',
-    degreeColor: 'text-white/70',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-75)]',
+    degreeColor: 'text-[color:var(--dashboard-text-70)]',
     particles: [
       {
         className:
@@ -389,10 +389,10 @@ const WEATHER_VARIANTS = {
     gradient: 'from-sky-200/20 via-slate-200/16 to-transparent',
     glow: 'bg-sky-200/16',
     glyph: 'compass',
-    glyphClass: 'text-white/85',
-    tempColor: 'text-white',
-    descriptionColor: 'text-white/75',
-    degreeColor: 'text-white/70',
+    glyphClass: 'text-[color:var(--dashboard-text-85)]',
+    tempColor: 'text-[color:var(--dashboard-text-100)]',
+    descriptionColor: 'text-[color:var(--dashboard-text-75)]',
+    degreeColor: 'text-[color:var(--dashboard-text-70)]',
     particles: [
       {
         className:
@@ -622,7 +622,7 @@ export function Weather() {
   let content
   if (!apiKey) {
     content = (
-      <p className="text-xs text-white/70">
+      <p className="text-xs text-[color:var(--dashboard-text-70)]">
         Add your OpenWeather API key to see live conditions.
       </p>
     )
@@ -635,13 +635,13 @@ export function Weather() {
           onChange={(event) => setInputValue(event.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="City name"
-          className="w-full rounded-2xl border border-white/25 bg-white/[0.1] px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+          className="w-full rounded-2xl border border-white/25 bg-white/[0.1] px-3 py-2 text-sm text-[color:var(--dashboard-text-100)] placeholder:text-[color:var(--dashboard-text-50)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
         />
         <div className="flex gap-2">
           <button
             type="button"
             onClick={handleCitySubmit}
-            className="flex-1 rounded-full bg-sky-400/90 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_15px_30px_-20px_rgba(56,189,248,0.9)] transition hover:bg-sky-300 disabled:opacity-40"
+            className="flex-1 rounded-full bg-sky-400/90 px-3 py-1.5 text-xs font-semibold text-[color:var(--dashboard-text-100)] shadow-[0_15px_30px_-20px_rgba(56,189,248,0.9)] transition hover:bg-sky-300 disabled:opacity-40"
             disabled={!inputValue.trim()}
           >
             Save
@@ -653,7 +653,7 @@ export function Weather() {
                 setInputValue(city)
                 setIsEditing(false)
               }}
-              className="flex-1 rounded-full border border-white/25 bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:border-white/40 hover:text-white"
+              className="flex-1 rounded-full border border-white/25 bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-[color:var(--dashboard-text-70)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)]"
             >
               Cancel
             </button>
@@ -666,13 +666,13 @@ export function Weather() {
       <button
         type="button"
         onClick={() => setIsEditing(true)}
-        className="rounded-full border border-white/25 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/75 transition hover:border-white/40 hover:text-white"
+        className="rounded-full border border-white/25 bg-white/[0.08] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--dashboard-text-75)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)]"
       >
         Choose City
       </button>
     )
   } else if (loading) {
-    content = <p className="text-xs text-white/70">Updating...</p>
+    content = <p className="text-xs text-[color:var(--dashboard-text-70)]">Updating...</p>
   } else if (weather) {
     const variantKey = getVariantKey(weather.condition, isNight)
     const variant =
@@ -688,7 +688,7 @@ export function Weather() {
     )
   } else {
     content = (
-      <p className="text-xs text-white/70">Tap refresh to load weather.</p>
+      <p className="text-xs text-[color:var(--dashboard-text-70)]">Tap refresh to load weather.</p>
     )
   }
 
@@ -696,12 +696,12 @@ export function Weather() {
     <section className={PANEL_CLASSES}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-white/60">
+          <p className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-[color:var(--dashboard-text-60)]">
             Weather
           </p>
           <p
             className={`mt-1 text-sm font-medium ${
-              displayCity ? 'text-white/90' : 'text-white/60'
+              displayCity ? 'text-[color:var(--dashboard-text-90)]' : 'text-[color:var(--dashboard-text-60)]'
             }`}
           >
             {displayCity || 'Set City'}
@@ -713,7 +713,7 @@ export function Weather() {
               <button
                 type="button"
                 onClick={handleRefresh}
-                className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-white/75 transition hover:border-white/40 hover:text-white disabled:opacity-50"
+                className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-[color:var(--dashboard-text-75)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)] disabled:opacity-50"
                 disabled={loading}
                 aria-label="Refresh weather"
               >
@@ -744,7 +744,7 @@ export function Weather() {
                 setInputValue(city)
                 setIsEditing(true)
               }}
-              className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-white/75 transition hover:border-white/40 hover:text-white"
+              className="rounded-full border border-white/25 bg-white/[0.08] p-1.5 text-[color:var(--dashboard-text-75)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)]"
               aria-label={hasCity ? 'Change city' : 'Set city'}
             >
               <svg
@@ -783,10 +783,10 @@ function WeatherVisual({ variant, weather, formattedDescription }) {
   const glow = variant?.glow ?? 'bg-white/25'
   const particles = variant?.particles ?? []
   const glyph = variant?.glyph ?? 'compass'
-  const glyphClass = variant?.glyphClass ?? 'text-white/85'
-  const tempColor = variant?.tempColor ?? 'text-white'
-  const descriptionColor = variant?.descriptionColor ?? 'text-white/70'
-  const degreeColor = variant?.degreeColor ?? 'text-white/70'
+  const glyphClass = variant?.glyphClass ?? 'text-[color:var(--dashboard-text-85)]'
+  const tempColor = variant?.tempColor ?? 'text-[color:var(--dashboard-text-100)]'
+  const descriptionColor = variant?.descriptionColor ?? 'text-[color:var(--dashboard-text-70)]'
+  const degreeColor = variant?.degreeColor ?? 'text-[color:var(--dashboard-text-70)]'
 
   return (
     <div className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl">

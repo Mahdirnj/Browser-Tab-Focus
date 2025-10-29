@@ -14,11 +14,21 @@ const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_POSITION_KEY = 'focus_dashboard_clockPosition'
 const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
 const WIDGETS_KEY = 'focus_dashboard_widgets'
+const TEXT_COLOR_KEY = 'focus_dashboard_textColor'
 const BRAND_NAME = 'FocusLoom'
+
+const TEXT_COLOR_PRESETS = [
+  { id: 'glow', label: 'Glow', hex: '#ffffff' },
+  { id: 'frost', label: 'Frost', hex: '#f5f5f5' },
+  { id: 'aqua', label: 'Aqua', hex: '#d1f4ff' },
+  { id: 'coral', label: 'Coral', hex: '#ffd0c2' },
+  { id: 'sol', label: 'Sol', hex: '#fde68a' },
+  { id: 'obsidian', label: 'Obsidian', hex: '#000000' },
+]
 
 function BrandMark() {
   return (
-    <span className="text-xs font-semibold uppercase tracking-[0.5em] text-white/65 md:text-sm">
+    <span className="text-xs font-semibold uppercase tracking-[0.5em] text-[color:var(--dashboard-text-65)] md:text-sm">
       {BRAND_NAME}
     </span>
   )
@@ -72,6 +82,31 @@ function readStoredWidgets() {
   }
 }
 
+function readStoredTextColor() {
+  if (typeof window === 'undefined') return TEXT_COLOR_PRESETS[0].id
+  const stored = window.localStorage.getItem(TEXT_COLOR_KEY)
+  const isValid = TEXT_COLOR_PRESETS.some((item) => item.id === stored)
+  return isValid ? stored : TEXT_COLOR_PRESETS[0].id
+}
+
+function applyTextColorPreset(hex) {
+  if (typeof document === 'undefined') return
+  if (!hex) return
+  const raw = hex.replace('#', '')
+  if (raw.length !== 3 && raw.length !== 6) return
+
+  const expand = (value) => (value.length === 1 ? value + value : value)
+  const r = parseInt(expand(raw.slice(0, raw.length === 3 ? 1 : 2)), 16)
+  const g = parseInt(
+    expand(raw.slice(raw.length === 3 ? 1 : 2, raw.length === 3 ? 2 : 4)),
+    16,
+  )
+  const b = parseInt(expand(raw.slice(raw.length === 3 ? 2 : 4)), 16)
+
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return
+  document.documentElement.style.setProperty('--dashboard-text-rgb', `${r}, ${g}, ${b}`)
+}
+
 function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
     readStoredValue(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
@@ -87,6 +122,7 @@ function App() {
   const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
     readStoredWidgets(),
   )
+  const [textColorId, setTextColorId] = useState(() => readStoredTextColor())
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
@@ -109,6 +145,15 @@ function App() {
     window.localStorage.setItem(WIDGETS_KEY, JSON.stringify(widgetsEnabled))
   }, [widgetsEnabled])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(TEXT_COLOR_KEY, textColorId)
+  }, [textColorId])
+
+  useEffect(() => {
+    const active = TEXT_COLOR_PRESETS.find((item) => item.id === textColorId)
+    applyTextColorPreset(active?.hex ?? TEXT_COLOR_PRESETS[0].hex)
+  }, [textColorId])
   const availableBackgrounds = backgroundOptions
   const activeBackground = useMemo(() => {
     return (
@@ -117,7 +162,7 @@ function App() {
     )
   }, [availableBackgrounds, backgroundId])
 
-  const panelClasses = 'text-white'
+  const panelClasses = 'text-[color:var(--dashboard-text-95)]'
   const toggleWidget = (key, value) => {
     setWidgetsEnabled((current) => ({
       ...current,
@@ -161,6 +206,9 @@ function App() {
         widgetsEnabled={widgetsEnabled}
         onWidgetToggle={toggleWidget}
         onOpenChange={setSettingsOpen}
+        textColorOptions={TEXT_COLOR_PRESETS}
+        selectedTextColorId={textColorId}
+        onTextColorChange={setTextColorId}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div

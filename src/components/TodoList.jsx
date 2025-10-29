@@ -39,7 +39,7 @@ function CheckIcon({ active }) {
       viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
-      className="h-3 w-3 text-white/95"
+      className="h-3 w-3 text-[color:var(--dashboard-text-95)]"
     >
       <polyline
         points="4 10.5 8 14.5 16 6.5"
@@ -79,7 +79,7 @@ function TrashIcon() {
 }
 
 const CARD_CLASSES =
-  'flex h-90 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-white shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+  'flex h-90 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
 export function TodoList() {
   const [todos, setTodos] = useState(() => readStoredTodos())
@@ -194,12 +194,12 @@ export function TodoList() {
   return (
     <section className={CARD_CLASSES}>
       <div className="flex items-center justify-between">
-        <h2 className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-white/70">
+        <h2 className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-[color:var(--dashboard-text-70)]">
           Todo List
         </h2>
-        <div className="text-[0.55rem] uppercase tracking-[0.28em] text-white/60">
+        <div className="text-[0.55rem] uppercase tracking-[0.28em] text-[color:var(--dashboard-text-60)]">
           {pendingTodos.length}{' '}
-          <span className="text-white/35">left</span>
+          <span className="text-[color:var(--dashboard-text-35)]">left</span>
         </div>
       </div>
 
@@ -216,7 +216,7 @@ export function TodoList() {
                   <li
                     key={todo.id}
                     data-completed={completed ? 'true' : 'false'}
-                    className="todo-item group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-white/90 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-white/25 hover:bg-white/[0.12]"
+                    className="todo-item group flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.08] px-3 py-2 text-sm text-[color:var(--dashboard-text-90)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-white/25 hover:bg-white/[0.12]"
                   >
                     <button
                       type="button"
@@ -237,7 +237,7 @@ export function TodoList() {
                     </button>
                     <p
                       className={`flex-1 text-xs font-medium transition-colors duration-300 ease-out ${
-                        completed ? 'text-white/55 line-through' : 'text-white/90'
+                        completed ? 'text-[color:var(--dashboard-text-55)] line-through' : 'text-[color:var(--dashboard-text-90)]'
                       }`}
                     >
                       {todo.text}
@@ -245,7 +245,7 @@ export function TodoList() {
                     <button
                       type="button"
                       onClick={() => deleteTodo(todo.id)}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border border-white/15 text-white/45 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:border-rose-200/60 hover:text-rose-200/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200/60"
+                      className="flex h-6 w-6 items-center justify-center rounded-full border border-white/15 text-[color:var(--dashboard-text-45)] opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 hover:border-rose-200/60 hover:text-rose-200/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200/60"
                       aria-label="Delete todo"
                     >
                       <TrashIcon />
@@ -256,7 +256,7 @@ export function TodoList() {
             ) : (
               <li
                 key="empty-state"
-                className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.04] px-4 py-6 text-center text-[0.6rem] text-white/55"
+                className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.04] px-4 py-6 text-center text-[0.6rem] text-[color:var(--dashboard-text-55)]"
               >
                 No todos yet. Add a task to keep it top of mind.
               </li>
@@ -273,12 +273,12 @@ export function TodoList() {
               maxTodosReached ? 'Todo limit reached' : 'Add todo and press Enter'
             }
             disabled={maxTodosReached}
-            className={`w-full rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[0.65rem] text-white placeholder:text-white/45 focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/50 ${
+            className={`w-full rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[0.65rem] text-[color:var(--dashboard-text-100)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/50 ${
               maxTodosReached ? 'cursor-not-allowed opacity-70' : ''
             }`}
           />
           {maxTodosReached ? (
-            <p className="mt-2 text-[0.55rem] uppercase tracking-[0.3em] text-white/55">
+            <p className="mt-2 text-[0.55rem] uppercase tracking-[0.3em] text-[color:var(--dashboard-text-55)]">
               Maximum of {MAX_TODOS} todos. Complete or delete one to add more.
             </p>
           ) : null}

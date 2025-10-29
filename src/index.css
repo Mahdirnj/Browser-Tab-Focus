@@ -9,7 +9,23 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --body-bg: #0f172a;
-  --body-text: #f8fafc;
+  --dashboard-text-rgb: 248, 250, 252;
+  --dashboard-text-100: rgba(var(--dashboard-text-rgb), 1);
+  --dashboard-text-95: rgba(var(--dashboard-text-rgb), 0.95);
+  --dashboard-text-90: rgba(var(--dashboard-text-rgb), 0.9);
+  --dashboard-text-85: rgba(var(--dashboard-text-rgb), 0.85);
+  --dashboard-text-80: rgba(var(--dashboard-text-rgb), 0.8);
+  --dashboard-text-75: rgba(var(--dashboard-text-rgb), 0.75);
+  --dashboard-text-70: rgba(var(--dashboard-text-rgb), 0.7);
+  --dashboard-text-65: rgba(var(--dashboard-text-rgb), 0.65);
+  --dashboard-text-60: rgba(var(--dashboard-text-rgb), 0.6);
+  --dashboard-text-55: rgba(var(--dashboard-text-rgb), 0.55);
+  --dashboard-text-50: rgba(var(--dashboard-text-rgb), 0.5);
+  --dashboard-text-45: rgba(var(--dashboard-text-rgb), 0.45);
+  --dashboard-text-40: rgba(var(--dashboard-text-rgb), 0.4);
+  --dashboard-text-35: rgba(var(--dashboard-text-rgb), 0.35);
+  --dashboard-text-20: rgba(var(--dashboard-text-rgb), 0.2);
+  --body-text: var(--dashboard-text-95);
 }
 
 html,
