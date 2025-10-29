@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import bingLogo from '../SearchEngineLogo/bing.png'
+import braveLogo from '../SearchEngineLogo/Brave.png'
 
 const SEARCH_ENGINES = [
   {
@@ -499,17 +500,15 @@ function SearchEngineIcon({ type, className }) {
       )
     case 'brave':
       return (
-        <svg viewBox="0 0 24 24" className={classes} fill="none">
-          <path
-            d="M4.5 4.5L12 2l7.5 2.5v9.8L12 22l-7.5-5.7V4.5z"
-            fill="#FF6F3D"
+        <span className={`${classes} relative inline-flex items-center justify-center overflow-visible`}>
+          <img
+            src={braveLogo}
+            alt="Brave"
+            className="h-[190%] w-[190%] max-w-none object-contain"
+            loading="lazy"
+            decoding="async"
           />
-          <path
-            d="M12 4l-5 1.8v4.7L12 16l5-5.5V5.8L12 4z"
-            fill="#fff"
-            opacity="0.85"
-          />
-        </svg>
+        </span>
       )
     case 'duckduckgo':
       return (
