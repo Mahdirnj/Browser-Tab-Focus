@@ -706,11 +706,7 @@ export function SettingsPanel({
                           No time zones match your search. Try a different city or region.
                         </p>
                       )
-                    ) : (
-                      <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-sm text-white/65">
-                        Start typing a city, region, or time zone name to see suggestions.
-                      </p>
-                    )}
+                    ) : null}
                   </div>
                   {hasTimezoneQuery &&
                   filteredTimeZones.length > displayedTimeZones.length ? (
