@@ -1,9 +1,19 @@
 {
   "manifest_version": 3,
-  "name": "FocusLoom New Tab Redirect",
-  "version": "1.0.0",
-  "description": "Redirects the browser new tab page to https://focusloom.ir.",
+  "name": "FocusLoom Dashboard",
+  "version": "1.1.0",
+  "description": "Loads the FocusLoom dashboard locally when you open a new tab.",
   "chrome_url_overrides": {
-    "newtab": "redirect.html"
-  }
+    "newtab": "newtab/index.html"
+  },
+  "icons": {
+    "16": "icons/tab-icon.png",
+    "32": "icons/tab-icon.png",
+    "48": "icons/tab-icon.png",
+    "128": "icons/tab-icon.png"
+  },
+  "permissions": [],
+  "host_permissions": [
+    "https://focusloom.ir/*"
+  ]
 }
