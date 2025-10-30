@@ -115,6 +115,7 @@ function App() {
   )
   const [textColorId, setTextColorId] = useState(() => readStoredTextColor())
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [isCompactLayout, setIsCompactLayout] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -140,6 +141,25 @@ function App() {
     const active = TEXT_COLOR_PRESETS.find((item) => item.id === textColorId)
     applyTextColorPreset(active?.hex ?? TEXT_COLOR_PRESETS[0].hex)
   }, [textColorId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
+      return undefined
+
+    const mediaQuery = window.matchMedia('(max-width: 1023px)')
+    const updateLayoutMode = () => setIsCompactLayout(mediaQuery.matches)
+
+    updateLayoutMode()
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateLayoutMode)
+      return () => mediaQuery.removeEventListener('change', updateLayoutMode)
+    }
+
+    mediaQuery.addListener(updateLayoutMode)
+    return () => mediaQuery.removeListener(updateLayoutMode)
+  }, [])
+
   const availableBackgrounds = backgroundOptions
   const activeBackground = useMemo(() => {
     return (
@@ -155,15 +175,15 @@ function App() {
       [key]: value,
     }))
   }
-  const showWeather = widgetsEnabled.weather !== false
-  const showTodo = widgetsEnabled.todo !== false
-  const showPomodoro = widgetsEnabled.pomodoro !== false
+  const showWeather = !isCompactLayout && widgetsEnabled.weather !== false
+  const showTodo = !isCompactLayout && widgetsEnabled.todo !== false
+  const showPomodoro = !isCompactLayout && widgetsEnabled.pomodoro !== false
   const showUtilityColumn = showWeather || showTodo
 
   return (
     <div className="relative min-h-screen overflow-hidden">
       <BackgroundLayer imageUrl={activeBackground?.url} />
-      <div className="pointer-events-none absolute inset-x-0 top-12 z-20 flex justify-center">
+      <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex justify-center sm:top-10 lg:top-12">
         <div className="pointer-events-auto flex flex-col items-center gap-2">
           <BrandMark />
           <Clock timezone={clockTimezone} />
@@ -194,9 +214,9 @@ function App() {
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
-          className={`relative flex w-full max-w-4xl flex-col gap-8 rounded-[28px] px-6 py-10 sm:px-10 ${panelClasses}`}
+          className={`relative flex w-full max-w-4xl flex-col gap-6 rounded-[28px] px-5 py-10 sm:px-8 lg:gap-8 lg:px-10 ${panelClasses}`}
         >
-          <header className="mt-32 flex flex-col items-center gap-5 text-center">
+          <header className="mt-20 flex flex-col items-center gap-5 text-center sm:mt-24 lg:mt-32">
             <Greeting
               editSignal={nameEditSignal}
               onNameChange={setUserName}

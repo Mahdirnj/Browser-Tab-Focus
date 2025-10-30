@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "FocusLoom New Tab Redirect",
+  "version": "1.0.0",
+  "description": "Redirects the browser new tab page to https://focusloom.ir.",
+  "chrome_url_overrides": {
+    "newtab": "redirect.html"
+  }
+}
