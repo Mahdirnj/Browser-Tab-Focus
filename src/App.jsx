@@ -13,6 +13,7 @@ const BACKGROUND_KEY = 'focus_dashboard_background'
 const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
 const WIDGETS_KEY = 'focus_dashboard_widgets'
+const SEARCH_BEHAVIOR_KEY = 'focus_dashboard_searchNewTab'
 const TEXT_COLOR_KEY = 'focus_dashboard_textColor'
 const BRAND_NAME = 'FocusLoom'
 
@@ -83,6 +84,14 @@ function readStoredTextColor() {
   return isValid ? stored : TEXT_COLOR_PRESETS[0].id
 }
 
+function readStoredSearchBehavior() {
+  if (typeof window === 'undefined') return true
+  const stored = window.localStorage.getItem(SEARCH_BEHAVIOR_KEY)
+  if (stored === 'current') return false
+  if (stored === 'new') return true
+  return true
+}
+
 function applyTextColorPreset(hex) {
   if (typeof document === 'undefined') return
   if (!hex) return
@@ -116,6 +125,9 @@ function App() {
   const [textColorId, setTextColorId] = useState(() => readStoredTextColor())
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [isCompactLayout, setIsCompactLayout] = useState(false)
+  const [openSearchInNewTab, setOpenSearchInNewTab] = useState(() =>
+    readStoredSearchBehavior(),
+  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -136,6 +148,14 @@ function App() {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(TEXT_COLOR_KEY, textColorId)
   }, [textColorId])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(
+      SEARCH_BEHAVIOR_KEY,
+      openSearchInNewTab ? 'new' : 'current',
+    )
+  }, [openSearchInNewTab])
 
   useEffect(() => {
     const active = TEXT_COLOR_PRESETS.find((item) => item.id === textColorId)
@@ -211,6 +231,8 @@ function App() {
         textColorOptions={TEXT_COLOR_PRESETS}
         selectedTextColorId={textColorId}
         onTextColorChange={setTextColorId}
+        openSearchInNewTab={openSearchInNewTab}
+        onSearchBehaviorChange={setOpenSearchInNewTab}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
@@ -221,7 +243,7 @@ function App() {
               editSignal={nameEditSignal}
               onNameChange={setUserName}
             />
-            <SearchBar />
+            <SearchBar openInNewTab={openSearchInNewTab} />
           </header>
         </div>
       </main>

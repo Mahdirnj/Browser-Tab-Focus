@@ -76,7 +76,7 @@ function ensureSearchButtonAnimations() {
   document.head.appendChild(style)
 }
 
-export function SearchBar() {
+export function SearchBar({ openInNewTab = true }) {
   const [query, setQuery] = useState('')
   const [engine, setEngine] = useState(SEARCH_ENGINES[0])
   const [menuOpen, setMenuOpen] = useState(false)
@@ -218,7 +218,12 @@ export function SearchBar() {
     setSuggestionsOpen(false)
     setHighlightIndex(-1)
     const url = `${engine.baseUrl}${encodeURIComponent(trimmed)}`
-    window.open(url, '_blank', 'noopener,noreferrer')
+    if (typeof window === 'undefined') return
+    if (openInNewTab) {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } else {
+      window.location.assign(url)
+    }
   }
 
   const handleSubmit = (event) => {

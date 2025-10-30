@@ -166,6 +166,8 @@ export function SettingsPanel({
   textColorOptions,
   selectedTextColorId,
   onTextColorChange,
+  openSearchInNewTab,
+  onSearchBehaviorChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -224,6 +226,7 @@ export function SettingsPanel({
     [activeTimeZone],
   )
   const hasTimezoneQuery = timezoneQuery.trim().length > 0
+  const searchOpensInNewTab = openSearchInNewTab !== false
 
   const handleWidgetToggle = useCallback(
     (key) => {
@@ -267,6 +270,10 @@ export function SettingsPanel({
     },
     [onTextColorChange],
   )
+  const handleSearchBehaviorToggle = useCallback(() => {
+    if (!onSearchBehaviorChange) return
+    onSearchBehaviorChange(!searchOpensInNewTab)
+  }, [onSearchBehaviorChange, searchOpensInNewTab])
 
   useEffect(() => {
     onOpenChange?.(open)
@@ -519,6 +526,63 @@ export function SettingsPanel({
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
                 <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
+                  Search
+                </p>
+                <div className="mt-3 space-y-3">
+                  <div className="rounded-2xl border border-white/15 bg-white/[0.1] px-4 py-3 shadow-[0_24px_55px_-48px_rgba(15,23,42,0.95)]">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--dashboard-text-75)]">
+                          Result Handling
+                        </p>
+                        <span className="group relative inline-flex h-4 w-4 items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            className="h-4 w-4 text-[color:var(--dashboard-text-65)]"
+                          >
+                            <circle cx="10" cy="10" r="8" strokeOpacity="0.5" />
+                            <circle cx="10" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+                            <path d="M10 9v4.6" strokeLinecap="round" />
+                          </svg>
+                          <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-56 -translate-x-1/2 rounded-xl border border-white/15 bg-white/[0.08] px-3 py-2 text-[0.6rem] text-[color:var(--dashboard-text-80)] opacity-0 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.95)] backdrop-blur-2xl transition duration-200 group-hover:opacity-100">
+                            Toggle on to launch search results in a new browser tab. Toggle off to reuse the current tab with your chosen search engine.
+                          </span>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSearchBehaviorToggle}
+                        role="switch"
+                        aria-checked={searchOpensInNewTab}
+                        aria-label={searchOpensInNewTab ? 'Open search results in a new tab' : 'Open search results in the current tab'}
+                        disabled={!onSearchBehaviorChange}
+                        className={`relative inline-flex h-7 w-14 items-center overflow-hidden rounded-full border px-1 transition-colors duration-200 ${
+                          searchOpensInNewTab
+                            ? 'border-emerald-200/80 bg-emerald-400/85'
+                            : 'border-white/20 bg-white/12'
+                        } ${!onSearchBehaviorChange ? 'cursor-not-allowed opacity-50' : ''}`}
+                      >
+                        <span
+                          className={`block h-[1.02rem] w-[1.02rem] rounded-full bg-white shadow-[0_10px_16px_-10px_rgba(148,163,184,0.9)] transition-transform duration-200 ease-out ${
+                            searchOpensInNewTab ? 'translate-x-[1.44rem] bg-white' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <p className="mt-3 text-[0.65rem] text-[color:var(--dashboard-text-60)]">
+                      {searchOpensInNewTab
+                        ? 'Opens in a new tab.'
+                        : 'Opens in the current tab.'}
+                    </p>
+                  </div>
+                </div>
+              </section>
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Widgets
                 </p>
                 <div className="mt-3 space-y-3">
@@ -575,15 +639,15 @@ export function SettingsPanel({
                           role="switch"
                           aria-checked={enabled}
                           disabled={!onWidgetToggle}
-                          className={`relative inline-flex h-7 w-14 items-center rounded-full border px-1 transition-colors duration-200 ${
+                          className={`relative inline-flex h-7 w-14 items-center overflow-hidden rounded-full border px-1 transition-colors duration-200 ${
                             enabled
                               ? 'border-emerald-200/80 bg-emerald-400/85'
                               : 'border-white/20 bg-white/12'
                           } ${!onWidgetToggle ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                           <span
-                            className={`block h-5 w-5 rounded-full bg-white shadow-[0_12px_20px_-10px_rgba(148,163,184,0.9)] transition-transform duration-200 ease-out ${
-                              enabled ? 'translate-x-7 bg-white' : 'translate-x-0'
+                            className={`block h-[1.02rem] w-[1.02rem] rounded-full bg-white shadow-[0_10px_16px_-10px_rgba(148,163,184,0.9)] transition-transform duration-200 ease-out ${
+                              enabled ? 'translate-x-[1.44rem] bg-white' : 'translate-x-0'
                             }`}
                           />
                         </button>
