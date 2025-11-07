@@ -479,10 +479,10 @@ function ensureWeatherAnimations() {
   document.head.appendChild(style)
 }
 
-export function Weather() {
+export function Weather({ apiKey: providedApiKey = '' }) {
   const apiKey = useMemo(
-    () => import.meta.env.VITE_OPENWEATHER_API_KEY?.trim() ?? '',
-    [],
+    () => providedApiKey?.trim() ?? '',
+    [providedApiKey],
   )
   const initialCity = useMemo(() => readStoredCity(), [])
 
@@ -623,7 +623,7 @@ export function Weather() {
   if (!apiKey) {
     content = (
       <p className="text-xs text-[color:var(--dashboard-text-70)]">
-        Add your OpenWeather API key to see live conditions.
+        Enter your personal OpenWeather API key in the Settings panel to enable the weather widget.
       </p>
     )
   } else if (isEditing) {

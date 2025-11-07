@@ -168,6 +168,8 @@ export function SettingsPanel({
   onTextColorChange,
   openSearchInNewTab,
   onSearchBehaviorChange,
+  weatherApiKey,
+  onWeatherApiKeyChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -181,6 +183,9 @@ export function SettingsPanel({
       pomodoro: widgetsEnabled?.pomodoro !== false,
     }),
     [widgetsEnabled],
+  )
+  const [weatherApiKeyInput, setWeatherApiKeyInput] = useState(
+    weatherApiKey ?? '',
   )
   const [timezoneQuery, setTimezoneQuery] = useState('')
   const availableTimeZones = useMemo(() => {
@@ -227,6 +232,36 @@ export function SettingsPanel({
   )
   const hasTimezoneQuery = timezoneQuery.trim().length > 0
   const searchOpensInNewTab = openSearchInNewTab !== false
+  useEffect(() => {
+    setWeatherApiKeyInput(weatherApiKey ?? '')
+  }, [weatherApiKey])
+  const trimmedWeatherApiKeyInput = weatherApiKeyInput.trim()
+  const storedWeatherApiKey = weatherApiKey ?? ''
+  const hasStoredWeatherKey = Boolean(storedWeatherApiKey)
+  const weatherApiKeyControlsDisabled = !onWeatherApiKeyChange
+  const canClearWeatherApiKey =
+    hasStoredWeatherKey && !weatherApiKeyControlsDisabled
+  const handleWeatherApiKeyCommit = useCallback(() => {
+    if (weatherApiKeyControlsDisabled) return
+    if (trimmedWeatherApiKeyInput === storedWeatherApiKey) return
+    onWeatherApiKeyChange?.(trimmedWeatherApiKeyInput)
+  }, [
+    onWeatherApiKeyChange,
+    storedWeatherApiKey,
+    trimmedWeatherApiKeyInput,
+    weatherApiKeyControlsDisabled,
+  ])
+  const handleWeatherApiKeyClear = () => {
+    if (!onWeatherApiKeyChange) return
+    setWeatherApiKeyInput('')
+    onWeatherApiKeyChange('')
+  }
+  const handleWeatherApiKeyKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      handleWeatherApiKeyCommit()
+    }
+  }
 
   const handleWidgetToggle = useCallback(
     (key) => {
@@ -522,6 +557,70 @@ export function SettingsPanel({
                   >
                     Edit
                   </button>
+                </div>
+              </section>
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
+                  Weather API Access
+                </p>
+                <div className="mt-3 space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4 shadow-[0_20px_50px_-45px_rgba(15,23,42,0.95)]">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[color:var(--dashboard-text-65)]">
+                        OpenWeather API Key
+                      </p>
+                      <p className="text-[0.65rem] text-[color:var(--dashboard-text-55)]">
+                        Paste the key you generated at openweathermap.org. It never leaves this device.
+                      </p>
+                    </div>
+                    <div className="mt-3 flex flex-col gap-2">
+                      <input
+                        type="password"
+                        autoComplete="off"
+                        spellCheck={false}
+                        value={weatherApiKeyInput}
+                        onChange={(event) => setWeatherApiKeyInput(event.target.value)}
+                        onBlur={handleWeatherApiKeyCommit}
+                        onKeyDown={handleWeatherApiKeyKeyDown}
+                        placeholder="e.g. 32-character key"
+                        disabled={weatherApiKeyControlsDisabled}
+                        className={`flex-1 rounded-2xl border border-white/20 bg-white/[0.08] px-4 py-2 text-sm text-[color:var(--dashboard-text-95)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60 ${
+                          weatherApiKeyControlsDisabled ? 'cursor-not-allowed opacity-60' : ''
+                        }`}
+                      />
+                      <p className="text-[0.6rem] text-[color:var(--dashboard-text-55)]">
+                        Press Enter or click away to save your key automatically.
+                      </p>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[0.6rem] text-[color:var(--dashboard-text-50)]">
+                      <span>
+                        Need a key?{' '}
+                        <a
+                          href="https://home.openweathermap.org/api_keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sky-200 underline-offset-2 hover:underline"
+                        >
+                          Create one for free
+                        </a>
+                        .
+                      </span>
+                      {hasStoredWeatherKey ? (
+                        <button
+                          type="button"
+                          onClick={handleWeatherApiKeyClear}
+                          disabled={!canClearWeatherApiKey}
+                          className={`rounded-full border px-3 py-1 font-semibold uppercase tracking-[0.3em] ${
+                            canClearWeatherApiKey
+                              ? 'border-white/25 text-[color:var(--dashboard-text-80)] hover:border-rose-200/60 hover:text-rose-200/90'
+                              : 'border-white/15 text-[color:var(--dashboard-text-60)] opacity-60'
+                          }`}
+                        >
+                          Remove Key
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">

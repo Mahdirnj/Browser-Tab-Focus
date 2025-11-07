@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { backgroundOptions, DEFAULT_BACKGROUND_ID } from './background'
 import BackgroundLayer from './components/BackgroundLayer'
 import { Clock } from './components/Clock'
@@ -14,6 +14,7 @@ const USER_NAME_KEY = 'focus_dashboard_userName'
 const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
 const WIDGETS_KEY = 'focus_dashboard_widgets'
 const SEARCH_BEHAVIOR_KEY = 'focus_dashboard_searchNewTab'
+const WEATHER_API_KEY_KEY = 'focus_dashboard_weatherApiKey'
 const TEXT_COLOR_KEY = 'focus_dashboard_textColor'
 const BRAND_NAME = 'FocusLoom'
 
@@ -92,6 +93,11 @@ function readStoredSearchBehavior() {
   return true
 }
 
+function readStoredWeatherApiKey() {
+  if (typeof window === 'undefined') return ''
+  return window.localStorage.getItem(WEATHER_API_KEY_KEY) ?? ''
+}
+
 function applyTextColorPreset(hex) {
   if (typeof document === 'undefined') return
   if (!hex) return
@@ -128,6 +134,9 @@ function App() {
   const [openSearchInNewTab, setOpenSearchInNewTab] = useState(() =>
     readStoredSearchBehavior(),
   )
+  const [weatherApiKey, setWeatherApiKey] = useState(() =>
+    readStoredWeatherApiKey(),
+  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -156,6 +165,16 @@ function App() {
       openSearchInNewTab ? 'new' : 'current',
     )
   }, [openSearchInNewTab])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const trimmed = weatherApiKey?.trim()
+    if (!trimmed) {
+      window.localStorage.removeItem(WEATHER_API_KEY_KEY)
+      return
+    }
+    window.localStorage.setItem(WEATHER_API_KEY_KEY, trimmed)
+  }, [weatherApiKey])
 
   useEffect(() => {
     const active = TEXT_COLOR_PRESETS.find((item) => item.id === textColorId)
@@ -199,6 +218,9 @@ function App() {
   const showTodo = !isCompactLayout && widgetsEnabled.todo !== false
   const showPomodoro = !isCompactLayout && widgetsEnabled.pomodoro !== false
   const showUtilityColumn = showWeather || showTodo
+  const handleWeatherApiKeyChange = useCallback((nextKey) => {
+    setWeatherApiKey(nextKey?.trim() ?? '')
+  }, [])
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -211,7 +233,7 @@ function App() {
       </div>
       {showUtilityColumn ? (
         <div className="absolute left-6 top-6 z-20 space-y-3">
-          {showWeather ? <Weather /> : null}
+          {showWeather ? <Weather apiKey={weatherApiKey} /> : null}
           {showTodo ? <TodoList /> : null}
         </div>
       ) : null}
@@ -233,6 +255,8 @@ function App() {
         onTextColorChange={setTextColorId}
         openSearchInNewTab={openSearchInNewTab}
         onSearchBehaviorChange={setOpenSearchInNewTab}
+        weatherApiKey={weatherApiKey}
+        onWeatherApiKeyChange={handleWeatherApiKeyChange}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
