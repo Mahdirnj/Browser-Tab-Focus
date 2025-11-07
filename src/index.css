@@ -9,6 +9,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --body-bg: #0f172a;
+  --instant-background-image: none;
   --dashboard-text-rgb: 248, 250, 252;
   --dashboard-text-100: rgba(var(--dashboard-text-rgb), 1);
   --dashboard-text-95: rgba(var(--dashboard-text-rgb), 0.95);
@@ -38,6 +39,10 @@ body {
   margin: 0;
   font-family: theme('fontFamily.sans');
   background-color: var(--body-bg);
+  background-image: var(--instant-background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: var(--body-text);
   transition: background-color 0.4s ease, color 0.4s ease;
 }

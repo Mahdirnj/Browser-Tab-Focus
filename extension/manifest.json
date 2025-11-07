@@ -24,7 +24,5 @@
     "https://duckduckgo.com/*"
   ],
   "homepage_url": "https://focusloom.ir",
-  "options_page": "newtab/index.html",
-  "support_url": "https://focusloom.ir/support",
-  "privacy_policy": "https://focusloom.ir/privacy"
+  "options_page": "newtab/index.html"
 }

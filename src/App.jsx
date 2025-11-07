@@ -1,11 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   backgroundOptions,
   DEFAULT_BACKGROUND_ID,
@@ -16,6 +9,18 @@ import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
 import SettingsPanel from './components/SettingsPanel'
+import PomodoroTimer from './components/PomodoroTimer'
+import TodoList from './components/TodoList'
+import Weather from './components/Weather'
+import {
+  BACKGROUND_KEY,
+  CLOCK_TIMEZONE_KEY,
+  SEARCH_BEHAVIOR_KEY,
+  TEXT_COLOR_KEY,
+  USER_NAME_KEY,
+  WEATHER_API_KEY_KEY,
+  WIDGETS_KEY,
+} from './constants/storageKeys'
 import {
   readJSON,
   readString,
@@ -23,18 +28,6 @@ import {
   writeJSON,
   writeString,
 } from './utils/storage'
-
-const Weather = lazy(() => import('./components/Weather'))
-const TodoList = lazy(() => import('./components/TodoList'))
-const PomodoroTimer = lazy(() => import('./components/PomodoroTimer'))
-
-const BACKGROUND_KEY = 'focus_dashboard_background'
-const USER_NAME_KEY = 'focus_dashboard_userName'
-const CLOCK_TIMEZONE_KEY = 'focus_dashboard_clockTimezone'
-const WIDGETS_KEY = 'focus_dashboard_widgets'
-const SEARCH_BEHAVIOR_KEY = 'focus_dashboard_searchNewTab'
-const WEATHER_API_KEY_KEY = 'focus_dashboard_weatherApiKey'
-const TEXT_COLOR_KEY = 'focus_dashboard_textColor'
 const BRAND_NAME = 'FocusLoom'
 
 const TEXT_COLOR_PRESETS = [
@@ -107,25 +100,10 @@ function applyTextColorPreset(hex) {
   document.documentElement.style.setProperty('--dashboard-text-rgb', `${r}, ${g}, ${b}`)
 }
 
-function WidgetSkeleton({ className = '' }) {
-  return (
-    <div
-      className={`h-48 w-48 animate-pulse rounded-3xl border border-white/10 bg-white/[0.08] ${className}`}
-    />
-  )
-}
-
-function PomodoroSkeleton() {
-  return (
-    <div className="h-40 w-64 animate-pulse rounded-3xl border border-white/15 bg-white/[0.08]" />
-  )
-}
-
 function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
     readString(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
   )
-  const [backgroundSrc, setBackgroundSrc] = useState(null)
   const [nameEditSignal, setNameEditSignal] = useState(0)
   const [userName, setUserName] = useState(() =>
     readString(USER_NAME_KEY, ''),
@@ -207,6 +185,15 @@ function App() {
       availableBackgrounds[0]
     )
   }, [availableBackgrounds, backgroundId])
+  const backgroundSrc = useMemo(() => {
+    const resolved = loadBackgroundImage(backgroundId)
+    if (resolved) return resolved
+    if (activeBackground?.id && activeBackground.id !== backgroundId) {
+      const fallback = loadBackgroundImage(activeBackground.id)
+      if (fallback) return fallback
+    }
+    return loadBackgroundImage(DEFAULT_BACKGROUND_ID)
+  }, [activeBackground?.id, backgroundId])
 
   const panelClasses = 'text-[color:var(--dashboard-text-95)]'
   const toggleWidget = (key, value) => {
@@ -224,18 +211,13 @@ function App() {
   }, [])
 
   useEffect(() => {
-    let cancelled = false
-    async function resolveBackground() {
-      const src = await loadBackgroundImage(backgroundId)
-      if (!cancelled) {
-        setBackgroundSrc(src)
-      }
-    }
-    resolveBackground()
-    return () => {
-      cancelled = true
-    }
-  }, [backgroundId])
+    if (typeof document === 'undefined' || !backgroundSrc) return
+    document.documentElement.style.setProperty(
+      '--instant-background-image',
+      `url("${backgroundSrc}")`,
+    )
+  }, [backgroundSrc])
+
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -249,15 +231,9 @@ function App() {
       {showUtilityColumn ? (
         <div className="absolute left-6 top-6 z-20 space-y-3">
           {showWeather ? (
-            <Suspense fallback={<WidgetSkeleton />}>
-              <Weather apiKey={weatherApiKey} isActive={showWeather && !settingsOpen} />
-            </Suspense>
+            <Weather apiKey={weatherApiKey} isActive={showWeather && !settingsOpen} />
           ) : null}
-          {showTodo ? (
-            <Suspense fallback={<WidgetSkeleton />}>
-              <TodoList />
-            </Suspense>
-          ) : null}
+          {showTodo ? <TodoList /> : null}
         </div>
       ) : null}
       <SettingsPanel
@@ -303,9 +279,7 @@ function App() {
               : 'translate-y-0 opacity-100'
           }`}
         >
-          <Suspense fallback={<PomodoroSkeleton />}>
-            <PomodoroTimer isObscured={settingsOpen} />
-          </Suspense>
+          <PomodoroTimer isObscured={settingsOpen} />
         </div>
       ) : null}
     </div>

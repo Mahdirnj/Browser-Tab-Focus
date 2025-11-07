@@ -1,8 +1,7 @@
 const modules = import.meta.glob('./*.{jpg,jpeg,png,webp,avif}', {
-  eager: false,
+  eager: true,
+  import: 'default',
 })
-
-const backgroundCache = new Map()
 
 function formatLabel(path) {
   const file = path.split('/').pop() ?? ''
@@ -14,32 +13,23 @@ function formatLabel(path) {
     .replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
-export const backgroundOptions = Object.keys(modules)
-  .sort((a, b) => a.localeCompare(b))
-  .map((relativePath) => ({
-    id: relativePath,
-    label: formatLabel(relativePath),
-  }))
+const sortedEntries = Object.entries(modules).sort(([a], [b]) =>
+  a.localeCompare(b),
+)
+
+export const backgroundOptions = sortedEntries.map(([relativePath]) => ({
+  id: relativePath,
+  label: formatLabel(relativePath),
+}))
 
 export const DEFAULT_BACKGROUND_ID =
   backgroundOptions[0]?.id ?? './sample-default'
 
-export async function loadBackgroundImage(id) {
-  if (backgroundCache.has(id)) {
-    return backgroundCache.get(id)
+export function loadBackgroundImage(id) {
+  const src = modules[id]
+  if (typeof src === 'string') {
+    return src
   }
-  const loader = modules[id]
-  if (typeof loader !== 'function') {
-    console.warn('No background loader found for', id)
-    return null
-  }
-  try {
-    const module = await loader()
-    const url = module?.default ?? null
-    backgroundCache.set(id, url)
-    return url
-  } catch (error) {
-    console.error('Failed to load background image', id, error)
-    return null
-  }
+  console.warn('No background loader found for', id)
+  return null
 }
