@@ -51,4 +51,3 @@ Common persistence tasks now flow through `src/utils/storage.js` to ensure safe 
 4. Describe any UI or UX decisions, especially if they impact the extension packaging flow.
 
 Thanks for helping keep FocusLoom sharp! Feel free to open issues for enhancement ideas or polish requests.
-
