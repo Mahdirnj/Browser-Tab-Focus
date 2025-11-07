@@ -1,28 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { readJSON, removeKey, writeJSON } from '../utils/storage'
 
 const TODOS_KEY = 'focus_dashboard_todos'
 const MAX_TODOS = 5
 
 function readStoredTodos() {
-  if (typeof window === 'undefined') return []
-  const raw = window.localStorage.getItem(TODOS_KEY)
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    return parsed
-      .map((item) => ({
-        id: item.id,
-        text: item.text,
-        completed: Boolean(item.completed),
-      }))
-      .filter((item) => typeof item.text === 'string' && item.text.trim().length)
-  } catch (error) {
-    console.warn('Unable to parse stored todos', error)
-    window.localStorage.removeItem(TODOS_KEY)
-    return []
-  }
+  const parsed = readJSON(TODOS_KEY, [])
+  if (!Array.isArray(parsed)) return []
+  return parsed
+    .map((item) => ({
+      id: item.id,
+      text: item.text,
+      completed: Boolean(item.completed),
+    }))
+    .filter((item) => typeof item.text === 'string' && item.text.trim().length)
 }
 
 function createId() {
@@ -141,10 +133,10 @@ export function TodoList() {
 
   useEffect(() => {
     if (!todos.length) {
-      window.localStorage.removeItem(TODOS_KEY)
+      removeKey(TODOS_KEY)
       return
     }
-    window.localStorage.setItem(TODOS_KEY, JSON.stringify(todos))
+    writeJSON(TODOS_KEY, todos)
   }, [todos])
 
   const pendingTodos = useMemo(

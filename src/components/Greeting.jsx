@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { readString, removeKey, writeString } from '../utils/storage'
 
 const USER_NAME_KEY = 'focus_dashboard_userName'
 const DEFAULT_TIMEZONE =
@@ -42,10 +43,7 @@ function greetingForHour(timeZone) {
 
 export function Greeting({ editSignal = 0, onNameChange, timezone }) {
   const effectiveTimezone = timezone || DEFAULT_TIMEZONE
-  const initialName =
-    typeof window !== 'undefined'
-      ? window.localStorage.getItem(USER_NAME_KEY) ?? ''
-      : ''
+  const initialName = readString(USER_NAME_KEY, '')
 
   const [name, setName] = useState(initialName)
   const [inputValue, setInputValue] = useState(initialName)
@@ -58,10 +56,10 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
 
   useEffect(() => {
     if (!name) {
-      window.localStorage.removeItem(USER_NAME_KEY)
+      removeKey(USER_NAME_KEY)
       return
     }
-    window.localStorage.setItem(USER_NAME_KEY, name)
+    writeString(USER_NAME_KEY, name)
   }, [name])
 
   useEffect(() => {

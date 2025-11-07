@@ -1,31 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  readJSON,
+  readString,
+  removeKey,
+  writeJSON,
+  writeString,
+} from '../utils/storage'
 
 const CITY_KEY = 'focus_dashboard_city'
 const WEATHER_CACHE_KEY = 'focus_dashboard_weatherCache'
 const CACHE_TTL = 30 * 60 * 1000
 
 function readStoredCity() {
-  if (typeof window === 'undefined') return ''
-  return window.localStorage.getItem(CITY_KEY) ?? ''
+  return readString(CITY_KEY, '')
 }
 
 function readCachedWeather(city) {
-  if (typeof window === 'undefined') return null
-  const raw = window.localStorage.getItem(WEATHER_CACHE_KEY)
-  if (!raw) return null
-  try {
-    const parsed = JSON.parse(raw)
-    if (!parsed?.data) return null
-    const isFresh = Date.now() - parsed.timestamp < CACHE_TTL
-    const sameCity =
-      parsed.data.city &&
-      parsed.data.city.toLowerCase() === city?.toLowerCase()
+  const cached = readJSON(WEATHER_CACHE_KEY, null)
+  if (!cached?.data) return null
+  const isFresh = Date.now() - cached.timestamp < CACHE_TTL
+  const sameCity =
+    cached.data.city &&
+    cached.data.city.toLowerCase() === city?.toLowerCase()
 
-    if (isFresh && sameCity) {
-      return parsed.data
-    }
-  } catch (error) {
-    console.warn('Unable to parse cached weather', error)
+  if (isFresh && sameCity) {
+    return cached.data
   }
   return null
 }
@@ -479,7 +478,7 @@ function ensureWeatherAnimations() {
   document.head.appendChild(style)
 }
 
-export function Weather({ apiKey: providedApiKey = '' }) {
+export function Weather({ apiKey: providedApiKey = '', isActive = true }) {
   const apiKey = useMemo(
     () => providedApiKey?.trim() ?? '',
     [providedApiKey],
@@ -492,11 +491,12 @@ export function Weather({ apiKey: providedApiKey = '' }) {
   const [weather, setWeather] = useState(() => readCachedWeather(initialCity))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const pollingEnabled = isActive && Boolean(city) && Boolean(apiKey)
 
   const fetchWeather = useCallback(
     async (targetCity) => {
       const nextCity = targetCity ?? city
-      if (!nextCity || !apiKey) return
+      if (!nextCity || !apiKey || !isActive) return
       setLoading(true)
       setError('')
 
@@ -519,13 +519,10 @@ export function Weather({ apiKey: providedApiKey = '' }) {
         }
 
         setWeather(result)
-        window.localStorage.setItem(
-          WEATHER_CACHE_KEY,
-          JSON.stringify({
-            timestamp: Date.now(),
-            data: result,
-          }),
-        )
+        writeJSON(WEATHER_CACHE_KEY, {
+          timestamp: Date.now(),
+          data: result,
+        })
       } catch (err) {
         console.error(err)
         setError(
@@ -537,7 +534,7 @@ export function Weather({ apiKey: providedApiKey = '' }) {
         setLoading(false)
       }
     },
-    [apiKey, city],
+    [apiKey, city, isActive],
   )
 
   useEffect(() => {
@@ -546,10 +543,10 @@ export function Weather({ apiKey: providedApiKey = '' }) {
 
   useEffect(() => {
     if (!city) {
-      window.localStorage.removeItem(CITY_KEY)
+      removeKey(CITY_KEY)
       return
     }
-    window.localStorage.setItem(CITY_KEY, city)
+    writeString(CITY_KEY, city)
   }, [city])
 
   useEffect(() => {
@@ -557,7 +554,7 @@ export function Weather({ apiKey: providedApiKey = '' }) {
   }, [city])
 
   useEffect(() => {
-    if (!city || !apiKey) return
+    if (!pollingEnabled) return
 
     const cached = readCachedWeather(city)
     if (cached) {
@@ -566,23 +563,22 @@ export function Weather({ apiKey: providedApiKey = '' }) {
     }
 
     fetchWeather(city)
-  }, [city, apiKey, fetchWeather])
+  }, [pollingEnabled, city, fetchWeather])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return undefined
-    if (!city || !apiKey) return undefined
+    if (typeof window === 'undefined' || !pollingEnabled) return undefined
 
     const intervalId = window.setInterval(() => {
       fetchWeather(city)
     }, 5 * 60 * 1000)
 
     return () => window.clearInterval(intervalId)
-  }, [city, apiKey, fetchWeather])
+  }, [pollingEnabled, city, fetchWeather])
   const handleCitySubmit = () => {
     const trimmed = inputValue.trim()
     if (!trimmed) return
     if (trimmed.toLowerCase() !== city?.toLowerCase()) {
-      window.localStorage.removeItem(WEATHER_CACHE_KEY)
+      removeKey(WEATHER_CACHE_KEY)
     }
     setCity(trimmed)
     setInputValue(trimmed)
@@ -601,7 +597,7 @@ export function Weather({ apiKey: providedApiKey = '' }) {
   }
 
   const handleRefresh = () => {
-    window.localStorage.removeItem(WEATHER_CACHE_KEY)
+    removeKey(WEATHER_CACHE_KEY)
     fetchWeather(city)
   }
 

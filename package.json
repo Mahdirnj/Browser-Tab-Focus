@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "sync-extension": "node scripts/sync-extension.mjs",
+    "build:extension": "npm run build && npm run sync-extension",
     "lint": "eslint .",
     "preview": "vite preview"
   },

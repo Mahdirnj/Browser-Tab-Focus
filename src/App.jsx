@@ -1,13 +1,28 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { backgroundOptions, DEFAULT_BACKGROUND_ID } from './background'
 import BackgroundLayer from './components/BackgroundLayer'
 import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
-import { Weather } from './components/Weather'
-import { TodoList } from './components/TodoList'
-import { PomodoroTimer } from './components/PomodoroTimer'
 import SettingsPanel from './components/SettingsPanel'
+import {
+  readJSON,
+  readString,
+  removeKey,
+  writeJSON,
+  writeString,
+} from './utils/storage'
+
+const Weather = lazy(() => import('./components/Weather'))
+const TodoList = lazy(() => import('./components/TodoList'))
+const PomodoroTimer = lazy(() => import('./components/PomodoroTimer'))
 
 const BACKGROUND_KEY = 'focus_dashboard_background'
 const USER_NAME_KEY = 'focus_dashboard_userName'
@@ -41,61 +56,33 @@ const DEFAULT_WIDGET_SETTINGS = {
   pomodoro: true,
 }
 
-function readStoredValue(key, fallback) {
-  if (typeof window === 'undefined') return fallback
-  return window.localStorage.getItem(key) ?? fallback
+const detectDefaultTimezone = () => {
+  if (typeof Intl !== 'undefined' && typeof Intl.DateTimeFormat === 'function') {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  }
+  return 'UTC'
 }
 
-function readStoredName() {
-  if (typeof window === 'undefined') return ''
-  return window.localStorage.getItem(USER_NAME_KEY) ?? ''
-}
-
-function readStoredClockTimezone() {
-  const fallback =
-    typeof Intl !== 'undefined'
-      ? Intl.DateTimeFormat().resolvedOptions().timeZone
-      : 'UTC'
-
-  if (typeof window === 'undefined') return fallback
-  const stored = window.localStorage.getItem(CLOCK_TIMEZONE_KEY)
-  return stored ?? fallback
-}
-
-function readStoredWidgets() {
-  if (typeof window === 'undefined') return DEFAULT_WIDGET_SETTINGS
-  try {
-    const raw = window.localStorage.getItem(WIDGETS_KEY)
-    if (!raw) return DEFAULT_WIDGET_SETTINGS
-    const parsed = JSON.parse(raw)
-    return {
-      ...DEFAULT_WIDGET_SETTINGS,
-      ...(parsed ?? {}),
-    }
-  } catch (error) {
-    console.warn('Unable to parse stored widget settings', error)
+function resolveInitialWidgets() {
+  const stored = readJSON(WIDGETS_KEY, null)
+  if (!stored || typeof stored !== 'object') {
     return DEFAULT_WIDGET_SETTINGS
+  }
+  return {
+    ...DEFAULT_WIDGET_SETTINGS,
+    ...stored,
   }
 }
 
-function readStoredTextColor() {
-  if (typeof window === 'undefined') return TEXT_COLOR_PRESETS[0].id
-  const stored = window.localStorage.getItem(TEXT_COLOR_KEY)
+function resolveInitialTextColor() {
+  const stored = readString(TEXT_COLOR_KEY, TEXT_COLOR_PRESETS[0].id)
   const isValid = TEXT_COLOR_PRESETS.some((item) => item.id === stored)
   return isValid ? stored : TEXT_COLOR_PRESETS[0].id
 }
 
-function readStoredSearchBehavior() {
-  if (typeof window === 'undefined') return true
-  const stored = window.localStorage.getItem(SEARCH_BEHAVIOR_KEY)
-  if (stored === 'current') return false
-  if (stored === 'new') return true
-  return true
-}
-
-function readStoredWeatherApiKey() {
-  if (typeof window === 'undefined') return ''
-  return window.localStorage.getItem(WEATHER_API_KEY_KEY) ?? ''
+function resolveInitialSearchBehavior() {
+  const stored = readString(SEARCH_BEHAVIOR_KEY, 'new')
+  return stored !== 'current'
 }
 
 function applyTextColorPreset(hex) {
@@ -116,64 +103,73 @@ function applyTextColorPreset(hex) {
   document.documentElement.style.setProperty('--dashboard-text-rgb', `${r}, ${g}, ${b}`)
 }
 
+function WidgetSkeleton({ className = '' }) {
+  return (
+    <div
+      className={`h-48 w-48 animate-pulse rounded-3xl border border-white/10 bg-white/[0.08] ${className}`}
+    />
+  )
+}
+
+function PomodoroSkeleton() {
+  return (
+    <div className="h-40 w-64 animate-pulse rounded-3xl border border-white/15 bg-white/[0.08]" />
+  )
+}
+
 function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
-    readStoredValue(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
+    readString(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
   )
   const [nameEditSignal, setNameEditSignal] = useState(0)
-  const [userName, setUserName] = useState(() => readStoredName())
+  const [userName, setUserName] = useState(() =>
+    readString(USER_NAME_KEY, ''),
+  )
   const [clockTimezone, setClockTimezone] = useState(() =>
-    readStoredClockTimezone(),
+    readString(CLOCK_TIMEZONE_KEY, detectDefaultTimezone()),
   )
   const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
-    readStoredWidgets(),
+    resolveInitialWidgets(),
   )
-  const [textColorId, setTextColorId] = useState(() => readStoredTextColor())
+  const [textColorId, setTextColorId] = useState(() =>
+    resolveInitialTextColor(),
+  )
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [isCompactLayout, setIsCompactLayout] = useState(false)
   const [openSearchInNewTab, setOpenSearchInNewTab] = useState(() =>
-    readStoredSearchBehavior(),
+    resolveInitialSearchBehavior(),
   )
   const [weatherApiKey, setWeatherApiKey] = useState(() =>
-    readStoredWeatherApiKey(),
+    readString(WEATHER_API_KEY_KEY, ''),
   )
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(BACKGROUND_KEY, backgroundId)
+    writeString(BACKGROUND_KEY, backgroundId)
   }, [backgroundId])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(CLOCK_TIMEZONE_KEY, clockTimezone)
+    writeString(CLOCK_TIMEZONE_KEY, clockTimezone)
   }, [clockTimezone])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(WIDGETS_KEY, JSON.stringify(widgetsEnabled))
+    writeJSON(WIDGETS_KEY, widgetsEnabled)
   }, [widgetsEnabled])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(TEXT_COLOR_KEY, textColorId)
+    writeString(TEXT_COLOR_KEY, textColorId)
   }, [textColorId])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem(
-      SEARCH_BEHAVIOR_KEY,
-      openSearchInNewTab ? 'new' : 'current',
-    )
+    writeString(SEARCH_BEHAVIOR_KEY, openSearchInNewTab ? 'new' : 'current')
   }, [openSearchInNewTab])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
     const trimmed = weatherApiKey?.trim()
     if (!trimmed) {
-      window.localStorage.removeItem(WEATHER_API_KEY_KEY)
+      removeKey(WEATHER_API_KEY_KEY)
       return
     }
-    window.localStorage.setItem(WEATHER_API_KEY_KEY, trimmed)
+    writeString(WEATHER_API_KEY_KEY, trimmed)
   }, [weatherApiKey])
 
   useEffect(() => {
@@ -233,8 +229,16 @@ function App() {
       </div>
       {showUtilityColumn ? (
         <div className="absolute left-6 top-6 z-20 space-y-3">
-          {showWeather ? <Weather apiKey={weatherApiKey} /> : null}
-          {showTodo ? <TodoList /> : null}
+          {showWeather ? (
+            <Suspense fallback={<WidgetSkeleton />}>
+              <Weather apiKey={weatherApiKey} isActive={showWeather && !settingsOpen} />
+            </Suspense>
+          ) : null}
+          {showTodo ? (
+            <Suspense fallback={<WidgetSkeleton />}>
+              <TodoList />
+            </Suspense>
+          ) : null}
         </div>
       ) : null}
       <SettingsPanel
@@ -280,7 +284,9 @@ function App() {
               : 'translate-y-0 opacity-100'
           }`}
         >
-          <PomodoroTimer isObscured={settingsOpen} />
+          <Suspense fallback={<PomodoroSkeleton />}>
+            <PomodoroTimer isObscured={settingsOpen} />
+          </Suspense>
         </div>
       ) : null}
     </div>

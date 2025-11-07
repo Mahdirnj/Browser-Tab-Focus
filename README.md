@@ -1,16 +1,54 @@
-# React + Vite
+# FocusLoom Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FocusLoom is a polished new-tab replacement that blends a search hub, personal widgets, and a distraction-free layout. It is built with React + Vite and shipped as a Chrome extension.
 
-Currently, two official plugins are available:
+## Highlights
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Customisable wallpaper, typography, and widget layout.
+- Greeting, clock, weather, todo list, and Pomodoro timer with local persistence.
+- Search bar with multiple engines and inline suggestions.
+- Chrome-extension ready bundle in `extension/` for manual upload.
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Open `http://localhost:5173/` for the full dashboard.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Weather API Key
+
+The production extension no longer bundles a shared OpenWeather key. Each user must provide their own key via **Settings -> Weather API Access**.
+
+For local tooling you can still keep a key in `.env` (see `.env.example`), but this file is ignored by Git and the runtime code only uses the value entered inside the UI.
+
+## Storage Helpers
+
+Common persistence tasks now flow through `src/utils/storage.js` to ensure safe JSON parsing, SSR guards, and consistent key naming. When you need to read or write to `localStorage`, prefer these helpers over manual calls.
+
+## Building & Packaging the Extension
+
+1. `npm run build:extension` - builds the dashboard and mirrors `dist/` into `extension/newtab/`.
+2. Zip the contents of `extension/` (not the folder itself) and upload it through the Chrome Web Store dashboard.
+3. Verify `manifest.json` only requests the hosts you actually use (`https://api.openweathermap.org/*`, `https://duckduckgo.com/*`, etc.).
+4. Attach updated screenshots, icons, and privacy policy links as part of the listing submission.
+
+## Release Checklist
+
+- [ ] `npm run build` passes without warnings.
+- [ ] `extension/newtab/` contains the fresh build output.
+- [ ] `.env` and other secrets are **not** included in the ZIP.
+- [ ] Weather API instructions confirmed in the onboarding copy.
+- [ ] Store assets (icons, screenshots, promo text) are up to date.
+
+## Contributing
+
+1. Fork and clone the repo.
+2. Create a feature branch.
+3. Run `npm run lint` (if configured) and `npm run build` before opening a PR.
+4. Describe any UI or UX decisions, especially if they impact the extension packaging flow.
+
+Thanks for helping keep FocusLoom sharp! Feel free to open issues for enhancement ideas or polish requests.
+
