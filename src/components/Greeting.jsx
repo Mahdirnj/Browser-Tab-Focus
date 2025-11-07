@@ -1,9 +1,38 @@
 import { useEffect, useRef, useState } from 'react'
 
 const USER_NAME_KEY = 'focus_dashboard_userName'
+const DEFAULT_TIMEZONE =
+  typeof Intl !== 'undefined'
+    ? Intl.DateTimeFormat().resolvedOptions().timeZone
+    : 'UTC'
 
-function greetingForHour(date = new Date()) {
-  const hour = date.getHours()
+function hourForTimezone(timeZone) {
+  if (typeof Intl === 'undefined' || !timeZone) {
+    return new Date().getHours()
+  }
+
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone,
+    })
+    const hourPart = formatter
+      .formatToParts(new Date())
+      .find((part) => part.type === 'hour')
+    const parsed = hourPart ? Number.parseInt(hourPart.value, 10) : NaN
+    if (Number.isNaN(parsed)) {
+      return new Date().getHours()
+    }
+    return parsed
+  } catch (error) {
+    console.warn('Unable to resolve hour for timezone', timeZone, error)
+    return new Date().getHours()
+  }
+}
+
+function greetingForHour(timeZone) {
+  const hour = hourForTimezone(timeZone)
 
   if (hour >= 5 && hour < 12) return 'Good morning'
   if (hour >= 12 && hour < 18) return 'Good afternoon'
@@ -11,7 +40,8 @@ function greetingForHour(date = new Date()) {
   return 'Good night'
 }
 
-export function Greeting({ editSignal = 0, onNameChange }) {
+export function Greeting({ editSignal = 0, onNameChange, timezone }) {
+  const effectiveTimezone = timezone || DEFAULT_TIMEZONE
   const initialName =
     typeof window !== 'undefined'
       ? window.localStorage.getItem(USER_NAME_KEY) ?? ''
@@ -20,7 +50,9 @@ export function Greeting({ editSignal = 0, onNameChange }) {
   const [name, setName] = useState(initialName)
   const [inputValue, setInputValue] = useState(initialName)
   const [isEditing, setIsEditing] = useState(() => !initialName)
-  const [greeting, setGreeting] = useState(() => greetingForHour())
+  const [greeting, setGreeting] = useState(() =>
+    greetingForHour(effectiveTimezone),
+  )
   const inputRef = useRef(null)
   const lastEditSignalRef = useRef(editSignal)
 
@@ -33,11 +65,15 @@ export function Greeting({ editSignal = 0, onNameChange }) {
   }, [name])
 
   useEffect(() => {
-    const tick = () => setGreeting(greetingForHour())
+    const tick = () => setGreeting(greetingForHour(effectiveTimezone))
     tick()
     const id = window.setInterval(tick, 60 * 1000)
     return () => window.clearInterval(id)
-  }, [])
+  }, [effectiveTimezone])
+
+  useEffect(() => {
+    setGreeting(greetingForHour(effectiveTimezone))
+  }, [effectiveTimezone])
 
   useEffect(() => {
     if (!isEditing) return
@@ -66,7 +102,7 @@ export function Greeting({ editSignal = 0, onNameChange }) {
     if (!trimmed) return
     setName(trimmed)
     setIsEditing(false)
-    setGreeting(greetingForHour())
+    setGreeting(greetingForHour(effectiveTimezone))
   }
 
   const handleKeyDown = (event) => {

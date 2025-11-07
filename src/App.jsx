@@ -242,6 +242,7 @@ function App() {
             <Greeting
               editSignal={nameEditSignal}
               onNameChange={setUserName}
+              timezone={clockTimezone}
             />
             <SearchBar openInNewTab={openSearchInNewTab} />
           </header>
