@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { loadBackgroundImage } from '../background'
 
 const THUMB_MAX_WIDTH = 320
 const THUMB_MAX_HEIGHT = 190
@@ -176,6 +177,7 @@ export function SettingsPanel({
   const panelRef = useRef(null)
   const thumbnailCacheRef = useRef(new Map())
   const [thumbRevision, bumpThumbRevision] = useReducer((count) => count + 1, 0)
+  const backgroundSourceCacheRef = useRef(new Map())
   const widgetStates = useMemo(
     () => ({
       weather: widgetsEnabled?.weather !== false,
@@ -327,6 +329,17 @@ export function SettingsPanel({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [visible])
 
+  const ensureBackgroundSource = useCallback(async (id) => {
+    if (backgroundSourceCacheRef.current.has(id)) {
+      return backgroundSourceCacheRef.current.get(id)
+    }
+    const src = await loadBackgroundImage(id)
+    if (src) {
+      backgroundSourceCacheRef.current.set(id, src)
+    }
+    return src
+  }, [])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!backgrounds.length) return
@@ -363,9 +376,11 @@ export function SettingsPanel({
         return canvas.toDataURL('image/webp', THUMB_QUALITY)
       }
 
+      const src = await ensureBackgroundSource(item.id)
+      if (!src) return null
       try {
         if (typeof window.fetch === 'function' && 'createImageBitmap' in window) {
-          const response = await fetch(item.url)
+          const response = await fetch(src)
           if (!response.ok) throw new Error('Failed to fetch image')
           const blob = await response.blob()
           const bitmap = await window.createImageBitmap(blob, {
@@ -381,7 +396,7 @@ export function SettingsPanel({
         const image = new Image()
         image.decoding = 'async'
         image.crossOrigin = 'anonymous'
-        image.src = item.url
+        image.src = src
 
         const cleanup = () => {
           image.onload = null
@@ -464,13 +479,16 @@ export function SettingsPanel({
   )
   const backgroundItems = useMemo(
     () =>
-      backgrounds.map((item) => ({
-        id: item.id,
-        label: item.label,
-        url: item.url,
-        isSelected: selectedBackgroundId === item.id,
-        thumbnailUrl: thumbnailCacheRef.current.get(item.id) ?? item.url,
-      })),
+      backgrounds.map((item) => {
+        const cachedSrc = backgroundSourceCacheRef.current.get(item.id)
+        return {
+          id: item.id,
+          label: item.label,
+          isSelected: selectedBackgroundId === item.id,
+          thumbnailUrl:
+            thumbnailCacheRef.current.get(item.id) ?? cachedSrc ?? undefined,
+        }
+      }),
     [backgrounds, selectedBackgroundId, thumbRevision],
   )
 

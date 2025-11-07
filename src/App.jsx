@@ -6,7 +6,11 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { backgroundOptions, DEFAULT_BACKGROUND_ID } from './background'
+import {
+  backgroundOptions,
+  DEFAULT_BACKGROUND_ID,
+  loadBackgroundImage,
+} from './background'
 import BackgroundLayer from './components/BackgroundLayer'
 import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
@@ -121,6 +125,7 @@ function App() {
   const [backgroundId, setBackgroundId] = useState(() =>
     readString(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
   )
+  const [backgroundSrc, setBackgroundSrc] = useState(null)
   const [nameEditSignal, setNameEditSignal] = useState(0)
   const [userName, setUserName] = useState(() =>
     readString(USER_NAME_KEY, ''),
@@ -218,9 +223,23 @@ function App() {
     setWeatherApiKey(nextKey?.trim() ?? '')
   }, [])
 
+  useEffect(() => {
+    let cancelled = false
+    async function resolveBackground() {
+      const src = await loadBackgroundImage(backgroundId)
+      if (!cancelled) {
+        setBackgroundSrc(src)
+      }
+    }
+    resolveBackground()
+    return () => {
+      cancelled = true
+    }
+  }, [backgroundId])
+
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <BackgroundLayer imageUrl={activeBackground?.url} />
+      <BackgroundLayer imageUrl={backgroundSrc} />
       <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex justify-center sm:top-10 lg:top-12">
         <div className="pointer-events-auto flex flex-col items-center gap-2">
           <BrandMark />
