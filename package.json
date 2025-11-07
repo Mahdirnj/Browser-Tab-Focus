@@ -8,6 +8,8 @@
     "build": "vite build",
     "sync-extension": "node scripts/sync-extension.mjs",
     "build:extension": "npm run build && npm run sync-extension",
+    "package-extension": "node scripts/package-extension.mjs",
+    "release": "npm run build:extension && npm run package-extension",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -21,6 +23,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",

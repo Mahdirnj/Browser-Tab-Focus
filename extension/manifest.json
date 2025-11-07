@@ -12,9 +12,19 @@
     "48": "icons/tab-icon.png",
     "128": "icons/tab-icon.png"
   },
+  "action": {
+    "default_icon": {
+      "16": "icons/tab-icon.png",
+      "32": "icons/tab-icon.png"
+    }
+  },
   "permissions": [],
   "host_permissions": [
     "https://api.openweathermap.org/*",
     "https://duckduckgo.com/*"
-  ]
+  ],
+  "homepage_url": "https://focusloom.com",
+  "options_page": "newtab/index.html",
+  "support_url": "https://focusloom.com/support",
+  "privacy_policy": "https://focusloom.com/privacy"
 }

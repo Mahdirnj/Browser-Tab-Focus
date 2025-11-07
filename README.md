@@ -31,17 +31,29 @@ Common persistence tasks now flow through `src/utils/storage.js` to ensure safe 
 ## Building & Packaging the Extension
 
 1. `npm run build:extension` - builds the dashboard and mirrors `dist/` into `extension/newtab/`.
-2. Zip the contents of `extension/` (not the folder itself) and upload it through the Chrome Web Store dashboard.
-3. Verify `manifest.json` only requests the hosts you actually use (`https://api.openweathermap.org/*`, `https://duckduckgo.com/*`, etc.).
-4. Attach updated screenshots, icons, and privacy policy links as part of the listing submission.
+2. `npm run package-extension` (or `npm run release` to run both steps) - generates `release/focusloom-extension-v*.zip` ready for upload.
+3. Upload the generated ZIP via the Chrome Web Store dashboard.
+4. Verify `manifest.json` only requests the hosts you actually use (`https://api.openweathermap.org/*`, `https://duckduckgo.com/*`, etc.).
+5. Attach updated screenshots, icons, privacy policy, and support links as part of the listing submission.
 
 ## Release Checklist
 
 - [ ] `npm run build` passes without warnings.
-- [ ] `extension/newtab/` contains the fresh build output.
+- [ ] `extension/newtab/` contains the fresh build output (`npm run build:extension`).
+- [ ] `release/…zip` was regenerated (`npm run package-extension` or `npm run release`).
 - [ ] `.env` and other secrets are **not** included in the ZIP.
 - [ ] Weather API instructions confirmed in the onboarding copy.
 - [ ] Store assets (icons, screenshots, promo text) are up to date.
+
+## Wallpaper Payload
+
+The 30+ bundled wallpapers contribute roughly 50 MB to the extension ZIP. Chrome Web Store reviewers often flag oversized packages, especially for new-tab overrides because they slow down installs and the first paint. To keep the listing healthy:
+
+- Trim the default wallpaper set to a handful of curated images.
+- Re-compress background assets (e.g., WebP/AVIF at lower quality or 2–3k resolution).
+- Consider hosting additional backgrounds on a CDN or allowing users to add their own URLs so they aren’t baked into every release.
+
+Keeping the bundle lean not only improves reviewer experience but also reduces the time users wait before seeing the dashboard after installation.
 
 ## Contributing
 
