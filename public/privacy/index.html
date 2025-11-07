@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FocusLoom Privacy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      body {
+        margin: 0;
+        padding: 3rem 1.5rem;
+        display: flex;
+        justify-content: center;
+      }
+      main {
+        width: min(720px, 100%);
+        background: white;
+        border-radius: 1.25rem;
+        padding: 2.5rem;
+        box-shadow: 0 20px 60px -30px rgba(15, 23, 42, 0.35);
+      }
+      h1 {
+        margin-bottom: 1rem;
+      }
+      h2 {
+        margin-top: 2rem;
+      }
+      p,
+      li {
+        line-height: 1.6;
+      }
+      code {
+        font-size: 0.95em;
+        background: rgba(15, 23, 42, 0.05);
+        padding: 0.1em 0.4em;
+        border-radius: 0.3em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>FocusLoom Privacy Policy</h1>
+      <p>Last updated: November 7, 2025</p>
+
+      <p>
+        FocusLoom is designed to be a local-first productivity dashboard. We do not run a backend or collect analytics. This page explains what data is stored and how it is used.
+      </p>
+
+      <h2>Data Stored Locally</h2>
+      <ul>
+        <li>Your name, selected timezone, and preferred text color.</li>
+        <li>Widget preferences (weather/todo/pomodoro visibility, search behavior).</li>
+        <li>Todo items and Pomodoro state.</li>
+        <li>Weather city and your personal OpenWeather API key (if you provide one).</li>
+      </ul>
+      <p>All of the items above are saved inside your browser's <code>localStorage</code>. Nothing is synced or transmitted unless you manually export it.</p>
+
+      <h2>Network Requests</h2>
+      <ul>
+        <li><strong>OpenWeather:</strong> fetching weather data requires an API key that you provide. Requests are sent directly to <code>api.openweathermap.org</code>.</li>
+        <li><strong>Search suggestions:</strong> FocusLoom requests completions from <code>duckduckgo.com</code> to populate the search dropdown.</li>
+      </ul>
+
+      <h2>Third Parties</h2>
+      <p>No other third parties receive data from FocusLoom. We do not embed analytics, advertising trackers, or social widgets.</p>
+
+      <h2>Your Choices</h2>
+      <ul>
+        <li>You can clear all FocusLoom data at any time by clearing browser storage for the extension.</li>
+        <li>You may choose not to enter an OpenWeather API key. In that case, the weather widget remains disabled.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or privacy concerns? Email <a href="mailto:mahdiranjkesh16@gmail.com">mahdiranjkesh16@gmail.com</a>.
+      </p>
+    </main>
+  </body>
+</html>
