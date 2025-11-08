@@ -1,65 +1,144 @@
-# FocusLoom Dashboard
+# FocusLoom - Browser-Tab-Focus
 
-FocusLoom is a polished new-tab replacement that blends a search hub, personal widgets, and a distraction-free layout. It is built with React + Vite and shipped as a Chrome extension.
+> The mindful new-tab dashboard that keeps your search, widgets, and daily focus rituals right where you need them.
 
-## Highlights
+[![Issues](https://img.shields.io/github/issues/Mahdirnj/Browser-Tab-Focus?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/issues)
+[![Stars](https://img.shields.io/github/stars/Mahdirnj/Browser-Tab-Focus?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/stargazers)
+[![Follow @Mahdirnj](https://img.shields.io/badge/GitHub-Mahdirnj-black?style=flat-square&logo=github)](https://github.com/Mahdirnj)
 
-- Customisable wallpaper, typography, and widget layout.
-- Greeting, clock, weather, todo list, and Pomodoro timer with local persistence.
-- Search bar with multiple engines and inline suggestions.
-- Chrome-extension ready bundle in `extension/` for manual upload.
+**FocusLoom** replaces the default browser tab with a calm, data-rich workspace. Dial in wallpapers, typography, and high-utility widgets, then ship it as a Chrome extension or keep iterating locally with Vite's instant-feedback dev server.
+
+## Sneak Peek
+
+![FocusLoom main tab preview](./public/Readmeimg/main-page.png)
+
+| Search-first command bar | Layout tweaks | Advanced settings |
+| --- | --- | --- |
+| ![FocusLoom search bar](./public/Readmeimg/searchbar.png) | ![FocusLoom settings panel layout](./public/Readmeimg/setting-panle.png) | ![FocusLoom settings panel advanced](./public/Readmeimg/setting-panel2.png) |
+
+## Table of Contents
+
+1. [Vision](#vision)
+2. [Key Features](#key-features)
+3. [Tech Stack](#tech-stack)
+4. [Getting Started](#getting-started)
+5. [Scripts to Remember](#scripts-to-remember)
+6. [Configuration & Personalization](#configuration--personalization)
+7. [Build & Ship the Chrome Extension](#build--ship-the-chrome-extension)
+8. [Performance & Bundle Size](#performance--bundle-size)
+9. [Screenshots & Assets](#screenshots--assets)
+10. [Roadmap Ideas](#roadmap-ideas)
+11. [Contributing](#contributing)
+12. [Support & Contact](#support--contact)
+
+## Vision
+
+FocusLoom is designed to make every new browser tab feel intentional. Instead of a blank page or distraction-heavy feed, you get:
+
+- At-a-glance context (clock, greeting, weather).
+- Lightweight productivity helpers (todos, Pomodoro timer).
+- A fast search hub that responds to the way *you* browse.
+- A polished UI that feels like a native part of your browser.
+
+## Key Features
+
+- **Personal command center** - reorder widgets, change fonts, combine solid colors with curated wallpapers.
+- **Search without friction** - swap engines on the fly and keep focus with inline suggestions.
+- **Persistence that just works** - todos, weather city, timer states, and settings stick via resilient storage helpers.
+- **Chrome-extension ready** - `extension/` always mirrors the latest production build so you can package and upload in minutes.
+- **Dev-friendly workflow** - Vite + React hot reload, TypeScript-ready file structure, and dedicated scripts for packaging.
+
+## Tech Stack
+
+- **Frameworks:** React 18, Vite, Tailwind CSS.
+- **State & persistence:** Custom hooks plus `src/utils/storage.js` for guarded localStorage access.
+- **Tooling:** ESLint, npm scripts, release zipper, and an extension mirror.
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (or the version defined in `package.json` engines).
+- npm (ships with Node) or pnpm/yarn if you adapt the scripts.
+
+### Run Locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/` for the full dashboard.
+Then open `http://localhost:5173/` to explore the dashboard with hot reload.
 
-## Weather API Key
+## Scripts to Remember
 
-The production extension no longer bundles a shared OpenWeather key. Each user must provide their own key via **Settings -> Weather API Access**.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Starts the Vite dev server. |
+| `npm run build` | Produces the production bundle in `dist/`. |
+| `npm run build:extension` | Copies the latest build into `extension/newtab/`. |
+| `npm run package-extension` | Zips `extension/` into `release/focusloom-extension-v*.zip`. |
+| `npm run release` | Runs build and package in one shot. |
 
-For local tooling you can still keep a key in `.env` (see `.env.example`), but this file is ignored by Git and the runtime code only uses the value entered inside the UI.
+## Configuration & Personalization
 
-## Storage Helpers
+- **Weather API** - Each user provides their own OpenWeather key inside **Settings -> Weather API Access**. Devs can keep a key in `.env` (see `.env.example`), but the shipped extension only trusts what the user enters in-app.
+- **Storage helpers** - Prefer `src/utils/storage.js` over direct `localStorage` calls to avoid SSR crashes and parsing errors while keeping key names consistent.
+- **Themes & wallpapers** - Wallpaper, type scale, and layout adjustments persist instantly, making FocusLoom feel like *your* dashboard every time you pop a new tab.
 
-Common persistence tasks now flow through `src/utils/storage.js` to ensure safe JSON parsing, SSR guards, and consistent key naming. When you need to read or write to `localStorage`, prefer these helpers over manual calls.
+## Build & Ship the Chrome Extension
 
-## Building & Packaging the Extension
+1. `npm run build:extension`
+2. `npm run package-extension`
+3. Upload the generated ZIP from `release/` to the Chrome Web Store dashboard.
+4. Verify `manifest.json` only requests the hosts/APIs you actually need (OpenWeather, search engines, etc.).
+5. Refresh listing assets (icons, screenshots, promo copy) before submitting for review.
 
-1. `npm run build:extension` - builds the dashboard and mirrors `dist/` into `extension/newtab/`.
-2. `npm run package-extension` (or `npm run release` to run both steps) - generates `release/focusloom-extension-v*.zip` ready for upload.
-3. Upload the generated ZIP via the Chrome Web Store dashboard.
-4. Verify `manifest.json` only requests the hosts you actually use (`https://api.openweathermap.org/*`, `https://duckduckgo.com/*`, etc.).
-5. Attach updated screenshots, icons, privacy policy, and support links as part of the listing submission.
+### Release Checklist
 
-## Release Checklist
+- [ ] `npm run build` passes with zero warnings.
+- [ ] `extension/newtab/` contains the fresh build output.
+- [ ] `release/*.zip` is regenerated for the current version.
+- [ ] `.env` or other secrets are **not** inside the ZIP.
+- [ ] Weather API onboarding text matches the current flow.
+- [ ] Listing assets (icons, screenshots, copy) are up to date.
 
-- [ ] `npm run build` passes without warnings.
-- [ ] `extension/newtab/` contains the fresh build output (`npm run build:extension`).
-- [ ] `release/…zip` was regenerated (`npm run package-extension` or `npm run release`).
-- [ ] `.env` and other secrets are **not** included in the ZIP.
-- [ ] Weather API instructions confirmed in the onboarding copy.
-- [ ] Store assets (icons, screenshots, promo text) are up to date.
+## Performance & Bundle Size
 
-## Wallpaper Payload
+Bundled wallpapers contribute roughly 50 MB to the release ZIP. Keep reviewers and users happy by:
 
-The 30+ bundled wallpapers contribute roughly 50 MB to the extension ZIP. Chrome Web Store reviewers often flag oversized packages, especially for new-tab overrides because they slow down installs and the first paint. To keep the listing healthy:
+- Trimming default wallpapers to a small curated set.
+- Recompressing backgrounds (WebP/AVIF, lighter quality, 2-3k resolution).
+- Letting users add URLs or hosting extras on a lightweight CDN instead of baking them into every build.
 
-- Trim the default wallpaper set to a handful of curated images.
-- Re-compress background assets (e.g., WebP/AVIF at lower quality or 2–3k resolution).
-- Consider hosting additional backgrounds on a CDN or allowing users to add their own URLs so they aren’t baked into every release.
+## Screenshots & Assets
 
-Keeping the bundle lean not only improves reviewer experience but also reduces the time users wait before seeing the dashboard after installation.
+1. Drop PNG/JPG/WebP files inside `public/Readmeimg/` (case sensitive).
+2. Reference them with Markdown, for example `![Alt](./public/Readmeimg/your-shot.png)`.
+3. Commit both the README change and the image so GitHub can render it.
+
+Feel free to swap in GIFs or short MP4s (converted to GIF/WebP) for motion previews.
+
+## Roadmap Ideas
+
+- [ ] Extend the widget library (habit tracker, notes, integrations).
+- [ ] Offer optional sync or backup via browser storage or Supabase.
+- [ ] Ship a Firefox build by adapting the extension scripts.
+- [ ] Add translation hooks for non-English audiences.
+
+Got a better idea? [Open an issue](https://github.com/Mahdirnj/Browser-Tab-Focus/issues/new) and let's talk.
 
 ## Contributing
 
 1. Fork and clone the repo.
-2. Create a feature branch.
+2. Create a feature branch (`git checkout -b feat/amazing-idea`).
 3. Run `npm run lint` (if configured) and `npm run build` before opening a PR.
-4. Describe any UI or UX decisions, especially if they impact the extension packaging flow.
+4. Document UI/UX or packaging changes so reviewers can test them quickly.
 
-Thanks for helping keep FocusLoom sharp! Feel free to open issues for enhancement ideas or polish requests.
+## Support & Contact
+
+- Star the repo if FocusLoom boosts your focus.
+- File bugs or feature requests via [issues](https://github.com/Mahdirnj/Browser-Tab-Focus/issues).
+- Say hi to **[@Mahdirnj](https://github.com/Mahdirnj)** on GitHub for collaboration, feedback, or showcasing your custom FocusLoom setups.
+
+Stay sharp, keep the new-tab zen.
