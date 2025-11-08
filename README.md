@@ -24,12 +24,9 @@
 4. [Getting Started](#getting-started)
 5. [Scripts to Remember](#scripts-to-remember)
 6. [Configuration & Personalization](#configuration--personalization)
-7. [Build & Ship the Chrome Extension](#build--ship-the-chrome-extension)
-8. [Performance & Bundle Size](#performance--bundle-size)
-9. [Screenshots & Assets](#screenshots--assets)
-10. [Roadmap Ideas](#roadmap-ideas)
-11. [Contributing](#contributing)
-12. [Support & Contact](#support--contact)
+7. [How to use](#How-to-use-and-apply-it)
+8. [Contributing](#contributing)
+9. [Support & Contact](#support--contact)
 
 ## Vision
 
@@ -86,45 +83,10 @@ Then open `http://localhost:5173/` to explore the dashboard with hot reload.
 - **Storage helpers** - Prefer `src/utils/storage.js` over direct `localStorage` calls to avoid SSR crashes and parsing errors while keeping key names consistent.
 - **Themes & wallpapers** - Wallpaper, type scale, and layout adjustments persist instantly, making FocusLoom feel like *your* dashboard every time you pop a new tab.
 
-## Build & Ship the Chrome Extension
 
-1. `npm run build:extension`
-2. `npm run package-extension`
-3. Upload the generated ZIP from `release/` to the Chrome Web Store dashboard.
-4. Verify `manifest.json` only requests the hosts/APIs you actually need (OpenWeather, search engines, etc.).
-5. Refresh listing assets (icons, screenshots, promo copy) before submitting for review.
+## How to use and apply it
+- **Head over to the [Releases Page](https://github.com/Mahdirnj/Browser-Tab-Focus/releases/tag/releas). Extract the zip file and go to the browser settings. Then, enable developer options from the extention settings. After that, click on 'Load unpack' and select this folder.
 
-### Release Checklist
-
-- [ ] `npm run build` passes with zero warnings.
-- [ ] `extension/newtab/` contains the fresh build output.
-- [ ] `release/*.zip` is regenerated for the current version.
-- [ ] `.env` or other secrets are **not** inside the ZIP.
-- [ ] Weather API onboarding text matches the current flow.
-- [ ] Listing assets (icons, screenshots, copy) are up to date.
-
-## Performance & Bundle Size
-
-Bundled wallpapers contribute roughly 50 MB to the release ZIP. Keep reviewers and users happy by:
-
-- Trimming default wallpapers to a small curated set.
-- Recompressing backgrounds (WebP/AVIF, lighter quality, 2-3k resolution).
-- Letting users add URLs or hosting extras on a lightweight CDN instead of baking them into every build.
-
-## Screenshots & Assets
-
-1. Drop PNG/JPG/WebP files inside `public/Readmeimg/` (case sensitive).
-2. Reference them with Markdown, for example `![Alt](./public/Readmeimg/your-shot.png)`.
-3. Commit both the README change and the image so GitHub can render it.
-
-Feel free to swap in GIFs or short MP4s (converted to GIF/WebP) for motion previews.
-
-## Roadmap Ideas
-
-- [ ] Extend the widget library (habit tracker, notes, integrations).
-- [ ] Offer optional sync or backup via browser storage or Supabase.
-- [ ] Ship a Firefox build by adapting the extension scripts.
-- [ ] Add translation hooks for non-English audiences.
 
 Got a better idea? [Open an issue](https://github.com/Mahdirnj/Browser-Tab-Focus/issues/new) and let's talk.
 
