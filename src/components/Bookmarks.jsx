@@ -142,7 +142,7 @@ export function Bookmarks() {
   const [formError, setFormError] = useState('')
 
   const canAddMore = bookmarks.length < MAX_BOOKMARKS
-  const isFormOpen = formMode !== null
+  const showAddForm = formMode === 'add'
 
   useEffect(() => {
     if (!bookmarks.length) {
@@ -249,6 +249,43 @@ export function Bookmarks() {
       })),
     [bookmarks],
   )
+  const formFields = (
+    <div className="space-y-2">
+      <input
+        value={draftName}
+        onChange={(event) => setDraftName(event.target.value)}
+        onKeyDown={handleInputKeyDown}
+        placeholder="Website name"
+        className="w-full rounded-2xl border border-white/20 bg-white/[0.08] px-3 py-2 text-xs text-[color:var(--dashboard-text-95)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+      />
+      <input
+        value={draftUrl}
+        onChange={(event) => setDraftUrl(event.target.value)}
+        onKeyDown={handleInputKeyDown}
+        placeholder="https://example.com"
+        className=" w-full rounded-2xl border border-white/20 bg-white/[0.08] px-3 py-2 text-xs text-[color:var(--dashboard-text-95)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
+      />
+      {formError ? (
+        <p className=" text-[0.6rem] text-rose-200/90">{formError}</p>
+      ) : null}
+      <div className="flex gap-2 pr-1.5">
+        <button
+          type="button"
+          onClick={handleSave}
+          className=" flex-1 rounded-full bg-sky-400/90 px-2.5 py-1 text-[0.55rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--dashboard-text-100)] shadow-[0_12px_25px_-18px_rgba(56,189,248,0.9)] transition hover:bg-sky-300"
+        >
+          {formMode === 'edit' ? 'Update' : 'Save'}
+        </button>
+        <button
+          type="button"
+          onClick={resetForm}
+          className=" flex-1 rounded-full border border-white/25 bg-white/[0.08] px-2.5 py-1 text-[0.55rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--dashboard-text-70)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)]"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <section className={CARD_CLASSES}>
@@ -286,7 +323,7 @@ export function Bookmarks() {
             onClick={toggleEditMode}
             className={`flex h-8 w-8 items-center justify-center rounded-full border text-[color:var(--dashboard-text-90)] shadow-[0_10px_25px_-18px_rgba(15,23,42,0.9)] transition ${
               editMode
-                ? 'border-white/50 bg-white/25 text-[color:var(--dashboard-text-100)]'
+                ? 'border-sky-200/80 bg-sky-400/20 text-sky-100 ring-2 ring-sky-300/60'
                 : 'border-white/20 bg-white/[0.12] hover:border-white/40 hover:bg-white/[0.2] hover:text-[color:var(--dashboard-text-100)]'
             }`}
             aria-label="Edit bookmarks"
@@ -315,101 +352,83 @@ export function Bookmarks() {
         </div>
       </div>
 
-      {isFormOpen && (
-        <div className="relative z-10 mt-3 space-y-2">
-          <input
-            value={draftName}
-            onChange={(event) => setDraftName(event.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder="Website name"
-            className="w-full rounded-2xl border border-white/20 bg-white/[0.08] px-3 py-2 text-xs text-[color:var(--dashboard-text-95)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
-          />
-          <input
-            value={draftUrl}
-            onChange={(event) => setDraftUrl(event.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder="https://example.com"
-            className="w-full rounded-2xl border border-white/20 bg-white/[0.08] px-3 py-2 text-xs text-[color:var(--dashboard-text-95)] placeholder:text-[color:var(--dashboard-text-45)] focus:border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300/60"
-          />
-          {formError ? (
-            <p className="text-[0.6rem] text-rose-200/90">{formError}</p>
-          ) : null}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleSave}
-              className="flex-1 rounded-full bg-sky-400/90 px-3 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-[color:var(--dashboard-text-100)] shadow-[0_12px_25px_-18px_rgba(56,189,248,0.9)] transition hover:bg-sky-300"
-            >
-              {formMode === 'edit' ? 'Update' : 'Save'}
-            </button>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="flex-1 rounded-full border border-white/25 bg-white/[0.08] px-3 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-[color:var(--dashboard-text-70)] transition hover:border-white/40 hover:text-[color:var(--dashboard-text-100)]"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="relative z-10 mt-3">
-        {bookmarkItems.length ? (
+        {bookmarkItems.length || showAddForm ? (
           <ul className="flex flex-col gap-2">
+            {showAddForm ? (
+              <li className="rounded-2xl border border-white/15 bg-white/[0.06] p-3 shadow-[0_16px_35px_-28px_rgba(15,23,42,0.9)]">
+                {formFields}
+              </li>
+            ) : null}
             {bookmarkItems.map((bookmark) => (
-              <li key={bookmark.id} className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleBookmarkClick(bookmark)}
-                  title={bookmark.hostname || bookmark.url}
-                  className="group flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/15 bg-white/[0.07] px-3 py-2 text-left text-[0.7rem] font-semibold text-[color:var(--dashboard-text-90)] shadow-[0_12px_30px_-26px_rgba(15,23,42,0.8)] transition hover:border-white/35 hover:bg-white/[0.16] hover:text-[color:var(--dashboard-text-100)]"
-                >
-                  <BookmarkFavicon url={bookmark.url} />
-                  <span className="min-w-0 flex-1 truncate">
-                    {bookmark.name}
-                  </span>
-                  <span
-                    className="ml-auto flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] text-[color:var(--dashboard-text-60)] opacity-0 transition duration-200 group-hover:opacity-100 group-hover:text-[color:var(--dashboard-text-90)]"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      className="h-3.5 w-3.5"
+              <li key={bookmark.id}>
+                {formMode === 'edit' && activeId === bookmark.id ? (
+                  <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-3 shadow-[0_16px_35px_-28px_rgba(15,23,42,0.9)]">
+                    {formFields}
+                  </div>
+                ) : (
+                  <div className="group relative flex w-full items-center rounded-2xl border border-white/15 bg-white/[0.07] px-3 py-2 text-[0.7rem] font-semibold text-[color:var(--dashboard-text-90)] shadow-[0_12px_30px_-26px_rgba(15,23,42,0.8)] transition hover:border-white/35 hover:bg-white/[0.16] hover:text-[color:var(--dashboard-text-100)]">
+                    <button
+                      type="button"
+                      onClick={() => handleBookmarkClick(bookmark)}
+                      title={bookmark.hostname || bookmark.url}
+                      className="relative z-0 flex w-full min-w-0 items-center gap-2 pr-10 text-left"
                     >
-                      <circle cx="11" cy="11" r="6.5" />
-                      <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-                      <path d="M11 8.5v5" strokeLinecap="round" />
-                      <path d="M8.5 11h5" strokeLinecap="round" />
-                    </svg>
-                  </span>
-                </button>
-                {editMode ? (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(bookmark.id)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.08] text-[color:var(--dashboard-text-65)] transition hover:border-rose-400/90 hover:bg-rose-500/25 hover:text-rose-50"
-                    aria-label={`Delete ${bookmark.name}`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      className="h-4 w-4"
-                    >
-                      <path d="M6 6h8" strokeLinecap="round" />
-                      <path d="M8 6l.4-1.2A1 1 0 019.35 4h1.3a1 1 0 01.95.8L12 6" strokeLinecap="round" />
-                      <rect x="6.5" y="7" width="7" height="8" rx="1.3" />
-                      <path d="M9 9.5v4" strokeLinecap="round" />
-                      <path d="M11 9.5v4" strokeLinecap="round" />
-                    </svg>
-                  </button>
-                ) : null}
+                      <BookmarkFavicon url={bookmark.url} />
+                      <span
+                        className={`min-w-0 flex-1 ${
+                          editMode
+                            ? 'break-words leading-snug'
+                            : 'truncate'
+                        }`}
+                      >
+                        {bookmark.name}
+                      </span>
+                    </button>
+                    {!editMode ? (
+                      <span
+                        className="pointer-events-none absolute right-3 flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] text-[color:var(--dashboard-text-60)] opacity-0 transition duration-200 group-hover:opacity-100 group-hover:text-[color:var(--dashboard-text-90)]"
+                        aria-hidden="true"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          className="h-3.5 w-3.5"
+                        >
+                          <circle cx="11" cy="11" r="6.5" />
+                          <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                          <path d="M11 8.5v5" strokeLinecap="round" />
+                          <path d="M8.5 11h5" strokeLinecap="round" />
+                        </svg>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(bookmark.id)}
+                        className="absolute right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/[0.08] text-[color:var(--dashboard-text-65)] transition hover:border-rose-400/90 hover:bg-rose-500/25 hover:text-rose-50"
+                        aria-label={`Delete ${bookmark.name}`}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          className="h-4 w-4"
+                        >
+                          <path d="M6 6h8" strokeLinecap="round" />
+                          <path d="M8 6l.4-1.2A1 1 0 019.35 4h1.3a1 1 0 01.95.8L12 6" strokeLinecap="round" />
+                          <rect x="6.5" y="7" width="7" height="8" rx="1.3" />
+                          <path d="M9 9.5v4" strokeLinecap="round" />
+                          <path d="M11 9.5v4" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
