@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   searchBehavior: 'focus_dashboard_searchNewTab',
   weatherApiKey: 'focus_dashboard_weatherApiKey',
   textColor: 'focus_dashboard_textColor',
+  bookmarks: 'focus_dashboard_bookmarks',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -15,3 +16,4 @@ export const WIDGETS_KEY = STORAGE_KEYS.widgets
 export const SEARCH_BEHAVIOR_KEY = STORAGE_KEYS.searchBehavior
 export const WEATHER_API_KEY_KEY = STORAGE_KEYS.weatherApiKey
 export const TEXT_COLOR_KEY = STORAGE_KEYS.textColor
+export const BOOKMARKS_KEY = STORAGE_KEYS.bookmarks

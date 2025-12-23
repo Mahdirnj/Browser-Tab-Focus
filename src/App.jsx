@@ -5,6 +5,7 @@ import {
   loadBackgroundImage,
 } from './background'
 import BackgroundLayer from './components/BackgroundLayer'
+import Bookmarks from './components/Bookmarks'
 import { Clock } from './components/Clock'
 import { Greeting } from './components/Greeting'
 import { SearchBar } from './components/SearchBar'
@@ -205,6 +206,7 @@ function App() {
   const showWeather = !isCompactLayout && widgetsEnabled.weather !== false
   const showTodo = !isCompactLayout && widgetsEnabled.todo !== false
   const showPomodoro = !isCompactLayout && widgetsEnabled.pomodoro !== false
+  const showBookmarks = !isCompactLayout
   const showUtilityColumn = showWeather || showTodo
   const handleWeatherApiKeyChange = useCallback((nextKey) => {
     setWeatherApiKey(nextKey?.trim() ?? '')
@@ -271,15 +273,16 @@ function App() {
           </header>
         </div>
       </main>
-      {showPomodoro ? (
+      {showBookmarks || showPomodoro ? (
         <div
-          className={`pointer-events-auto absolute bottom-6 right-6 z-10 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`pointer-events-auto absolute bottom-6 right-6 z-10 flex flex-col gap-3 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             settingsOpen
               ? 'pointer-events-none translate-y-3 opacity-0'
               : 'translate-y-0 opacity-100'
           }`}
         >
-          <PomodoroTimer isObscured={settingsOpen} />
+          {showBookmarks ? <Bookmarks /> : null}
+          {showPomodoro ? <PomodoroTimer isObscured={settingsOpen} /> : null}
         </div>
       ) : null}
     </div>
