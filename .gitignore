@@ -15,6 +15,10 @@ dist-ssr
 .env
 release/
 
+# Markdown files — ignore all except README.md
+*.md
+!README.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

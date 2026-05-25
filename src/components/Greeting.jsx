@@ -43,11 +43,10 @@ function greetingForHour(timeZone) {
 
 export function Greeting({ editSignal = 0, onNameChange, timezone }) {
   const effectiveTimezone = timezone || DEFAULT_TIMEZONE
-  const initialName = readString(USER_NAME_KEY, '')
 
-  const [name, setName] = useState(initialName)
-  const [inputValue, setInputValue] = useState(initialName)
-  const [isEditing, setIsEditing] = useState(() => !initialName)
+  const [name, setName] = useState(() => readString(USER_NAME_KEY, ''))
+  const [inputValue, setInputValue] = useState(() => readString(USER_NAME_KEY, ''))
+  const [isEditing, setIsEditing] = useState(() => !readString(USER_NAME_KEY, ''))
   const [greeting, setGreeting] = useState(() =>
     greetingForHour(effectiveTimezone),
   )
@@ -110,6 +109,7 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
     }
     if (event.key === 'Escape') {
       setInputValue(name)
+      if (!name) return
       setIsEditing(false)
     }
   }
@@ -138,7 +138,7 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
       ) : (
         <>
           <h1 className="bg-gradient-to-r from-[color:var(--dashboard-text-100)] via-[color:var(--dashboard-text-95)] to-[color:var(--dashboard-text-80)] bg-clip-text text-4xl font-semibold text-transparent leading-tight drop-shadow-[0_12px_30px_rgba(15,23,42,0.4)] md:text-6xl md:leading-snug">
-            {greeting}, {name}.
+            {name ? `${greeting}, ${name}.` : greeting}
           </h1>
         </>
       )}

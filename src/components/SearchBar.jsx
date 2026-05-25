@@ -95,8 +95,9 @@ export function SearchBar({ openInNewTab = true }) {
   }, [])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.setTimeout(() => inputRef.current?.focus(), 0)
+    if (typeof window === 'undefined') return undefined
+    const id = window.setTimeout(() => inputRef.current?.focus(), 0)
+    return () => window.clearTimeout(id)
   }, [])
 
   useEffect(() => {

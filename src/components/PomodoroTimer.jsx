@@ -30,6 +30,7 @@ export function PomodoroTimer({ isObscured = false }) {
   const rafRef = useRef(null)
   const endTimestampRef = useRef(null)
   const resetPulseTimeout = useRef(null)
+  const cyclesCompletedRef = useRef(0)
 
   const startPhase = useCallback((nextPhase, autoStart) => {
     const nextDuration =
@@ -64,12 +65,11 @@ export function PomodoroTimer({ isObscured = false }) {
 
   const handlePhaseComplete = useCallback(() => {
     if (phase === 'focus') {
-      setCyclesCompleted((count) => {
-        const nextCount = count + 1
-        const isLongBreak = nextCount % LONG_BREAK_INTERVAL === 0
-        startPhase(isLongBreak ? 'longBreak' : 'shortBreak', true)
-        return nextCount
-      })
+      const nextCount = cyclesCompletedRef.current + 1
+      cyclesCompletedRef.current = nextCount
+      setCyclesCompleted(nextCount)
+      const isLongBreak = nextCount % LONG_BREAK_INTERVAL === 0
+      startPhase(isLongBreak ? 'longBreak' : 'shortBreak', true)
     } else {
       startPhase('focus', true)
     }
@@ -146,6 +146,7 @@ export function PomodoroTimer({ isObscured = false }) {
     if (resetPulseTimeout.current != null && hasWindow()) {
       window.clearTimeout(resetPulseTimeout.current)
     }
+    cyclesCompletedRef.current = 0
     setCyclesCompleted(0)
     startPhase('focus', false)
     setResetPulse(true)

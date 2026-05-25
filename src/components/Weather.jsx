@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   readJSON,
   readString,
@@ -491,18 +491,25 @@ export function Weather({ apiKey: providedApiKey = '', isActive = true }) {
   const [weather, setWeather] = useState(() => readCachedWeather(initialCity))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const fetchAbortRef = useRef(null)
   const pollingEnabled = isActive && Boolean(city) && Boolean(apiKey)
 
   const fetchWeather = useCallback(
     async (targetCity) => {
       const nextCity = targetCity ?? city
       if (!nextCity || !apiKey || !isActive) return
+
+      fetchAbortRef.current?.abort()
+      const controller = new AbortController()
+      fetchAbortRef.current = controller
+
       setLoading(true)
       setError('')
 
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(nextCity)}&units=metric&appid=${apiKey}`,
+          { signal: controller.signal },
         )
 
         if (!response.ok) {
@@ -524,6 +531,7 @@ export function Weather({ apiKey: providedApiKey = '', isActive = true }) {
           data: result,
         })
       } catch (err) {
+        if (err.name === 'AbortError') return
         console.error(err)
         setError(
           err instanceof Error
