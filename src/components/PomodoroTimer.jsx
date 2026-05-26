@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { POMODORO_STATE_KEY } from '../constants/storageKeys'
+import { readJSON, writeJSON } from '../utils/storage'
 
 const CARD_CLASSES =
   'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
@@ -20,17 +22,63 @@ function formatTime(milliseconds) {
     .padStart(2, '0')}`
 }
 
+function loadSavedState() {
+  const saved = readJSON(POMODORO_STATE_KEY, null)
+  if (!saved || typeof saved !== 'object') return null
+  const { phase, phaseDuration, remainingMs, isRunning, cyclesCompleted, savedAt } = saved
+  if (typeof phase !== 'string' || typeof remainingMs !== 'number') return null
+
+  let adjustedRemaining = remainingMs
+  let adjustedRunning = isRunning ?? false
+
+  // If it was running when saved, account for time that passed while closed
+  if (adjustedRunning && typeof savedAt === 'number') {
+    adjustedRemaining = Math.max(0, remainingMs - (Date.now() - savedAt))
+    if (adjustedRemaining === 0) adjustedRunning = false
+  }
+
+  return {
+    phase,
+    phaseDuration: phaseDuration ?? FOCUS_DURATION,
+    remainingMs: adjustedRemaining,
+    isRunning: adjustedRunning,
+    cyclesCompleted: cyclesCompleted ?? 0,
+  }
+}
+
 export function PomodoroTimer({ isObscured = false }) {
-  const [phase, setPhase] = useState('focus')
-  const [phaseDuration, setPhaseDuration] = useState(FOCUS_DURATION)
-  const [remainingMs, setRemainingMs] = useState(FOCUS_DURATION)
-  const [isRunning, setIsRunning] = useState(false)
-  const [cyclesCompleted, setCyclesCompleted] = useState(0)
+  const savedState = useMemo(() => loadSavedState(), [])
+  const [phase, setPhase] = useState(savedState?.phase ?? 'focus')
+  const [phaseDuration, setPhaseDuration] = useState(savedState?.phaseDuration ?? FOCUS_DURATION)
+  const [remainingMs, setRemainingMs] = useState(savedState?.remainingMs ?? FOCUS_DURATION)
+  const [isRunning, setIsRunning] = useState(false) // started via effect after refs are set
+  const [cyclesCompleted, setCyclesCompleted] = useState(savedState?.cyclesCompleted ?? 0)
   const [resetPulse, setResetPulse] = useState(false)
   const rafRef = useRef(null)
   const endTimestampRef = useRef(null)
   const resetPulseTimeout = useRef(null)
-  const cyclesCompletedRef = useRef(0)
+  const cyclesCompletedRef = useRef(savedState?.cyclesCompleted ?? 0)
+
+  // Restore running state on mount after refs are initialised
+  useEffect(() => {
+    if (savedState?.isRunning && (savedState?.remainingMs ?? 0) > 0) {
+      endTimestampRef.current = getNow() + savedState.remainingMs
+      setIsRunning(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Persist state whenever a meaningful structural change happens
+  useEffect(() => {
+    writeJSON(POMODORO_STATE_KEY, {
+      phase,
+      phaseDuration,
+      remainingMs,
+      isRunning,
+      cyclesCompleted,
+      savedAt: Date.now(),
+    })
+  }, [phase, phaseDuration, isRunning, cyclesCompleted]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const startPhase = useCallback((nextPhase, autoStart) => {
     const nextDuration =

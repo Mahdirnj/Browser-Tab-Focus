@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import bingLogo from '../SearchEngineLogo/bing.png'
 import braveLogo from '../SearchEngineLogo/Brave.png'
+import { SEARCH_ENGINE_KEY } from '../constants/storageKeys'
+import { readString, writeString } from '../utils/storage'
 
 const SEARCH_ENGINES = [
   {
@@ -30,55 +32,12 @@ const SEARCH_ENGINES = [
   },
 ]
 
-const SEARCH_BUTTON_ANIMATION_STYLE_ID = 'search-enhancement-animations'
-
-function ensureSearchButtonAnimations() {
-  if (typeof document === 'undefined') return
-  if (document.getElementById(SEARCH_BUTTON_ANIMATION_STYLE_ID)) return
-
-  const style = document.createElement('style')
-  style.id = SEARCH_BUTTON_ANIMATION_STYLE_ID
-  style.textContent = `
-@keyframes searchBeamHue {
-  0% { filter: hue-rotate(0deg); }
-  50% { filter: hue-rotate(180deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-@keyframes searchMenuReveal {
-  0% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.96);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(1px) scale(1.01);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-@keyframes searchSuggestionsReveal {
-  0% {
-    opacity: 0;
-    transform: translateY(-12px) scale(0.96);
-  }
-  65% {
-    opacity: 1;
-    transform: translateY(4px) scale(1.01);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-`
-  document.head.appendChild(style)
-}
-
 export function SearchBar({ openInNewTab = true }) {
   const [query, setQuery] = useState('')
-  const [engine, setEngine] = useState(SEARCH_ENGINES[0])
+  const [engine, setEngine] = useState(() => {
+    const savedId = readString(SEARCH_ENGINE_KEY, SEARCH_ENGINES[0].id)
+    return SEARCH_ENGINES.find((e) => e.id === savedId) ?? SEARCH_ENGINES[0]
+  })
   const [menuOpen, setMenuOpen] = useState(false)
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
@@ -89,10 +48,6 @@ export function SearchBar({ openInNewTab = true }) {
   const containerRef = useRef(null)
   const debounceRef = useRef(null)
   const suggestionsAbortRef = useRef(null)
-
-  useEffect(() => {
-    ensureSearchButtonAnimations()
-  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -242,6 +197,7 @@ export function SearchBar({ openInNewTab = true }) {
     const next = SEARCH_ENGINES.find((item) => item.id === nextEngineId)
     if (!next) return
     setEngine(next)
+    writeString(SEARCH_ENGINE_KEY, next.id)
     setMenuOpen(false)
     setSuggestionsOpen(false)
     setHighlightIndex(-1)

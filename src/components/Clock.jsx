@@ -40,11 +40,18 @@ export function Clock({ timezone }) {
   )
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setNow(new Date())
-    }, 1000)
+    const tick = () => setNow(new Date())
+    const interval = window.setInterval(tick, 1000)
 
-    return () => window.clearInterval(interval)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') tick()
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   return (

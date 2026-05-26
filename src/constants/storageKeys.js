@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   city: 'focus_dashboard_city',
   weatherCache: 'focus_dashboard_weatherCache',
   todos: 'focus_dashboard_todos',
+  searchEngine: 'focus_dashboard_searchEngine',
+  pomodoroState: 'focus_dashboard_pomodoroState',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -23,3 +25,5 @@ export const BOOKMARKS_KEY = STORAGE_KEYS.bookmarks
 export const CITY_KEY = STORAGE_KEYS.city
 export const WEATHER_CACHE_KEY = STORAGE_KEYS.weatherCache
 export const TODOS_KEY = STORAGE_KEYS.todos
+export const SEARCH_ENGINE_KEY = STORAGE_KEYS.searchEngine
+export const POMODORO_STATE_KEY = STORAGE_KEYS.pomodoroState
