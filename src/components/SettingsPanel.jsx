@@ -153,6 +153,46 @@ const BackgroundOption = memo(function BackgroundOption({
   )
 })
 
+/** Number input that lets users freely edit (including clearing) and commits only on blur */
+function DurationInput({ value, defaultValue, min = 1, max = 120, label, onChange }) {
+  const [raw, setRaw] = useState(String(value ?? defaultValue))
+
+  // Sync if parent value changes externally
+  useEffect(() => {
+    setRaw(String(value ?? defaultValue))
+  }, [value, defaultValue])
+
+  function commit(rawVal) {
+    const num = Number(rawVal)
+    if (rawVal === '' || isNaN(num) || num < min) {
+      setRaw(String(defaultValue))
+      onChange(defaultValue)
+    } else {
+      const clamped = Math.min(max, Math.max(min, num))
+      setRaw(String(clamped))
+      onChange(clamped)
+    }
+  }
+
+  return (
+    <input
+      type="number"
+      min={min}
+      max={max}
+      value={raw}
+      onChange={(e) => setRaw(e.target.value)}
+      onBlur={(e) => commit(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.currentTarget.blur()
+        }
+      }}
+      className="w-14 rounded-lg border border-white/15 bg-white/[0.08] px-2 py-1 text-center text-xs font-semibold tracking-[0.1em] text-[color:var(--dashboard-text-90)] transition focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/20 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+      aria-label={`${label} duration in minutes`}
+    />
+  )
+}
+
 export function SettingsPanel({
   backgrounds,
   selectedBackgroundId,
@@ -171,6 +211,8 @@ export function SettingsPanel({
   onSearchBehaviorChange,
   weatherApiKey,
   onWeatherApiKeyChange,
+  pomodoroDurations,
+  onPomodoroDurationsChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -183,6 +225,8 @@ export function SettingsPanel({
       weather: widgetsEnabled?.weather !== false,
       todo: widgetsEnabled?.todo !== false,
       pomodoro: widgetsEnabled?.pomodoro !== false,
+      dailyFocus: widgetsEnabled?.dailyFocus !== false,
+      quote: widgetsEnabled?.quote !== false,
     }),
     [widgetsEnabled],
   )
@@ -721,6 +765,18 @@ export function SettingsPanel({
                       description:
                         'Guides you through focus and break cycles. Timer runs locally and resets anytime you need.',
                     },
+                    {
+                      id: 'dailyFocus',
+                      label: "Today's Focus",
+                      description:
+                        "Set a single goal for the day. Resets automatically at midnight.",
+                    },
+                    {
+                      id: 'quote',
+                      label: 'Daily Quote',
+                      description:
+                        'Shows a fresh inspirational quote each day, cycling from a bundled collection.',
+                    },
                   ].map((item) => {
                     const enabled = widgetStates[item.id]
                     return (
@@ -940,6 +996,40 @@ export function SettingsPanel({
                   </div>
                 </section>
               ) : null}
+              <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
+                  Pomodoro
+                </p>
+                <div className="mt-3 space-y-3">
+                  {[
+                    { label: 'Focus', key: 'focus', default: 25 },
+                    { label: 'Short Break', key: 'shortBreak', default: 5 },
+                    { label: 'Long Break', key: 'longBreak', default: 15 },
+                  ].map(({ label, key, default: def }) => (
+                    <div key={key} className="flex items-center justify-between gap-4 rounded-xl border border-white/12 bg-white/[0.06] px-3 py-2">
+                      <span className="text-[0.65rem] uppercase tracking-[0.28em] text-[color:var(--dashboard-text-55)]">
+                        {label}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <DurationInput
+                          value={pomodoroDurations?.[key]}
+                          defaultValue={def}
+                          label={label}
+                          onChange={(val) =>
+                            onPomodoroDurationsChange?.({
+                              ...(pomodoroDurations ?? { focus: 25, shortBreak: 5, longBreak: 15 }),
+                              [key]: val,
+                            })
+                          }
+                        />
+                        <span className="text-[0.6rem] uppercase tracking-[0.24em] text-[color:var(--dashboard-text-40)]">
+                          min
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
               <section className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_28px_60px_-48px_rgba(15,23,42,0.95)]">
                 <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--dashboard-text-70)]">
                   Background

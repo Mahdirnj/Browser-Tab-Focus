@@ -12,6 +12,9 @@ export const STORAGE_KEYS = {
   todos: 'focus_dashboard_todos',
   searchEngine: 'focus_dashboard_searchEngine',
   pomodoroState: 'focus_dashboard_pomodoroState',
+  dailyFocus: 'focus_dashboard_dailyFocus',
+  focusDate: 'focus_dashboard_focusDate',
+  pomodoroDurations: 'focus_dashboard_pomodoroDurations',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -27,3 +30,6 @@ export const WEATHER_CACHE_KEY = STORAGE_KEYS.weatherCache
 export const TODOS_KEY = STORAGE_KEYS.todos
 export const SEARCH_ENGINE_KEY = STORAGE_KEYS.searchEngine
 export const POMODORO_STATE_KEY = STORAGE_KEYS.pomodoroState
+export const DAILY_FOCUS_KEY = STORAGE_KEYS.dailyFocus
+export const FOCUS_DATE_KEY = STORAGE_KEYS.focusDate
+export const POMODORO_DURATIONS_KEY = STORAGE_KEYS.pomodoroDurations

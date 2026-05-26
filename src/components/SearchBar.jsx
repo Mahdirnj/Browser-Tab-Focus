@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import bingLogo from '../SearchEngineLogo/bing.png'
 import braveLogo from '../SearchEngineLogo/Brave.png'
 import { SEARCH_ENGINE_KEY } from '../constants/storageKeys'
@@ -44,10 +45,13 @@ export function SearchBar({ openInNewTab = true }) {
   const [highlightIndex, setHighlightIndex] = useState(-1)
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false)
   const menuRef = useRef(null)
+  const buttonRef = useRef(null)
+  const dropdownRef = useRef(null)
   const inputRef = useRef(null)
   const containerRef = useRef(null)
   const debounceRef = useRef(null)
   const suggestionsAbortRef = useRef(null)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 })
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -58,12 +62,26 @@ export function SearchBar({ openInNewTab = true }) {
   useEffect(() => {
     if (!menuOpen) return
     const handleClick = (event) => {
-      if (!menuRef.current?.contains(event.target)) {
+      if (
+        !menuRef.current?.contains(event.target) &&
+        !dropdownRef.current?.contains(event.target)
+      ) {
         setMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const close = () => setMenuOpen(false)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
   }, [menuOpen])
 
   useEffect(() => {
@@ -188,6 +206,13 @@ export function SearchBar({ openInNewTab = true }) {
   }
 
   const toggleMenu = () => {
+    if (!menuOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
     setMenuOpen((prev) => !prev)
     setSuggestionsOpen(false)
     setHighlightIndex(-1)
@@ -210,7 +235,7 @@ export function SearchBar({ openInNewTab = true }) {
     <form
       ref={containerRef}
       onSubmit={handleSubmit}
-      className="relative mx-auto w-full max-w-2xl"
+      className="relative z-10 mx-auto w-full max-w-2xl"
     >
       <div className="flex items-center rounded-full border border-white/15 bg-white/12 pl-5 pr-2 text-white shadow-[0_25px_50px_-25px_rgba(15,23,42,0.65)] backdrop-blur-sm transition-[background-color,backdrop-filter,border-color] duration-500 ease-out focus-within:border-white/30 focus-within:bg-white/20 focus-within:backdrop-blur-[14px]">
         <span className="text-white/60">
@@ -283,51 +308,81 @@ export function SearchBar({ openInNewTab = true }) {
           className="flex-1 bg-transparent px-4 py-3 text-base text-white placeholder:text-white/50 focus:outline-none"
         />
         <div className="ml-1 flex items-center gap-1">
+          {/* Vertical divider separating input from engine picker */}
+          <span className="h-5 w-px flex-shrink-0 bg-white/[0.15]" aria-hidden="true" />
           <div className="relative" ref={menuRef}>
             <button
+              ref={buttonRef}
               type="button"
               onClick={toggleMenu}
-              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/75 transition hover:border-white/35 hover:text-white"
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${
+                menuOpen
+                  ? 'bg-white/[0.1] text-white/90'
+                  : 'text-white/55 hover:bg-white/[0.08] hover:text-white/85'
+              }`}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
             >
-              <SearchEngineIcon type={engine.id} className="h-4 w-4" />
-              <span className="hidden sm:inline">{engine.label}</span>
+              <SearchEngineIcon type={engine.id} className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline text-xs font-medium">{engine.label}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.6"
-                className="h-3.5 w-3.5"
+                strokeWidth="1.8"
+                className={`h-3 w-3 flex-shrink-0 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}
               >
-                <path d="M6 8l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            {menuOpen && (
+            {menuOpen && typeof document !== 'undefined' && createPortal(
               <div
-                className="absolute right-0 top-full z-50 mt-2 w-44 origin-top-right rounded-2xl border border-white/25 bg-slate-900/30 p-2 shadow-[0_35px_60px_-25px_rgba(15,23,42,0.9)] backdrop-blur-3xl"
+                ref={dropdownRef}
+                className="fixed w-52 origin-top-right overflow-hidden rounded-2xl border border-white/10 bg-white/[0.10] shadow-[0_20px_48px_-10px_rgba(0,0,0,0.65),0_4px_16px_-6px_rgba(0,0,0,0.35)]"
                 style={{
+                  top: dropdownPos.top,
+                  right: dropdownPos.right,
+                  zIndex: 9999,
+                  backdropFilter: 'blur(20px) saturate(1.4)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
                   animation: 'searchMenuReveal 220ms cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               >
-                <ul className="space-y-1">
-                  {SEARCH_ENGINES.filter((item) => item.id !== engine.id).map(
-                    (item) => (
+                <ul className="p-1.5">
+                  {SEARCH_ENGINES.map((item) => {
+                    const isActive = item.id === engine.id
+                    return (
                       <li key={item.id}>
                         <button
                           type="button"
                           onClick={() => handleEngineSelect(item.id)}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/70 transition hover:bg-white/15 hover:text-white"
+                          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 focus-visible:outline-none ${
+                            isActive
+                              ? 'bg-white/[0.1] text-white'
+                              : 'text-white/55 hover:bg-white/[0.07] hover:text-white/85'
+                          }`}
                         >
-                          <SearchEngineIcon type={item.id} className="h-4 w-4" />
-                          <span>{item.label}</span>
+                          <SearchEngineIcon type={item.id} className="h-4 w-4 flex-shrink-0" />
+                          <span className="flex-1 text-left font-medium">{item.label}</span>
+                          {isActive && (
+                            <svg
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              className="h-3.5 w-3.5 flex-shrink-0 text-white/45"
+                            >
+                              <path d="M3 8l3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
                         </button>
                       </li>
-                    ),
-                  )}
+                    )
+                  })}
                 </ul>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
           <SearchButton />

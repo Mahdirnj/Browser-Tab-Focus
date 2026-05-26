@@ -7,7 +7,9 @@ import {
 import BackgroundLayer from './components/BackgroundLayer'
 import Bookmarks from './components/Bookmarks'
 import { Clock } from './components/Clock'
+import { DailyFocus } from './components/DailyFocus'
 import { Greeting } from './components/Greeting'
+import { Quote } from './components/Quote'
 import { SearchBar } from './components/SearchBar'
 import SettingsPanel from './components/SettingsPanel'
 import PomodoroTimer from './components/PomodoroTimer'
@@ -16,6 +18,7 @@ import Weather from './components/Weather'
 import {
   BACKGROUND_KEY,
   CLOCK_TIMEZONE_KEY,
+  POMODORO_DURATIONS_KEY,
   SEARCH_BEHAVIOR_KEY,
   TEXT_COLOR_KEY,
   USER_NAME_KEY,
@@ -120,6 +123,9 @@ function App() {
   const [weatherApiKey, setWeatherApiKey] = useState(() =>
     readString(WEATHER_API_KEY_KEY, ''),
   )
+  const [pomodoroDurations, setPomodoroDurations] = useState(() =>
+    readJSON(POMODORO_DURATIONS_KEY, { focus: 25, shortBreak: 5, longBreak: 15 }),
+  )
 
   useEffect(() => {
     writeString(BACKGROUND_KEY, backgroundId)
@@ -200,10 +206,32 @@ function App() {
   const showWeather = !isCompactLayout && widgetsEnabled.weather !== false
   const showTodo = !isCompactLayout && widgetsEnabled.todo !== false
   const showPomodoro = !isCompactLayout && widgetsEnabled.pomodoro !== false
+  const showDailyFocus = widgetsEnabled.dailyFocus !== false
+  const showQuote = widgetsEnabled.quote !== false
   const showBookmarks = !isCompactLayout
   const showUtilityColumn = showWeather || showTodo
   const handleWeatherApiKeyChange = useCallback((nextKey) => {
     setWeatherApiKey(nextKey?.trim() ?? '')
+  }, [])
+
+  const handlePomodoroDurationsChange = useCallback((next) => {
+    setPomodoroDurations(next)
+    writeJSON(POMODORO_DURATIONS_KEY, next)
+  }, [])
+
+  // Request notification permission once — only if not yet decided and not already asked.
+  // Runs after 2.5s so it doesn't interrupt the page load experience.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+    if (Notification.permission !== 'default') return
+    if (localStorage.getItem('focus_notif_asked')) return
+
+    const id = window.setTimeout(() => {
+      localStorage.setItem('focus_notif_asked', '1')
+      Notification.requestPermission()
+    }, 2500)
+
+    return () => window.clearTimeout(id)
   }, [])
 
   useEffect(() => {
@@ -222,6 +250,7 @@ function App() {
         <div className="pointer-events-auto flex flex-col items-center gap-2">
           <BrandMark />
           <Clock timezone={clockTimezone} />
+          {showDailyFocus ? <DailyFocus /> : null}
         </div>
       </div>
       {showUtilityColumn ? (
@@ -252,18 +281,21 @@ function App() {
         onSearchBehaviorChange={setOpenSearchInNewTab}
         weatherApiKey={weatherApiKey}
         onWeatherApiKeyChange={handleWeatherApiKeyChange}
+        pomodoroDurations={pomodoroDurations}
+        onPomodoroDurationsChange={handlePomodoroDurationsChange}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
           className={`relative flex w-full max-w-4xl flex-col gap-6 rounded-[28px] px-5 py-10 sm:px-8 lg:gap-8 lg:px-10 ${panelClasses}`}
         >
-          <header className="mt-20 flex flex-col items-center gap-5 text-center sm:mt-24 lg:mt-32">
+          <header className="mt-32 flex flex-col items-center gap-5 text-center sm:mt-36 lg:mt-48">
             <Greeting
               editSignal={nameEditSignal}
               onNameChange={setUserName}
               timezone={clockTimezone}
             />
             <SearchBar openInNewTab={openSearchInNewTab} />
+            {showQuote ? <Quote /> : null}
           </header>
         </div>
       </main>
@@ -276,7 +308,7 @@ function App() {
           }`}
         >
           {showBookmarks ? <Bookmarks /> : null}
-          {showPomodoro ? <PomodoroTimer isObscured={settingsOpen} /> : null}
+          {showPomodoro ? <PomodoroTimer isObscured={settingsOpen} pomodoroDurations={pomodoroDurations} /> : null}
         </div>
       ) : null}
     </div>

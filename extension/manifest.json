@@ -18,7 +18,7 @@
       "32": "icons/tab-icon.png"
     }
   },
-  "permissions": [],
+  "permissions": ["notifications"],
   "host_permissions": [
     "https://api.openweathermap.org/*",
     "https://duckduckgo.com/*"

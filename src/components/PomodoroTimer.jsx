@@ -5,10 +5,54 @@ import { readJSON, writeJSON } from '../utils/storage'
 const CARD_CLASSES =
   'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
 
-const FOCUS_DURATION = 25 * 60 * 1000
-const SHORT_BREAK_DURATION = 5 * 60 * 1000
-const LONG_BREAK_DURATION = 15 * 60 * 1000
+const DEFAULT_FOCUS_MIN = 25
+const DEFAULT_SHORT_MIN = 5
+const DEFAULT_LONG_MIN = 15
+
+const FOCUS_DURATION = DEFAULT_FOCUS_MIN * 60 * 1000
+const SHORT_BREAK_DURATION = DEFAULT_SHORT_MIN * 60 * 1000
+const LONG_BREAK_DURATION = DEFAULT_LONG_MIN * 60 * 1000
 const LONG_BREAK_INTERVAL = 4
+
+/** Plays a two-tone chime via Web Audio API — no audio file needed. */
+function playChime() {
+  if (typeof window === 'undefined') return
+  const AudioCtx = window.AudioContext || window.webkitAudioContext
+  if (!AudioCtx) return
+
+  try {
+    const ctx = new AudioCtx()
+    const gain = ctx.createGain()
+    gain.connect(ctx.destination)
+    gain.gain.setValueAtTime(0.22, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4)
+
+    const freqs = [880, 1100]
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18)
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.75, ctx.currentTime + i * 0.18 + 0.7)
+      osc.connect(gain)
+      osc.start(ctx.currentTime + i * 0.18)
+      osc.stop(ctx.currentTime + 1.4)
+    })
+  } catch {
+    // AudioContext unavailable — silent failure is fine
+  }
+}
+
+/** Requests permission if needed, then fires a browser notification. */
+async function sendNotification(title, body) {
+  if (typeof window === 'undefined' || !('Notification' in window)) return
+  if (Notification.permission === 'default') {
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') return
+  }
+  if (Notification.permission !== 'granted') return
+  // eslint-disable-next-line no-new
+  new Notification(title, { body, icon: '/icons/tab-icon.png' })
+}
 
 const hasWindow = () => typeof window !== 'undefined'
 const getNow = () => (typeof performance !== 'undefined' ? performance.now() : Date.now())
@@ -46,8 +90,17 @@ function loadSavedState() {
   }
 }
 
-export function PomodoroTimer({ isObscured = false }) {
+export function PomodoroTimer({ isObscured = false, pomodoroDurations }) {
   const savedState = useMemo(() => loadSavedState(), [])
+
+  // Resolved durations — prop overrides defaults
+  const durationsRef = useRef(null)
+  durationsRef.current = {
+    focus: (pomodoroDurations?.focus ?? DEFAULT_FOCUS_MIN) * 60 * 1000,
+    shortBreak: (pomodoroDurations?.shortBreak ?? DEFAULT_SHORT_MIN) * 60 * 1000,
+    longBreak: (pomodoroDurations?.longBreak ?? DEFAULT_LONG_MIN) * 60 * 1000,
+  }
+
   const [phase, setPhase] = useState(savedState?.phase ?? 'focus')
   const [phaseDuration, setPhaseDuration] = useState(savedState?.phaseDuration ?? FOCUS_DURATION)
   const [remainingMs, setRemainingMs] = useState(savedState?.remainingMs ?? FOCUS_DURATION)
@@ -81,12 +134,13 @@ export function PomodoroTimer({ isObscured = false }) {
   }, [phase, phaseDuration, isRunning, cyclesCompleted]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const startPhase = useCallback((nextPhase, autoStart) => {
+    const d = durationsRef.current
     const nextDuration =
       nextPhase === 'focus'
-        ? FOCUS_DURATION
+        ? d.focus
         : nextPhase === 'longBreak'
-          ? LONG_BREAK_DURATION
-          : SHORT_BREAK_DURATION
+          ? d.longBreak
+          : d.shortBreak
 
     setPhase(nextPhase)
     setPhaseDuration(nextDuration)
@@ -112,13 +166,18 @@ export function PomodoroTimer({ isObscured = false }) {
   }, [])
 
   const handlePhaseComplete = useCallback(() => {
+    playChime()
+
     if (phase === 'focus') {
       const nextCount = cyclesCompletedRef.current + 1
       cyclesCompletedRef.current = nextCount
       setCyclesCompleted(nextCount)
       const isLongBreak = nextCount % LONG_BREAK_INTERVAL === 0
+      const breakLabel = isLongBreak ? 'long break' : 'short break'
+      sendNotification('FocusLoom — Focus complete!', `Great work! Time for a ${breakLabel}.`)
       startPhase(isLongBreak ? 'longBreak' : 'shortBreak', true)
     } else {
+      sendNotification('FocusLoom — Break over!', 'Ready to focus? Your next session is starting.')
       startPhase('focus', true)
     }
   }, [phase, startPhase])
@@ -178,6 +237,31 @@ export function PomodoroTimer({ isObscured = false }) {
       }
     }
   }, [])
+
+  // Sync remaining time immediately when the tab becomes visible again.
+  // RAF pauses while the tab is hidden, so without this the circle stays
+  // frozen at its last value until the RAF resumes.
+  useEffect(() => {
+    if (!hasWindow()) return undefined
+
+    function onVisibilityChange() {
+      if (
+        document.visibilityState === 'visible' &&
+        isRunning &&
+        endTimestampRef.current != null
+      ) {
+        const remaining = Math.max(0, endTimestampRef.current - getNow())
+        setRemainingMs(remaining)
+        if (remaining <= 0) {
+          setIsRunning(false)
+          handlePhaseComplete()
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [isRunning, handlePhaseComplete])
 
   const toggleRunning = useCallback(() => {
     if (!hasWindow()) return

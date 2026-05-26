@@ -1,0 +1,999 @@
+{
+   "quotes": [
+      {
+         "text": "The only people who never fail are those who never try.",
+         "from": "Ilka Chase",
+         "id": 1
+      },
+      {
+         "text": "Failure is just another way to learn how to do something right.",
+         "from": "Marian Wright Edelman",
+         "id": 2
+      },
+      {
+         "text": "I failed my way to success.",
+         "from": "Thomas Edison",
+         "id": 3
+      },
+      {
+         "text": "Every failure brings with it the seed of an equivalent success.",
+         "from": "Napoleon Hill",
+         "id": 4
+      },
+      {
+         "text": "Only those who dare to fail greatly can ever achieve greatly.",
+         "from": "John F. Kennedy",
+         "id": 5
+      },
+      {
+         "text": "It is hard to fail, but it is worse never to have tried to succeed.",
+         "from": "Theodore Roosevelt",
+         "id": 6
+      },
+      {
+         "text": "Imagination is more important than knowledge.",
+         "from": "Albert Einstein",
+         "id": 7
+      },
+      {
+         "text": "The future belongs to those who believe in the beauty of their dreams.",
+         "from": "Eleanor Roosevelt",
+         "id": 8
+      },
+      {
+         "text": "Go confidently in the direction of your dreams. Live the life you have imagined.",
+         "from": "Henry David Thoreau",
+         "id": 9
+      },
+      {
+         "text": "You cannot depend on your eyes when your imagination is out of focus.",
+         "from": "Mark Twain",
+         "id": 10
+      },
+      {
+         "text": "Commitment leads to action. Action brings your dream closer.",
+         "from": "Marcia Wieder",
+         "id": 11
+      },
+      {
+         "text": "I never think of the future",
+         "from": "it comes soon enough.",
+         "id": 12
+      },
+      {
+         "text": "The mind that is anxious about future events is miserable.",
+         "from": "Seneca",
+         "id": 13
+      },
+      {
+         "text": "The art of leadership is saying no, not yes. It is very easy to say yes.",
+         "from": "Tony Blair",
+         "id": 14
+      },
+      {
+         "text": "A leader is a dealer in hope.",
+         "from": "Napoleon Bonaparte",
+         "id": 15
+      },
+      {
+         "text": "While a good leader sustains momentum, a great leader increases it.",
+         "from": "John C. Maxwell",
+         "id": 16
+      },
+      {
+         "text": "To do great things is difficult; but to command great things is more difficult.",
+         "from": "Friedrich Nietzsche",
+         "id": 17
+      },
+      {
+         "text": "Leadership does not always wear the harness of compromise.",
+         "from": "Woodrow Wilson",
+         "id": 18
+      },
+      {
+         "text": "Business opportunities are like buses",
+         "from": "there's always another one coming.",
+         "id": 19
+      },
+      {
+         "text": "I avoid looking forward or backward, and try to keep looking upward.",
+         "from": "Charlotte Bronte",
+         "id": 20
+      },
+      {
+         "text": "Every artist was first an amateur.",
+         "from": "Ralph Waldo Emerson",
+         "id": 21
+      },
+      {
+         "text": "We can do anything we want to do if we stick to it long enough.",
+         "from": "Helen Keller",
+         "id": 22
+      },
+      {
+         "text": "Insist on yourself. Never imitate.",
+         "from": "Ralph Waldo Emerson",
+         "id": 23
+      },
+      {
+         "text": "Who looks outside, dreams. Who looks inside, awakes.",
+         "from": "Carl Jung",
+         "id": 24
+      },
+      {
+         "text": "The only journey is the one within.",
+         "from": "Rainer Maria Rilke",
+         "id": 25
+      },
+      {
+         "text": "Follow your honest convictions, and stay strong.",
+         "from": "William Thackeray",
+         "id": 26
+      },
+      {
+         "text": "Action may not always bring happiness; but there is no happiness without action.",
+         "from": "Benjamin Disraeli",
+         "id": 27
+      },
+      {
+         "text": "Happiness is not a goal, but a by-product.",
+         "from": "Eleanor Roosevelt",
+         "id": 28
+      },
+      {
+         "text": "Happiness is not a state to arrive at, but a manner of traveling.",
+         "from": "Margaret Lee Runbeck",
+         "id": 29
+      },
+      {
+         "text": "Purpose is what gives life a meaning.",
+         "from": "C. H. Parkhurst",
+         "id": 30
+      },
+      {
+         "text": "In all things that you do, consider the end.",
+         "from": "Solon",
+         "id": 31
+      },
+      {
+         "text": "Life can be pulled by goals just as surely as it can be pushed by drives.",
+         "from": "Viktor Frankl",
+         "id": 32
+      },
+      {
+         "text": "The virtue lies in the struggle, not in the prize.",
+         "from": "Richard Monckton Milnes",
+         "id": 33
+      },
+      {
+         "text": "To reach a port, we must sail",
+         "from": "sail, not tie at anchor",
+         "id": 34
+      },
+      {
+         "text": "Success is the child of audacity.",
+         "from": "Benjamin Disraeli",
+         "id": 35
+      },
+      {
+         "text": "The secret of success is to know something nobody else knows.",
+         "from": "Aristotle Onassis",
+         "id": 36
+      },
+      {
+         "text": "The surest way not to fail is to determine to succeed.",
+         "from": "Richard Brinsley Sheridan",
+         "id": 37
+      },
+      {
+         "text": "Years teach us more than books.",
+         "from": "Berthold Auerbach",
+         "id": 38
+      },
+      {
+         "text": "The art of being wise is knowing what to overlook.",
+         "from": "William James",
+         "id": 39
+      },
+      {
+         "text": "A wise man learns by the mistakes of others, a fool by his own.",
+         "from": "Latin proverb",
+         "id": 40
+      },
+      {
+         "text": "No man was ever wise by chance.",
+         "from": "Seneca",
+         "id": 41
+      },
+      {
+         "text": "In everything the ends well defined are the secret of durable success.",
+         "from": "Victor Cousins",
+         "id": 42
+      },
+      {
+         "text": "Arriving at one goal is the starting point to another.",
+         "from": "John Dewey",
+         "id": 43
+      },
+      {
+         "text": "A goal is a dream with a deadline.",
+         "from": "Napoleon Hill",
+         "id": 44
+      },
+      {
+         "text": "Goals are the fuel in the furnace of achievement.",
+         "from": "Brian Tracy",
+         "id": 45
+      },
+      {
+         "text": "We are what we repeatedly do. Excellence, therefore, is not an act but a habit.",
+         "from": "Aristotle",
+         "id": 46
+      },
+      {
+         "text": "The best way out is always through.",
+         "from": "Robert Frost",
+         "id": 47
+      },
+      {
+         "text": "You miss 100 percent of the shots you don't take.",
+         "from": "Wayne Gretzky",
+         "id": 48
+      },
+      {
+         "text": "Nothing will ever be attempted if all possible objections must first be overcome.",
+         "from": "Samuel Johnson",
+         "id": 49
+      },
+      {
+         "text": "Don't bunt. Aim out of the ballpark.",
+         "from": "David Ogilvy",
+         "id": 50
+      },
+      {
+         "text": "Your most unhappy customers are your greatest source of learning.",
+         "from": "Bill Gates, co-founder of Microsoft.",
+         "id": 51
+      },
+      {
+         "text": "I have not failed. I’ve just found 10,000 ways that won’t work.",
+         "from": "Thomas Edison, inventor.",
+         "id": 52
+      },
+      {
+         "text": "Entrepreneurship is neither a science nor an art. It is a practice.",
+         "from": "Peter Drucker, management consultant, educator, and author.",
+         "id": 53
+      },
+      {
+         "text": "Success is how high you bounce after you hit bottom.",
+         "from": "General George Patton.",
+         "id": 54
+      },
+      {
+         "text": "Positive thinking will let you do everything better than negative thinking will.",
+         "from": "Zig Ziglar, author, salesman, and motivational speaker.",
+         "id": 55
+      },
+      {
+         "text": "I’m not afraid of dying, I’m afraid of not trying.",
+         "from": "Jay Z, musician.",
+         "id": 56
+      },
+      {
+         "text": "Whatever the mind can conceive and believe, the mind can achieve.",
+         "from": "Dr. Napoleon Hill, author of Think and Grow Rich.",
+         "id": 57
+      },
+      {
+         "text": "The longer you’re not taking action the more money you’re losing",
+         "from": "Carrie Wilkerson",
+         "id": 58
+      },
+      {
+         "text": "If you live for weekends or vacations, your shit is broken",
+         "from": "Gary Vaynerchuk",
+         "id": 59
+      },
+      {
+         "text": "Go Big, or Go Home",
+         "from": "Eliza Dushku",
+         "id": 60
+      },
+      {
+         "text": "Have the end in mind and every day make sure your working towards it",
+         "from": "Ryan Allis",
+         "id": 61
+      },
+      {
+         "text": "He who begins many things finishes but few",
+         "from": "German Proverb",
+         "id": 62
+      },
+      {
+         "text": "The best use of life is to spend it for something that outlasts it",
+         "from": "William James",
+         "id": 63
+      },
+      {
+         "text": "If you think education is expensive, try ignorance",
+         "from": "Derek Bok",
+         "id": 64
+      },
+      {
+         "text": "Be nice to geek’s, you’ll probably end up working for one",
+         "from": "Bill Gates",
+         "id": 65
+      },
+      {
+         "text": "Its better to own the racecourse then the race horse",
+         "from": "Unknown",
+         "id": 66
+      },
+      {
+         "text": "When you go to buy, don’t show your silver",
+         "from": "Chinese Proverb",
+         "id": 67
+      },
+      {
+         "text": "It’s easier to ask forgiveness than it is to get permission",
+         "from": "Grace Hopper",
+         "id": 68
+      },
+      {
+         "text": "To win without risk is to triumph without glory",
+         "from": "Corneille",
+         "id": 69
+      },
+      {
+         "text": "Example is not the main thing in influencing other people; it’s the only thing",
+         "from": "Abraham Lincoln",
+         "id": 70
+      },
+      {
+         "text": "There is only one success",
+         "from": "to be able to spend your life in your own way",
+         "id": 71
+      },
+      {
+         "text": "You don’t buy a nice car and get rich you get rich and buy a nice car",
+         "from": "Unknown",
+         "id": 72
+      },
+      {
+         "text": "Fall seven times, stand up eight",
+         "from": "Japanese Proverb",
+         "id": 73
+      },
+      {
+         "text": "One day your life will flash before your eyes. Make sure it is worth watching",
+         "from": "Mooie",
+         "id": 74
+      },
+      {
+         "text": "Whatever the mind can conceive and believe, the mind can achieve",
+         "from": "Dr. Napoleon Hill",
+         "id": 75
+      },
+      {
+         "text": "I have not failed. I’ve just found 10,000 ways that won’t work",
+         "from": "Thomas Alva Edison",
+         "id": 76
+      },
+      {
+         "text": "If you ain’t making waves, you ain’t kickin’ hard enough",
+         "from": "Unknown",
+         "id": 77
+      },
+      {
+         "text": "What is not started will never get finished",
+         "from": "Johann Wolfgang von Goethe",
+         "id": 78
+      },
+      {
+         "text": "Do not wait to strike until the iron is hot; but make it hot by striking",
+         "from": "William B. Sprague",
+         "id": 79
+      },
+      {
+         "text": "When you cease to dream you cease to live",
+         "from": "Malcolm Forbes",
+         "id": 80
+      },
+      {
+         "text": "There are two rules for success. 1) Never tell everything you know.",
+         "from": "Roger H. Lincoln",
+         "id": 81
+      },
+      {
+         "text": "The only place where success comes before work is in the dictionary.",
+         "from": "Vidal Sassoon",
+         "id": 82
+      },
+      {
+         "text": "Being realistic is the most commonly traveled road to mediocrity.",
+         "from": "Will Smith",
+         "id": 83
+      },
+      {
+         "text": "If hard work is the key to success, most people would rather pick the lock.",
+         "from": "Claude McDonald",
+         "id": 84
+      },
+      {
+         "text": "Success is simply a matter of luck. Ask any failure.",
+         "from": "Earl Wilson",
+         "id": 85
+      },
+      {
+         "text": "The road to success is always under construction.",
+         "from": "Arnold Palmer",
+         "id": 86
+      },
+      {
+         "text": "Anything the mind can conceive and believe, it can achieve.",
+         "from": "Napoleon Hill",
+         "id": 87
+      },
+      {
+         "text": "Whether you think you can or you can’t, you’re right.",
+         "from": "Henry Ford",
+         "id": 88
+      },
+      {
+         "text": "Failure defeats losers, failure inspires winners.",
+         "from": "Robert T. Kiyosaki",
+         "id": 89
+      },
+      {
+         "text": "I have not failed. I’ve just found 10,000 ways that won’t work.",
+         "from": "Thomas Edison",
+         "id": 90
+      },
+      {
+         "text": "The biggest failure you can have in life is not trying at all.",
+         "from": "Emil Motycka",
+         "id": 91
+      },
+      {
+         "text": "Leaders don’t force people to follow, they invite them on a journey.",
+         "from": "Charles S. Lauer",
+         "id": 92
+      },
+      {
+         "text": "Example is not the main thing in influencing other people; it’s the only thing.",
+         "from": "Abraham Lincoln",
+         "id": 93
+      },
+      {
+         "text": "Leadership is doing what is right when no one is watching.",
+         "from": "George Van Valkenburg",
+         "id": 94
+      },
+      {
+         "text": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
+         "from": "Aristotle",
+         "id": 95
+      },
+      {
+         "text": "Cannibals prefer those who have no spines.",
+         "from": "Stanislaw Lem",
+         "id": 96
+      },
+      {
+         "text": "A ship in harbor is safe. But that’s now what ships are built for.",
+         "from": "William Shedd",
+         "id": 97
+      },
+      {
+         "text": "If one does not know to which port one is sailing, no wind is favorable.",
+         "from": "Lucius Annaeus Seneca",
+         "id": 98
+      },
+      {
+         "text": "You miss 100% of the shots you don’t take.",
+         "from": "Wayne Gretzky",
+         "id": 99
+      },
+      {
+         "text": "I’m not a businessman. I’m a business, man.",
+         "from": "Jay-Z",
+         "id": 100
+      },
+      {
+         "text": "Do not wait to strike until the iron is hot; but make it hot by striking.",
+         "from": "William B. Sprague",
+         "id": 101
+      },
+      {
+         "text": "It’s easier to ask forgiveness than it is to get permission.",
+         "from": "Grace Hopper",
+         "id": 102
+      },
+      {
+         "text": "One day your life will flash before your eyes. Make sure it is worth watching.",
+         "from": "Mooie",
+         "id": 103
+      },
+      {
+         "text": "“I think it’s wrong that only one company makes the game Monopoly.",
+         "from": "Steven Wright",
+         "id": 104
+      },
+      {
+         "text": "I used to sell furniture for a living. The trouble was, it was my own.",
+         "from": "Les Dawson",
+         "id": 105
+      },
+      {
+         "text": "Formal education will make you a living. Self education will make you a fortune.",
+         "from": "Jim Rohn",
+         "id": 106
+      },
+      {
+         "text": "A business that makes nothing but money is a poor business.",
+         "from": "Henry Ford",
+         "id": 107
+      },
+      {
+         "text": "All of my friends were doing babysitting jobs. I wanted money without the job.",
+         "from": "Adam Horwitz",
+         "id": 108
+      },
+      {
+         "text": "Money and success don’t change people; they merely amplify what is already there.",
+         "from": "Will Smith",
+         "id": 109
+      },
+      {
+         "text": "The secret of getting ahead is getting started.",
+         "from": "Agatha Christie",
+         "id": 110
+      },
+      {
+         "text": "Hire character. Train skill.",
+         "from": "Peter Schultz",
+         "id": 111
+      },
+      {
+         "text": "If you’re not making mistakes, then you’re not making decisions.",
+         "from": "Catherine Cook",
+         "id": 112
+      },
+      {
+         "text": "Your most unhappy customers are your greatest source of learning.",
+         "from": "Bill Gates",
+         "id": 113
+      },
+      {
+         "text": "One can get anything if he is willing to help enough others get what they want.",
+         "from": "Zig Ziglar",
+         "id": 114
+      },
+      {
+         "text": "The true entrepreneur is a doer, not a dreamer.",
+         "from": "Nolan Bushnell",
+         "id": 115
+      },
+      {
+         "text": "Everything started as nothing.",
+         "from": "Ben Weissenstein",
+         "id": 116
+      },
+      {
+         "text": "If you start with nothing and end up with nothing, there’s nothing lost.",
+         "from": "Michael Dunlop",
+         "id": 117
+      },
+      {
+         "text": "Start today, not tomorrow. If anything, you should have started yesterday.",
+         "from": "Emil Motycka",
+         "id": 118
+      },
+      {
+         "text": "Make it happen now, not tomorrow. Tomorrow is a loser’s excuse.",
+         "from": "Andrew Fashion",
+         "id": 119
+      },
+      {
+         "text": "Yesterday’s home runs don’t win today’s games.",
+         "from": "Babe Ruth",
+         "id": 120
+      },
+      {
+         "text": "You should always stay hungry. Stay hungry, so you can eat.",
+         "from": "Syed Balkhi",
+         "id": 121
+      },
+      {
+         "text": "If you’re not living life on the edge, you’re taking up too much space.",
+         "from": "Anonymous",
+         "id": 122
+      },
+      {
+         "text": "I wasn’t satisfied just to earn a good living. I was looking to make a statement.",
+         "from": "Donald Trump",
+         "id": 123
+      },
+      {
+         "text": "You must either modify your dreams or magnify your skills.",
+         "from": "Jim Rohn",
+         "id": 124
+      },
+      {
+         "text": "Not a single person whose name is worth remembering lived a life of ease.",
+         "from": "Ryan P. Allis",
+         "id": 125
+      },
+      {
+         "text": "The best time to plant a tree is twenty years ago. The second best time is now.",
+         "from": "Chinese Proverb",
+         "id": 126
+      },
+      {
+         "text": "Vision without action is a daydream. Action without vision is a nightmare.",
+         "from": "Japanese Proverb",
+         "id": 127
+      },
+      {
+         "text": "A bad workman blames his tools.",
+         "from": "Chinese Proverb",
+         "id": 128
+      },
+      {
+         "text": "A fall into a ditch makes you wiser.",
+         "from": "Chinese Proverb",
+         "id": 129
+      },
+      {
+         "text": "Defeat isn’t bitter if you don’t swallow it.",
+         "from": "Chinese Proverb",
+         "id": 130
+      },
+      {
+         "text": "A journey of a thousand miles begins with a single step.",
+         "from": "Chinese Proverb",
+         "id": 131
+      },
+      {
+         "text": "The loftiest towers rise from the ground.",
+         "from": "Chinese Proverb",
+         "id": 132
+      },
+      {
+         "text": "Building a castle is difficult. Defending and maintaining it is harder still.",
+         "from": "Asian Proverb",
+         "id": 133
+      },
+      {
+         "text": "A person who says it cannot be done should not interrupt the man doing it.",
+         "from": "Chinese Proverb",
+         "id": 134
+      },
+      {
+         "text": "All cats love fish but fear to wet their paws.",
+         "from": "Chinese Proverb",
+         "id": 135
+      },
+      {
+         "text": "Don’t stand by the water and long for fish; go home and weave a net.",
+         "from": "Chinese Proverb",
+         "id": 136
+      },
+      {
+         "text": "Failing to plan is planning to fail.",
+         "from": "Chinese Proverb",
+         "id": 137
+      },
+      {
+         "text": "If you pay peanuts, you get monkeys.",
+         "from": "Chinese Proverb",
+         "id": 138
+      },
+      {
+         "text": "Make happy those who are near, and those who are far will come.",
+         "from": "Chinese Proverb",
+         "id": 139
+      },
+      {
+         "text": "Teachers open the door. You enter by yourself.",
+         "from": "Chinese Proverb",
+         "id": 140
+      },
+      {
+         "text": "Find a job you love and you’ll never work a day in your life.",
+         "from": "Confucius",
+         "id": 141
+      },
+      {
+         "text": "The entrepreneur builds an enterprise; the technician builds a job.",
+         "from": "Michael Gerber",
+         "id": 142
+      },
+      {
+         "text": "If you want to be inventive, you have to be willing to fail.",
+         "from": "Jeff Bezos",
+         "id": 143
+      },
+      {
+         "text": "Don’t treat your customers like a bunch of purses and wallets.",
+         "from": "Chris Brogan",
+         "id": 144
+      },
+      {
+         "text": "Nine out of ten businesses fail; so I came up with a foolproof plan",
+         "from": "create ten businesses.”",
+         "id": 145
+      },
+      {
+         "text": "I’m not a businessman",
+         "from": "I”m a business, man.”",
+         "id": 146
+      },
+      {
+         "text": "If plan ‘A’ fails",
+         "from": "remember you have 25 letters left.”",
+         "id": 147
+      },
+      {
+         "text": "We make a living by what we get. But we make a life by what we give.",
+         "from": "Winston Churchhill",
+         "id": 148
+      },
+      {
+         "text": "Believe that you will succeed",
+         "from": "and you will.”",
+         "id": 149
+      },
+      {
+         "text": "Victory comes only after many struggles and countless defeats.",
+         "from": "Og Mandino",
+         "id": 150
+      },
+      {
+         "text": "As long as you’re going to be thinking anyway, think big.",
+         "from": "Donald Trump",
+         "id": 151
+      },
+      {
+         "text": "Success is how high you bounce after you hit bottom",
+         "from": "General George Patton",
+         "id": 152
+      },
+      {
+         "text": "It’s not about how to get started; its about how to get noticed.",
+         "from": "Steve Case",
+         "id": 153
+      },
+      {
+         "text": "A ship in harbor is safe, but that’s not what ships are for.",
+         "from": "John Shedd",
+         "id": 154
+      },
+      {
+         "text": "Business opportunities are like buses, there’s always another one coming.",
+         "from": "Richard Branson",
+         "id": 155
+      },
+      {
+         "text": "The critical ingredient is getting off your butt and doing something.",
+         "from": "Nolan Bushnell",
+         "id": 156
+      },
+      {
+         "text": "Nothing will work unless you do.",
+         "from": "Maya Angelou",
+         "id": 157
+      },
+      {
+         "text": "Try not to be a man of success, but rather try to become a man of value.",
+         "from": "Albert Einstein",
+         "id": 158
+      },
+      {
+         "text": "You won’t get anything unless you have the vision to imagine it.",
+         "from": "John Lennon",
+         "id": 159
+      },
+      {
+         "text": "If you don’t have a competitive advantage",
+         "from": "don’t compete.”",
+         "id": 160
+      },
+      {
+         "text": "If everything seems under control, you’re just not going fast enough.",
+         "from": "Mario Andretti",
+         "id": 161
+      },
+      {
+         "text": "Don’t be trapped by dogma",
+         "from": "which is living with the results of other people’s thinking.”",
+         "id": 162
+      },
+      {
+         "text": "Do or do not. There is no try.",
+         "from": "Yoda",
+         "id": 163
+      },
+      {
+         "text": "Ideas are commodity. Execution of them is not.",
+         "from": "Michael Dell, CEO of Dell",
+         "id": 164
+      },
+      {
+         "text": "Ideas are easy. Implementation is hard.",
+         "from": "Guy Kawasaki, founder of AllTop",
+         "id": 165
+      },
+      {
+         "text": "Always deliver more than expected.",
+         "from": "Larry Page, co-founder of Google",
+         "id": 166
+      },
+      {
+         "text": "Even if you don’t have the perfect idea to begin with, you can likely adapt.",
+         "from": "Victoria Ransom, co-founder of Wildfire Interactive",
+         "id": 167
+      },
+      {
+         "text": "Stay self-funded as long as possible.",
+         "from": "Garrett Camp, co-founder of Stumbleupon",
+         "id": 168
+      },
+      {
+         "text": "In between goals is a thing called life, that has to be lived and enjoyed.",
+         "from": "Sid Caesar, Entertainer",
+         "id": 169
+      },
+      {
+         "text": "Wonder what your customer really wants? Ask. Don’t tell.",
+         "from": "Lisa Stone, co-founder of BlogHer",
+         "id": 170
+      },
+      {
+         "text": "When times are bad is when the real entrepreneurs emerge.",
+         "from": "Robert Kiyosaki, author of Rich Dad Poor Dad",
+         "id": 171
+      },
+      {
+         "text": "Get big quietly, so you don’t tip off potential competitors.",
+         "from": "Chris Dixon, co-founder of Hunch",
+         "id": 172
+      },
+      {
+         "text": "Don’t worry about failure; you only have to be right once.",
+         "from": "Drew Houston, founder of Dropbox",
+         "id": 173
+      },
+      {
+         "text": "Don’t be cocky. Don’t be flashy. There’s always someone better than you.",
+         "from": "Tony Hsieh, Zappos.com CEO",
+         "id": 174
+      },
+      {
+         "text": "How you climb a mountain is more important than reaching the top.",
+         "from": "Yvon Chouinard, founder of Patagonia",
+         "id": 175
+      },
+      {
+         "text": "There is only one success- to be able to spend your life in your own way.",
+         "from": "Christopher Morley, journalist",
+         "id": 176
+      },
+      {
+         "text": "Formal education will make you a living; self-education will make you a fortune.",
+         "from": "Jim Rohn, author and speaker",
+         "id": 177
+      },
+      {
+         "text": "You miss 100 percent of the shots you don’t take.",
+         "from": "Wayne Gretzky, NHL Hall of Famer",
+         "id": 178
+      },
+      {
+         "text": "The best time to plant a tree was 20 years ago. The second best time is now.",
+         "from": "Chinese proverb",
+         "id": 179
+      },
+      {
+         "text": "I don’t have big ideas. I sometimes have small ideas, which seem to work out.",
+         "from": "Matt Mullenweg, founder of Automattic",
+         "id": 180
+      },
+      {
+         "text": "Fail often so you can succeed sooner.",
+         "from": "Tom Kelley, Ideo partner",
+         "id": 181
+      },
+      {
+         "text": "When you cease to dream you cease to live.",
+         "from": "Malcolm Forbes, chairman and editor in chief of Forbes Magazine",
+         "id": 182
+      },
+      {
+         "text": "Whatever the mind can conceive and believe, the mind can achieve.",
+         "from": "Dr. Napoleon Hill, author of Think and Grow Rich",
+         "id": 183
+      },
+      {
+         "text": "My number one piece of advice is: you should learn how to program.",
+         "from": "Mark Zuckerberg, founder of Facebook",
+         "id": 184
+      },
+      {
+         "text": "The way to get started is to quit talking and begin doing.",
+         "from": "Walt Disney, co-founder of the Walt Disney Company",
+         "id": 185
+      },
+      {
+         "text": "Building and hanging on to an audience is the biggest role of social media.",
+         "from": "Matthew Inman, The Oatmeal",
+         "id": 186
+      },
+      {
+         "text": "A poorly implemented feature hurts more than not having it at all.",
+         "from": "Noah Everett, founder of Twitpic",
+         "id": 187
+      },
+      {
+         "text": "You don’t learn to walk by following rules. You learn by doing and falling over.",
+         "from": "Richard Branson, founder of Virgin Group",
+         "id": 188
+      },
+      {
+         "text": "Risk more than others think is safe. Dream more than others think is practical.",
+         "from": "Howard Schultz, CEO of Starbucks",
+         "id": 189
+      },
+      {
+         "text": "If you cannot do great things, do small things in a great way.",
+         "from": "Napoleon Hill, author",
+         "id": 190
+      },
+      {
+         "text": "Success is not what you have, but who you are.",
+         "from": "Bo Bennet, author and entreprenuer",
+         "id": 191
+      },
+      {
+         "text": "The only limit to our realization of tomorrow will be our doubts of today.",
+         "from": "Franklin D. Roosevelt",
+         "id": 192
+      },
+      {
+         "text": "The successful warrior is the average man, with laser-like focus.",
+         "from": "Bruce Lee, actor and martial arts instructor",
+         "id": 193
+      },
+      {
+         "text": "Fall seven times and stand up eight.",
+         "from": "Japanese proverb",
+         "id": 194
+      },
+      {
+         "text": "It is never too late to be what you might have been.",
+         "from": "George Eliot, journalist and novelist",
+         "id": 195
+      },
+      {
+         "text": "I am not a product of my circumstances. I am a product of my decisions.",
+         "from": "Stephen Covey, author and businessman",
+         "id": 196
+      },
+      {
+         "text": "Build your own dreams, or someone else will hire you to build theirs.",
+         "from": "Farrah Gray, investor and motivational speaker",
+         "id": 197
+      },
+      {
+         "text": "You may be disappointed if you fail, but you are doomed if you don’t try.",
+         "from": "Beverly Sills, operatic soprano",
+         "id": 198
+      },
+      {
+         "text": "When you have a dream, you've got to grab it and never let go.",
+         "from": "Carol Burnett",
+         "id": 199
+      }
+   ]
+}
