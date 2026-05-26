@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { USER_NAME_KEY } from '../constants/storageKeys'
 import { readString, removeKey, writeString } from '../utils/storage'
+import { getDefaultTimezone } from '../utils/timezone'
 
-const USER_NAME_KEY = 'focus_dashboard_userName'
-const DEFAULT_TIMEZONE =
-  typeof Intl !== 'undefined'
-    ? Intl.DateTimeFormat().resolvedOptions().timeZone
-    : 'UTC'
+const DEFAULT_TIMEZONE = getDefaultTimezone()
 
 function hourForTimezone(timeZone) {
   if (typeof Intl === 'undefined' || !timeZone) {
@@ -66,10 +64,6 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
     tick()
     const id = window.setInterval(tick, 60 * 1000)
     return () => window.clearInterval(id)
-  }, [effectiveTimezone])
-
-  useEffect(() => {
-    setGreeting(greetingForHour(effectiveTimezone))
   }, [effectiveTimezone])
 
   useEffect(() => {

@@ -1,18 +1,11 @@
 import { DEFAULT_BACKGROUND_ID, loadBackgroundImage } from '../background'
 import { BACKGROUND_KEY } from '../constants/storageKeys'
+import { readString } from '../utils/storage'
 
 const CSS_VAR_NAME = '--instant-background-image'
 
 function resolveStoredBackgroundId() {
-  try {
-    if (typeof window === 'undefined') {
-      return DEFAULT_BACKGROUND_ID
-    }
-    const stored = window.localStorage?.getItem(BACKGROUND_KEY)
-    return stored || DEFAULT_BACKGROUND_ID
-  } catch {
-    return DEFAULT_BACKGROUND_ID
-  }
+  return readString(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID)
 }
 
 export function applyInstantBackground() {

@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getDefaultTimezone } from '../utils/timezone'
 
-const DEFAULT_TIMEZONE =
-  typeof Intl !== 'undefined'
-    ? Intl.DateTimeFormat().resolvedOptions().timeZone
-    : 'UTC'
+const DEFAULT_TIMEZONE = getDefaultTimezone()
 
 function formatTime(date, timeZone) {
   try {

@@ -7,8 +7,7 @@ import {
   writeString,
 } from '../utils/storage'
 
-const CITY_KEY = 'focus_dashboard_city'
-const WEATHER_CACHE_KEY = 'focus_dashboard_weatherCache'
+import { CITY_KEY, WEATHER_CACHE_KEY } from '../constants/storageKeys'
 const CACHE_TTL = 30 * 60 * 1000
 
 function readStoredCity() {

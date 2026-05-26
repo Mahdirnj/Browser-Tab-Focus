@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { readJSON, removeKey, writeJSON } from '../utils/storage'
+import { TODOS_KEY } from '../constants/storageKeys'
 
-const TODOS_KEY = 'focus_dashboard_todos'
 const MAX_TODOS = 5
 
 function readStoredTodos() {

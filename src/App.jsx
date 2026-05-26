@@ -29,6 +29,7 @@ import {
   writeJSON,
   writeString,
 } from './utils/storage'
+import { getDefaultTimezone } from './utils/timezone'
 const BRAND_NAME = 'FocusLoom'
 
 const TEXT_COLOR_PRESETS = [
@@ -52,13 +53,6 @@ const DEFAULT_WIDGET_SETTINGS = {
   weather: true,
   todo: true,
   pomodoro: true,
-}
-
-const detectDefaultTimezone = () => {
-  if (typeof Intl !== 'undefined' && typeof Intl.DateTimeFormat === 'function') {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone
-  }
-  return 'UTC'
 }
 
 function resolveInitialWidgets() {
@@ -110,7 +104,7 @@ function App() {
     readString(USER_NAME_KEY, ''),
   )
   const [clockTimezone, setClockTimezone] = useState(() =>
-    readString(CLOCK_TIMEZONE_KEY, detectDefaultTimezone()),
+    readString(CLOCK_TIMEZONE_KEY, getDefaultTimezone()),
   )
   const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
     resolveInitialWidgets(),
