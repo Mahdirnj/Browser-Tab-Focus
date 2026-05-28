@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  backgroundOptions,
+  addCustomBackground,
+  bundledBackgrounds,
   DEFAULT_BACKGROUND_ID,
+  deleteCustomBackground,
+  getCustomBackgroundsSnapshot,
+  isCustomBackgroundId,
   loadBackgroundImage,
+  primeCustomBackgrounds,
+  subscribeBackgrounds,
 } from './background'
 import BackgroundLayer from './components/BackgroundLayer'
 import Bookmarks from './components/Bookmarks'
@@ -16,7 +22,9 @@ import PomodoroTimer from './components/PomodoroTimer'
 import TodoList from './components/TodoList'
 import Weather from './components/Weather'
 import {
+  ACTIVE_BACKGROUND_DATA_KEY,
   BACKGROUND_KEY,
+  CALENDAR_KEY,
   CLOCK_TIMEZONE_KEY,
   POMODORO_DURATIONS_KEY,
   SEARCH_BEHAVIOR_KEY,
@@ -32,6 +40,7 @@ import {
   writeJSON,
   writeString,
 } from './utils/storage'
+import { CALENDAR_OPTIONS, DEFAULT_CALENDAR_ID, getCalendarOption } from './utils/calendar'
 import { getDefaultTimezone } from './utils/timezone'
 const BRAND_NAME = 'FocusLoom'
 
@@ -46,7 +55,7 @@ const TEXT_COLOR_PRESETS = [
 
 function BrandMark() {
   return (
-    <span className="text-xs font-semibold uppercase tracking-[0.5em] text-[color:var(--dashboard-text-65)] md:text-sm">
+    <span className="animate-brand-glow text-xs font-semibold uppercase tracking-[0.5em] text-[color:var(--dashboard-text-65)] md:text-sm">
       {BRAND_NAME}
     </span>
   )
@@ -126,9 +135,42 @@ function App() {
   const [pomodoroDurations, setPomodoroDurations] = useState(() =>
     readJSON(POMODORO_DURATIONS_KEY, { focus: 25, shortBreak: 5, longBreak: 15 }),
   )
+  const [calendarId, setCalendarId] = useState(() => {
+    const stored = readString(CALENDAR_KEY, DEFAULT_CALENDAR_ID)
+    return getCalendarOption(stored).id
+  })
+  const [customBackgrounds, setCustomBackgrounds] = useState(() =>
+    getCustomBackgroundsSnapshot(),
+  )
+
+  // Prime custom backgrounds from IndexedDB once and stay subscribed for changes
+  useEffect(() => {
+    let cancelled = false
+    primeCustomBackgrounds().then(() => {
+      if (!cancelled) setCustomBackgrounds(getCustomBackgroundsSnapshot())
+    })
+    const unsubscribe = subscribeBackgrounds(() => {
+      setCustomBackgrounds(getCustomBackgroundsSnapshot())
+    })
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     writeString(BACKGROUND_KEY, backgroundId)
+    // Maintain a tiny localStorage shadow of the active background's source.
+    // The pre-React bootstrap reads this so custom backgrounds paint on the
+    // first frame without waiting on IndexedDB.
+    if (isCustomBackgroundId(backgroundId)) {
+      const src = loadBackgroundImage(backgroundId)
+      if (src) {
+        writeString(ACTIVE_BACKGROUND_DATA_KEY, src)
+      }
+    } else {
+      removeKey(ACTIVE_BACKGROUND_DATA_KEY)
+    }
   }, [backgroundId])
 
   useEffect(() => {
@@ -146,6 +188,10 @@ function App() {
   useEffect(() => {
     writeString(SEARCH_BEHAVIOR_KEY, openSearchInNewTab ? 'new' : 'current')
   }, [openSearchInNewTab])
+
+  useEffect(() => {
+    writeString(CALENDAR_KEY, calendarId)
+  }, [calendarId])
 
   useEffect(() => {
     const trimmed = weatherApiKey?.trim()
@@ -179,7 +225,10 @@ function App() {
     return () => mediaQuery.removeListener(updateLayoutMode)
   }, [])
 
-  const availableBackgrounds = backgroundOptions
+  const availableBackgrounds = useMemo(
+    () => [...bundledBackgrounds, ...customBackgrounds],
+    [customBackgrounds],
+  )
   const activeBackground = useMemo(() => {
     return (
       availableBackgrounds.find((item) => item.id === backgroundId) ??
@@ -194,7 +243,12 @@ function App() {
       if (fallback) return fallback
     }
     return loadBackgroundImage(DEFAULT_BACKGROUND_ID)
-  }, [activeBackground?.id, backgroundId])
+    // `customBackgrounds` is intentionally listed: when IDB primes a custom
+    // background after first paint, this memo must re-run so the data URL
+    // surfaces. The lint rule can't see that loadBackgroundImage reads from
+    // a module-level cache that the customBackgrounds state changes signal.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBackground?.id, backgroundId, customBackgrounds])
 
   const panelClasses = 'text-[color:var(--dashboard-text-95)]'
   const toggleWidget = (key, value) => {
@@ -218,6 +272,21 @@ function App() {
     setPomodoroDurations(next)
     writeJSON(POMODORO_DURATIONS_KEY, next)
   }, [])
+
+  const handleAddCustomBackground = useCallback(async (record) => {
+    const saved = await addCustomBackground(record)
+    setBackgroundId(saved.id)
+    return saved
+  }, [])
+
+  const handleDeleteCustomBackground = useCallback(
+    async (id) => {
+      await deleteCustomBackground(id)
+      // If the deleted background was the active one, snap back to the default.
+      setBackgroundId((current) => (current === id ? DEFAULT_BACKGROUND_ID : current))
+    },
+    [],
+  )
 
   // Request notification permission once — only if not yet decided and not already asked.
   // Runs after 2.5s so it doesn't interrupt the page load experience.
@@ -249,7 +318,7 @@ function App() {
       <div className="pointer-events-none absolute inset-x-0 top-6 z-20 flex justify-center sm:top-10 lg:top-12">
         <div className="pointer-events-auto flex flex-col items-center gap-2">
           <BrandMark />
-          <Clock timezone={clockTimezone} />
+          <Clock timezone={clockTimezone} calendarId={calendarId} />
           {showDailyFocus ? <DailyFocus /> : null}
         </div>
       </div>
@@ -283,6 +352,11 @@ function App() {
         onWeatherApiKeyChange={handleWeatherApiKeyChange}
         pomodoroDurations={pomodoroDurations}
         onPomodoroDurationsChange={handlePomodoroDurationsChange}
+        onAddCustomBackground={handleAddCustomBackground}
+        onDeleteCustomBackground={handleDeleteCustomBackground}
+        calendarId={calendarId}
+        calendarOptions={CALENDAR_OPTIONS}
+        onCalendarChange={setCalendarId}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div

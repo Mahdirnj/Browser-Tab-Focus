@@ -7,7 +7,8 @@ import {
   useRef,
   useState,
 } from 'react'
-import { loadBackgroundImage } from '../background'
+import { isCustomBackgroundId, loadBackgroundImage, makeCustomBackgroundId } from '../background'
+import { fetchImageAsDataUrl, resizeImageToDataUrl } from '../utils/imageResize'
 import { getThumb, setThumb, loadAllThumbs } from '../utils/thumbCache'
 
 const THUMB_MAX_WIDTH = 320
@@ -141,35 +142,64 @@ const BackgroundOption = memo(function BackgroundOption({
   label,
   thumbnailUrl,
   isSelected,
+  isCustom,
   onSelect,
+  onDelete,
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <div
       className={`group relative overflow-hidden rounded-xl border transition-colors duration-150 ${
         isSelected ? 'border-white/80' : 'border-white/10 hover:border-white/35'
       }`}
-      aria-label={`Use background ${label}`}
-      aria-pressed={isSelected}
     >
-      <img
-        src={thumbnailUrl}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        className="h-16 w-full object-cover transition duration-300 group-hover:scale-105"
-      />
-      {isSelected ? (
-        <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3 text-slate-900">
-              <path d="M2 6.5l2.5 2.5 5.5-6" strokeLinecap="round" strokeLinejoin="round" />
+      <button
+        type="button"
+        onClick={onSelect}
+        className="block w-full text-left"
+        aria-label={`Use background ${label}`}
+        aria-pressed={isSelected}
+      >
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-16 w-full object-cover transition duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-16 w-full items-center justify-center bg-white/[0.04]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="h-4 w-4 animate-pulse text-white/40">
+              <circle cx="12" cy="12" r="9" />
             </svg>
+          </div>
+        )}
+        {isSelected ? (
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className="h-3 w-3 text-slate-900">
+                <path d="M2 6.5l2.5 2.5 5.5-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
           </span>
-        </span>
+        ) : null}
+      </button>
+      {isCustom && onDelete ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onDelete()
+          }}
+          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-white/30 bg-black/55 text-white/85 opacity-0 shadow-[0_4px_12px_rgba(0,0,0,0.35)] transition-opacity duration-150 hover:bg-rose-500/80 hover:text-white focus-visible:opacity-100 group-hover:opacity-100"
+          aria-label={`Remove ${label}`}
+        >
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-2.5 w-2.5">
+            <path d="M2 2l8 8M10 2l-8 8" strokeLinecap="round" />
+          </svg>
+        </button>
       ) : null}
-    </button>
+    </div>
   )
 })
 
@@ -233,6 +263,11 @@ export function SettingsPanel({
   onWeatherApiKeyChange,
   pomodoroDurations,
   onPomodoroDurationsChange,
+  onAddCustomBackground,
+  onDeleteCustomBackground,
+  calendarId,
+  calendarOptions,
+  onCalendarChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -254,6 +289,10 @@ export function SettingsPanel({
   const [weatherApiKeyInput, setWeatherApiKeyInput] = useState(
     weatherApiKey ?? '',
   )
+  const fileInputRef = useRef(null)
+  const [bgAddMode, setBgAddMode] = useState(null) // null | 'url'
+  const [urlDraft, setUrlDraft] = useState('')
+  const [bgUploadStatus, setBgUploadStatus] = useState({ kind: 'idle', message: '' })
   const [timezoneQuery, setTimezoneQuery] = useState('')
   const availableTimeZones = useMemo(() => {
     let zones = []
@@ -390,6 +429,89 @@ export function SettingsPanel({
     if (!onSearchBehaviorChange) return
     onSearchBehaviorChange(!searchOpensInNewTab)
   }, [onSearchBehaviorChange, searchOpensInNewTab])
+
+  const handleCustomBackgroundFromBlob = useCallback(
+    async (blob, label) => {
+      if (!onAddCustomBackground) return
+      setBgUploadStatus({ kind: 'loading', message: 'Resizing image…' })
+      try {
+        const { dataUrl } = await resizeImageToDataUrl(blob)
+        const id = makeCustomBackgroundId()
+        await onAddCustomBackground({ id, label, dataUrl })
+        setBgUploadStatus({ kind: 'success', message: 'Background added.' })
+        setBgAddMode(null)
+        setUrlDraft('')
+        // Auto-clear the success message
+        window.setTimeout(() => {
+          setBgUploadStatus((current) =>
+            current.kind === 'success' ? { kind: 'idle', message: '' } : current,
+          )
+        }, 1800)
+      } catch (error) {
+        setBgUploadStatus({
+          kind: 'error',
+          message: error?.message ?? 'Could not save that image.',
+        })
+      }
+    },
+    [onAddCustomBackground],
+  )
+
+  const handleFileChange = useCallback(
+    async (event) => {
+      const file = event.target.files?.[0]
+      // Reset value so picking the same file twice still triggers change
+      event.target.value = ''
+      if (!file) return
+      const baseName = file.name?.replace(/\.[^.]+$/, '')?.trim() || 'Custom'
+      await handleCustomBackgroundFromBlob(file, baseName)
+    },
+    [handleCustomBackgroundFromBlob],
+  )
+
+  const handleAddFromUrlSubmit = useCallback(async () => {
+    if (!onAddCustomBackground) return
+    const trimmed = urlDraft.trim()
+    if (!trimmed) {
+      setBgUploadStatus({ kind: 'error', message: 'Enter an image URL.' })
+      return
+    }
+    setBgUploadStatus({ kind: 'loading', message: 'Fetching image…' })
+    try {
+      const { dataUrl } = await fetchImageAsDataUrl(trimmed)
+      const id = makeCustomBackgroundId()
+      let label = 'Custom'
+      try {
+        const filename = new URL(trimmed).pathname.split('/').pop() ?? ''
+        const stripped = filename.replace(/\.[^.]+$/, '').trim()
+        if (stripped) label = stripped
+      } catch {
+        // ignore — label stays "Custom"
+      }
+      await onAddCustomBackground({ id, label, dataUrl })
+      setBgUploadStatus({ kind: 'success', message: 'Background added.' })
+      setBgAddMode(null)
+      setUrlDraft('')
+      window.setTimeout(() => {
+        setBgUploadStatus((current) =>
+          current.kind === 'success' ? { kind: 'idle', message: '' } : current,
+        )
+      }, 1800)
+    } catch (error) {
+      setBgUploadStatus({
+        kind: 'error',
+        message: error?.message ?? 'Could not fetch that image.',
+      })
+    }
+  }, [onAddCustomBackground, urlDraft])
+
+  const handleDeleteBackground = useCallback(
+    (id) => {
+      if (!onDeleteCustomBackground) return
+      onDeleteCustomBackground(id)
+    },
+    [onDeleteCustomBackground],
+  )
 
   useEffect(() => {
     onOpenChange?.(open)
@@ -589,12 +711,20 @@ export function SettingsPanel({
     () =>
       backgrounds.map((item) => {
         const cachedSrc = backgroundSourceCacheRef.current.get(item.id)
+        const isCustom = item.isCustom === true || isCustomBackgroundId(item.id)
+        // Custom backgrounds resolve to a full data URL synchronously — fine
+        // for a tiny thumb. Bundled backgrounds wait on the canvas pipeline.
+        const fallbackSrc = isCustom ? loadBackgroundImage(item.id) : null
         return {
           id: item.id,
           label: item.label,
+          isCustom,
           isSelected: selectedBackgroundId === item.id,
           thumbnailUrl:
-            thumbnailCacheRef.current.get(item.id) ?? cachedSrc ?? undefined,
+            thumbnailCacheRef.current.get(item.id) ??
+            cachedSrc ??
+            fallbackSrc ??
+            undefined,
         }
       }),
     [backgrounds, selectedBackgroundId, thumbRevision],
@@ -933,6 +1063,66 @@ export function SettingsPanel({
                   </div>
                 </section>
 
+                {/* ── Calendar ── */}
+                {Array.isArray(calendarOptions) && calendarOptions.length ? (
+                  <section className="rounded-2xl border border-white/[0.09] bg-white/[0.05] p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3.5 w-3.5 flex-shrink-0 text-[color:var(--dashboard-text-45)]">
+                        <rect x="3" y="4" width="14" height="13" rx="2" />
+                        <path d="M3 8h14" strokeLinecap="round" />
+                        <path d="M7 2.5v3M13 2.5v3" strokeLinecap="round" />
+                      </svg>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-[color:var(--dashboard-text-55)]">Calendar</p>
+                    </div>
+                    <div className="space-y-2">
+                      {/* Active calendar display */}
+                      <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.06] px-3.5 py-2.5">
+                        <div className="flex flex-col">
+                          <span className="text-[0.6rem] uppercase tracking-[0.2em] text-[color:var(--dashboard-text-40)]">Active</span>
+                          <span className="text-[0.82rem] font-semibold text-[color:var(--dashboard-text-95)]">
+                            {calendarOptions.find((o) => o.id === calendarId)?.label ?? calendarOptions[0]?.label}
+                          </span>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-4 w-4 text-[color:var(--dashboard-text-35)]">
+                          <rect x="3" y="4" width="14" height="13" rx="2" />
+                          <path d="M3 8h14" strokeLinecap="round" />
+                          <path d="M7 2.5v3M13 2.5v3" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      {/* Calendar options list */}
+                      <div className="max-h-44 space-y-1.5 overflow-y-auto pr-1 custom-scroll">
+                        {calendarOptions.map((option) => {
+                          const isActive = option.id === calendarId
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              onClick={() => onCalendarChange?.(option.id)}
+                              disabled={!onCalendarChange}
+                              className={`flex w-full cursor-pointer items-center justify-between rounded-xl border px-3.5 py-2 text-left transition-[border-color,background-color,color] duration-100 ${
+                                isActive
+                                  ? 'border-emerald-300/50 bg-emerald-400/15 text-[color:var(--dashboard-text-100)]'
+                                  : 'border-white/[0.08] bg-white/[0.06] text-[color:var(--dashboard-text-70)] hover:border-white/25 hover:bg-white/[0.1] hover:text-[color:var(--dashboard-text-100)]'
+                              } ${!onCalendarChange ? 'cursor-not-allowed opacity-60' : ''}`}
+                            >
+                              <span className="text-[0.8rem] font-semibold">{option.label}</span>
+                              {isActive ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3.5 w-3.5 flex-shrink-0 text-emerald-300">
+                                  <path d="M3 8.5l3.5 3.5 6.5-7" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5 flex-shrink-0 text-[color:var(--dashboard-text-30)]">
+                                  <path d="M6 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </section>
+                ) : null}
+
                 {/* ── Clock Timezone ── */}
                 <section className="rounded-2xl border border-white/[0.09] bg-white/[0.05] p-4">
                   <div className="mb-3 flex items-center gap-2">
@@ -1021,14 +1211,113 @@ export function SettingsPanel({
 
                 {/* ── Background ── */}
                 <section className="rounded-2xl border border-white/[0.09] bg-white/[0.05] p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3.5 w-3.5 flex-shrink-0 text-[color:var(--dashboard-text-45)]">
-                      <rect x="2.5" y="4" width="15" height="12" rx="2" />
-                      <circle cx="7" cy="8.5" r="1.5" fill="currentColor" stroke="none" opacity="0.6" />
-                      <path d="M2.5 13l4-4 3.5 3.5 2.5-2.5 5 5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <p className="text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-[color:var(--dashboard-text-55)]">Background</p>
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-3.5 w-3.5 flex-shrink-0 text-[color:var(--dashboard-text-45)]">
+                        <rect x="2.5" y="4" width="15" height="12" rx="2" />
+                        <circle cx="7" cy="8.5" r="1.5" fill="currentColor" stroke="none" opacity="0.6" />
+                        <path d="M2.5 13l4-4 3.5 3.5 2.5-2.5 5 5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-[color:var(--dashboard-text-55)]">Background</p>
+                    </div>
+                    {onAddCustomBackground ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex h-6 items-center gap-1 rounded-full border border-white/15 bg-white/[0.07] px-2.5 text-[0.55rem] font-semibold uppercase tracking-[0.18em] text-[color:var(--dashboard-text-70)] transition-[border-color,background-color,color] duration-150 hover:border-white/30 hover:bg-white/[0.12] hover:text-[color:var(--dashboard-text-100)]"
+                          aria-label="Upload a custom background image"
+                        >
+                          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-2.5 w-2.5">
+                            <path d="M7 2v8M3.5 5.5L7 2l3.5 3.5M2.5 12h9" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          Upload
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBgAddMode((current) => (current === 'url' ? null : 'url'))
+                            setBgUploadStatus({ kind: 'idle', message: '' })
+                          }}
+                          className={`flex h-6 items-center gap-1 rounded-full border px-2.5 text-[0.55rem] font-semibold uppercase tracking-[0.18em] transition-[border-color,background-color,color] duration-150 ${
+                            bgAddMode === 'url'
+                              ? 'border-sky-300/60 bg-sky-400/15 text-[color:var(--dashboard-text-100)]'
+                              : 'border-white/15 bg-white/[0.07] text-[color:var(--dashboard-text-70)] hover:border-white/30 hover:bg-white/[0.12] hover:text-[color:var(--dashboard-text-100)]'
+                          }`}
+                          aria-pressed={bgAddMode === 'url'}
+                        >
+                          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-2.5 w-2.5">
+                            <path d="M5.5 8.5l3-3M4.5 7.5l-1.5 1.5a2 2 0 102.8 2.8l1.5-1.5M9.5 6.5l1.5-1.5a2 2 0 10-2.8-2.8L6.7 3.7" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          From URL
+                        </button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </div>
+                    ) : null}
                   </div>
+
+                  {bgAddMode === 'url' ? (
+                    <div className="mb-3 rounded-xl border border-white/[0.12] bg-white/[0.04] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="url"
+                          value={urlDraft}
+                          onChange={(event) => setUrlDraft(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              event.preventDefault()
+                              handleAddFromUrlSubmit()
+                            } else if (event.key === 'Escape') {
+                              setBgAddMode(null)
+                              setUrlDraft('')
+                              setBgUploadStatus({ kind: 'idle', message: '' })
+                            }
+                          }}
+                          placeholder="https://example.com/photo.jpg"
+                          disabled={bgUploadStatus.kind === 'loading'}
+                          className="h-7 flex-1 rounded-lg border border-white/[0.12] bg-white/[0.06] px-2.5 text-[0.7rem] text-[color:var(--dashboard-text-90)] placeholder:text-[color:var(--dashboard-text-35)] focus:border-sky-300/40 focus:outline-none focus:ring-1 focus:ring-sky-300/30 disabled:opacity-60"
+                          aria-label="Image URL"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddFromUrlSubmit}
+                          disabled={bgUploadStatus.kind === 'loading' || !urlDraft.trim()}
+                          className="flex h-7 items-center rounded-lg border border-sky-300/40 bg-sky-400/20 px-2.5 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--dashboard-text-100)] transition-[background-color,border-color] duration-150 hover:border-sky-300/60 hover:bg-sky-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {bgUploadStatus.kind !== 'idle' ? (
+                    <div
+                      className={`mb-3 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[0.62rem] ${
+                        bgUploadStatus.kind === 'error'
+                          ? 'border-rose-400/40 bg-rose-500/10 text-rose-100/90'
+                          : bgUploadStatus.kind === 'success'
+                            ? 'border-emerald-300/40 bg-emerald-400/10 text-emerald-100/90'
+                            : 'border-white/15 bg-white/[0.05] text-[color:var(--dashboard-text-75)]'
+                      }`}
+                      role={bgUploadStatus.kind === 'error' ? 'alert' : 'status'}
+                    >
+                      {bgUploadStatus.kind === 'loading' ? (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3 w-3 animate-spin">
+                          <circle cx="12" cy="12" r="9" opacity="0.25" />
+                          <path d="M21 12a9 9 0 00-9-9" strokeLinecap="round" />
+                        </svg>
+                      ) : null}
+                      <span className="leading-snug">{bgUploadStatus.message}</span>
+                    </div>
+                  ) : null}
+
                   <div className="grid grid-cols-3 gap-2">
                     {backgroundItems.map((item) => (
                       <BackgroundOption
@@ -1036,7 +1325,13 @@ export function SettingsPanel({
                         label={item.label}
                         thumbnailUrl={item.thumbnailUrl}
                         isSelected={item.isSelected}
+                        isCustom={item.isCustom}
                         onSelect={() => handleBackgroundSelect(item.id)}
+                        onDelete={
+                          item.isCustom && onDeleteCustomBackground
+                            ? () => handleDeleteBackground(item.id)
+                            : undefined
+                        }
                       />
                     ))}
                   </div>

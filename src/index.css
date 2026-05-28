@@ -148,6 +148,9 @@ body {
   .pomodoro-ring:hover .pomodoro-play {
     opacity: 1 !important;
   }
+  .animate-brand-glow {
+    animation: none !important;
+  }
 }
 
 @keyframes searchBeamHue {

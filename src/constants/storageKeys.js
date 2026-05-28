@@ -15,6 +15,8 @@ export const STORAGE_KEYS = {
   dailyFocus: 'focus_dashboard_dailyFocus',
   focusDate: 'focus_dashboard_focusDate',
   pomodoroDurations: 'focus_dashboard_pomodoroDurations',
+  activeBackgroundData: 'focus_dashboard_activeBackgroundData',
+  calendar: 'focus_dashboard_calendar',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -33,3 +35,5 @@ export const POMODORO_STATE_KEY = STORAGE_KEYS.pomodoroState
 export const DAILY_FOCUS_KEY = STORAGE_KEYS.dailyFocus
 export const FOCUS_DATE_KEY = STORAGE_KEYS.focusDate
 export const POMODORO_DURATIONS_KEY = STORAGE_KEYS.pomodoroDurations
+export const ACTIVE_BACKGROUND_DATA_KEY = STORAGE_KEYS.activeBackgroundData
+export const CALENDAR_KEY = STORAGE_KEYS.calendar
