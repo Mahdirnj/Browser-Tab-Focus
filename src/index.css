@@ -97,7 +97,7 @@ body {
 }
 
 .pomodoro-progress {
-  transition: stroke-dashoffset 0.12s linear, stroke 0.45s ease;
+  transition: stroke 0.45s ease;
 }
 
 .pomodoro-ring:hover .pomodoro-time,

@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 import { isCustomBackgroundId, loadBackgroundImage, makeCustomBackgroundId } from '../background'
-import { fetchImageAsDataUrl, resizeImageToDataUrl } from '../utils/imageResize'
+import { resizeImageToDataUrl } from '../utils/imageResize'
 import { getThumb, setThumb, loadAllThumbs } from '../utils/thumbCache'
 
 const THUMB_MAX_WIDTH = 320
@@ -290,8 +290,6 @@ export function SettingsPanel({
     weatherApiKey ?? '',
   )
   const fileInputRef = useRef(null)
-  const [bgAddMode, setBgAddMode] = useState(null) // null | 'url'
-  const [urlDraft, setUrlDraft] = useState('')
   const [bgUploadStatus, setBgUploadStatus] = useState({ kind: 'idle', message: '' })
   const [timezoneQuery, setTimezoneQuery] = useState('')
   const availableTimeZones = useMemo(() => {
@@ -439,8 +437,6 @@ export function SettingsPanel({
         const id = makeCustomBackgroundId()
         await onAddCustomBackground({ id, label, dataUrl })
         setBgUploadStatus({ kind: 'success', message: 'Background added.' })
-        setBgAddMode(null)
-        setUrlDraft('')
         // Auto-clear the success message
         window.setTimeout(() => {
           setBgUploadStatus((current) =>
@@ -468,42 +464,6 @@ export function SettingsPanel({
     },
     [handleCustomBackgroundFromBlob],
   )
-
-  const handleAddFromUrlSubmit = useCallback(async () => {
-    if (!onAddCustomBackground) return
-    const trimmed = urlDraft.trim()
-    if (!trimmed) {
-      setBgUploadStatus({ kind: 'error', message: 'Enter an image URL.' })
-      return
-    }
-    setBgUploadStatus({ kind: 'loading', message: 'Fetching image…' })
-    try {
-      const { dataUrl } = await fetchImageAsDataUrl(trimmed)
-      const id = makeCustomBackgroundId()
-      let label = 'Custom'
-      try {
-        const filename = new URL(trimmed).pathname.split('/').pop() ?? ''
-        const stripped = filename.replace(/\.[^.]+$/, '').trim()
-        if (stripped) label = stripped
-      } catch {
-        // ignore — label stays "Custom"
-      }
-      await onAddCustomBackground({ id, label, dataUrl })
-      setBgUploadStatus({ kind: 'success', message: 'Background added.' })
-      setBgAddMode(null)
-      setUrlDraft('')
-      window.setTimeout(() => {
-        setBgUploadStatus((current) =>
-          current.kind === 'success' ? { kind: 'idle', message: '' } : current,
-        )
-      }, 1800)
-    } catch (error) {
-      setBgUploadStatus({
-        kind: 'error',
-        message: error?.message ?? 'Could not fetch that image.',
-      })
-    }
-  }, [onAddCustomBackground, urlDraft])
 
   const handleDeleteBackground = useCallback(
     (id) => {
@@ -1233,24 +1193,6 @@ export function SettingsPanel({
                           </svg>
                           Upload
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBgAddMode((current) => (current === 'url' ? null : 'url'))
-                            setBgUploadStatus({ kind: 'idle', message: '' })
-                          }}
-                          className={`flex h-6 items-center gap-1 rounded-full border px-2.5 text-[0.55rem] font-semibold uppercase tracking-[0.18em] transition-[border-color,background-color,color] duration-150 ${
-                            bgAddMode === 'url'
-                              ? 'border-sky-300/60 bg-sky-400/15 text-[color:var(--dashboard-text-100)]'
-                              : 'border-white/15 bg-white/[0.07] text-[color:var(--dashboard-text-70)] hover:border-white/30 hover:bg-white/[0.12] hover:text-[color:var(--dashboard-text-100)]'
-                          }`}
-                          aria-pressed={bgAddMode === 'url'}
-                        >
-                          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-2.5 w-2.5">
-                            <path d="M5.5 8.5l3-3M4.5 7.5l-1.5 1.5a2 2 0 102.8 2.8l1.5-1.5M9.5 6.5l1.5-1.5a2 2 0 10-2.8-2.8L6.7 3.7" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                          From URL
-                        </button>
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -1261,41 +1203,6 @@ export function SettingsPanel({
                       </div>
                     ) : null}
                   </div>
-
-                  {bgAddMode === 'url' ? (
-                    <div className="mb-3 rounded-xl border border-white/[0.12] bg-white/[0.04] p-2.5">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="url"
-                          value={urlDraft}
-                          onChange={(event) => setUrlDraft(event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                              event.preventDefault()
-                              handleAddFromUrlSubmit()
-                            } else if (event.key === 'Escape') {
-                              setBgAddMode(null)
-                              setUrlDraft('')
-                              setBgUploadStatus({ kind: 'idle', message: '' })
-                            }
-                          }}
-                          placeholder="https://example.com/photo.jpg"
-                          disabled={bgUploadStatus.kind === 'loading'}
-                          className="h-7 flex-1 rounded-lg border border-white/[0.12] bg-white/[0.06] px-2.5 text-[0.7rem] text-[color:var(--dashboard-text-90)] placeholder:text-[color:var(--dashboard-text-35)] focus:border-sky-300/40 focus:outline-none focus:ring-1 focus:ring-sky-300/30 disabled:opacity-60"
-                          aria-label="Image URL"
-                          autoFocus
-                        />
-                        <button
-                          type="button"
-                          onClick={handleAddFromUrlSubmit}
-                          disabled={bgUploadStatus.kind === 'loading' || !urlDraft.trim()}
-                          className="flex h-7 items-center rounded-lg border border-sky-300/40 bg-sky-400/20 px-2.5 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--dashboard-text-100)] transition-[background-color,border-color] duration-150 hover:border-sky-300/60 hover:bg-sky-400/30 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
 
                   {bgUploadStatus.kind !== 'idle' ? (
                     <div

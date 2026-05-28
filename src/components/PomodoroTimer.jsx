@@ -384,7 +384,7 @@ export function PomodoroTimer({ isObscured = false, pomodoroDurations }) {
             strokeWidth="10"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeOffset}
+            style={{ strokeDashoffset: strokeOffset, transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
           />
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
