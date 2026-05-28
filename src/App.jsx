@@ -26,22 +26,24 @@ import {
   BACKGROUND_KEY,
   CALENDAR_KEY,
   CLOCK_TIMEZONE_KEY,
+  OVERLAY_STRENGTH_KEY,
   POMODORO_DURATIONS_KEY,
   SEARCH_BEHAVIOR_KEY,
   TEXT_COLOR_KEY,
   USER_NAME_KEY,
-  WEATHER_API_KEY_KEY,
   WIDGETS_KEY,
 } from './constants/storageKeys'
-import {
-  readJSON,
-  readString,
-  removeKey,
-  writeJSON,
-  writeString,
-} from './utils/storage'
+import { readString, removeKey, writeString } from './utils/storage'
 import { CALENDAR_OPTIONS, DEFAULT_CALENDAR_ID, getCalendarOption } from './utils/calendar'
 import { getDefaultTimezone } from './utils/timezone'
+import { useStoredState } from './hooks/useStoredState'
+import {
+  isExtensionStorageAvailable,
+  loadWeatherApiKey,
+  readWeatherApiKeySync,
+  saveWeatherApiKey,
+} from './utils/weatherKeyStore'
+
 const BRAND_NAME = 'FocusLoom'
 
 const TEXT_COLOR_PRESETS = [
@@ -53,6 +55,17 @@ const TEXT_COLOR_PRESETS = [
   { id: 'obsidian', label: 'Obsidian', hex: '#000000' },
 ]
 
+const DEFAULT_WIDGET_SETTINGS = {
+  weather: true,
+  todo: true,
+  pomodoro: true,
+}
+
+const DEFAULT_POMODORO_DURATIONS = { focus: 25, shortBreak: 5, longBreak: 15 }
+const DEFAULT_OVERLAY_STRENGTH = 0.75
+const MIN_OVERLAY_STRENGTH = 0
+const MAX_OVERLAY_STRENGTH = 1
+
 function BrandMark() {
   return (
     <span className="animate-brand-glow text-xs font-semibold uppercase tracking-[0.5em] text-[color:var(--dashboard-text-65)] md:text-sm">
@@ -61,32 +74,10 @@ function BrandMark() {
   )
 }
 
-const DEFAULT_WIDGET_SETTINGS = {
-  weather: true,
-  todo: true,
-  pomodoro: true,
-}
-
-function resolveInitialWidgets() {
-  const stored = readJSON(WIDGETS_KEY, null)
-  if (!stored || typeof stored !== 'object') {
-    return DEFAULT_WIDGET_SETTINGS
-  }
-  return {
-    ...DEFAULT_WIDGET_SETTINGS,
-    ...stored,
-  }
-}
-
-function resolveInitialTextColor() {
-  const stored = readString(TEXT_COLOR_KEY, TEXT_COLOR_PRESETS[0].id)
-  const isValid = TEXT_COLOR_PRESETS.some((item) => item.id === stored)
-  return isValid ? stored : TEXT_COLOR_PRESETS[0].id
-}
-
-function resolveInitialSearchBehavior() {
-  const stored = readString(SEARCH_BEHAVIOR_KEY, 'new')
-  return stored !== 'current'
+function clampOverlay(value) {
+  const num = Number(value)
+  if (!Number.isFinite(num)) return DEFAULT_OVERLAY_STRENGTH
+  return Math.min(MAX_OVERLAY_STRENGTH, Math.max(MIN_OVERLAY_STRENGTH, num))
 }
 
 function applyTextColorPreset(hex) {
@@ -108,37 +99,81 @@ function applyTextColorPreset(hex) {
 }
 
 function App() {
+  // Background needs a side-effect on change (active-data shadow) so it
+  // remains a hand-rolled state pair rather than `useStoredState`.
   const [backgroundId, setBackgroundId] = useState(() =>
     readString(BACKGROUND_KEY, DEFAULT_BACKGROUND_ID),
   )
   const [nameEditSignal, setNameEditSignal] = useState(0)
-  const [userName, setUserName] = useState(() =>
-    readString(USER_NAME_KEY, ''),
+
+  // ── Persisted preferences (auto-synced via useStoredState) ──────────
+  const [userName, setUserName] = useStoredState(USER_NAME_KEY, '', { kind: 'string' })
+  const [clockTimezone, setClockTimezone] = useStoredState(
+    CLOCK_TIMEZONE_KEY,
+    getDefaultTimezone(),
+    { kind: 'string' },
   )
-  const [clockTimezone, setClockTimezone] = useState(() =>
-    readString(CLOCK_TIMEZONE_KEY, getDefaultTimezone()),
+  const [widgetsEnabled, setWidgetsEnabled] = useStoredState(
+    WIDGETS_KEY,
+    DEFAULT_WIDGET_SETTINGS,
+    {
+      sanitize: (raw) =>
+        raw && typeof raw === 'object' ? { ...DEFAULT_WIDGET_SETTINGS, ...raw } : DEFAULT_WIDGET_SETTINGS,
+    },
   )
-  const [widgetsEnabled, setWidgetsEnabled] = useState(() =>
-    resolveInitialWidgets(),
+  const [textColorId, setTextColorId] = useStoredState(
+    TEXT_COLOR_KEY,
+    TEXT_COLOR_PRESETS[0].id,
+    {
+      kind: 'string',
+      sanitize: (raw) =>
+        TEXT_COLOR_PRESETS.some((item) => item.id === raw) ? raw : TEXT_COLOR_PRESETS[0].id,
+    },
   )
-  const [textColorId, setTextColorId] = useState(() =>
-    resolveInitialTextColor(),
+  const [pomodoroDurations, setPomodoroDurations] = useStoredState(
+    POMODORO_DURATIONS_KEY,
+    DEFAULT_POMODORO_DURATIONS,
   )
+  const [calendarId, setCalendarId] = useStoredState(
+    CALENDAR_KEY,
+    DEFAULT_CALENDAR_ID,
+    { kind: 'string', sanitize: (raw) => getCalendarOption(raw).id },
+  )
+  const [overlayStrength, setOverlayStrength] = useStoredState(
+    OVERLAY_STRENGTH_KEY,
+    DEFAULT_OVERLAY_STRENGTH,
+    { sanitize: clampOverlay },
+  )
+
+  // Search behavior — boolean derived from a 'new' | 'current' string.
+  // Custom serialization, kept manual.
+  const [openSearchInNewTab, setOpenSearchInNewTab] = useState(() =>
+    readString(SEARCH_BEHAVIOR_KEY, 'new') !== 'current',
+  )
+  useEffect(() => {
+    writeString(SEARCH_BEHAVIOR_KEY, openSearchInNewTab ? 'new' : 'current')
+  }, [openSearchInNewTab])
+
+  // Weather API key — sync init from localStorage, async migrate from
+  // chrome.storage.local when running as a Chrome extension.
+  const [weatherApiKey, setWeatherApiKey] = useState(() => readWeatherApiKeySync())
+  useEffect(() => {
+    let cancelled = false
+    if (isExtensionStorageAvailable()) {
+      loadWeatherApiKey().then((resolved) => {
+        if (cancelled) return
+        if (resolved !== weatherApiKey) setWeatherApiKey(resolved)
+      })
+    }
+    return () => {
+      cancelled = true
+    }
+    // Run once at mount to seed from extension storage if available.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [isCompactLayout, setIsCompactLayout] = useState(false)
-  const [openSearchInNewTab, setOpenSearchInNewTab] = useState(() =>
-    resolveInitialSearchBehavior(),
-  )
-  const [weatherApiKey, setWeatherApiKey] = useState(() =>
-    readString(WEATHER_API_KEY_KEY, ''),
-  )
-  const [pomodoroDurations, setPomodoroDurations] = useState(() =>
-    readJSON(POMODORO_DURATIONS_KEY, { focus: 25, shortBreak: 5, longBreak: 15 }),
-  )
-  const [calendarId, setCalendarId] = useState(() => {
-    const stored = readString(CALENDAR_KEY, DEFAULT_CALENDAR_ID)
-    return getCalendarOption(stored).id
-  })
   const [customBackgrounds, setCustomBackgrounds] = useState(() =>
     getCustomBackgroundsSnapshot(),
   )
@@ -174,38 +209,17 @@ function App() {
   }, [backgroundId])
 
   useEffect(() => {
-    writeString(CLOCK_TIMEZONE_KEY, clockTimezone)
-  }, [clockTimezone])
-
-  useEffect(() => {
-    writeJSON(WIDGETS_KEY, widgetsEnabled)
-  }, [widgetsEnabled])
-
-  useEffect(() => {
-    writeString(TEXT_COLOR_KEY, textColorId)
-  }, [textColorId])
-
-  useEffect(() => {
-    writeString(SEARCH_BEHAVIOR_KEY, openSearchInNewTab ? 'new' : 'current')
-  }, [openSearchInNewTab])
-
-  useEffect(() => {
-    writeString(CALENDAR_KEY, calendarId)
-  }, [calendarId])
-
-  useEffect(() => {
-    const trimmed = weatherApiKey?.trim()
-    if (!trimmed) {
-      removeKey(WEATHER_API_KEY_KEY)
-      return
-    }
-    writeString(WEATHER_API_KEY_KEY, trimmed)
-  }, [weatherApiKey])
-
-  useEffect(() => {
     const active = TEXT_COLOR_PRESETS.find((item) => item.id === textColorId)
     applyTextColorPreset(active?.hex ?? TEXT_COLOR_PRESETS[0].hex)
   }, [textColorId])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.style.setProperty(
+      '--background-overlay-opacity',
+      String(clampOverlay(overlayStrength)),
+    )
+  }, [overlayStrength])
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
@@ -251,12 +265,12 @@ function App() {
   }, [activeBackground?.id, backgroundId, customBackgrounds])
 
   const panelClasses = 'text-[color:var(--dashboard-text-95)]'
-  const toggleWidget = (key, value) => {
-    setWidgetsEnabled((current) => ({
-      ...current,
-      [key]: value,
-    }))
-  }
+  const toggleWidget = useCallback(
+    (key, value) => {
+      setWidgetsEnabled({ ...widgetsEnabled, [key]: value })
+    },
+    [setWidgetsEnabled, widgetsEnabled],
+  )
   const showWeather = !isCompactLayout && widgetsEnabled.weather !== false
   const showTodo = !isCompactLayout && widgetsEnabled.todo !== false
   const showPomodoro = !isCompactLayout && widgetsEnabled.pomodoro !== false
@@ -264,14 +278,19 @@ function App() {
   const showQuote = widgetsEnabled.quote !== false
   const showBookmarks = !isCompactLayout
   const showUtilityColumn = showWeather || showTodo
+
   const handleWeatherApiKeyChange = useCallback((nextKey) => {
-    setWeatherApiKey(nextKey?.trim() ?? '')
+    const trimmed = (nextKey ?? '').trim()
+    setWeatherApiKey(trimmed)
+    saveWeatherApiKey(trimmed)
   }, [])
 
-  const handlePomodoroDurationsChange = useCallback((next) => {
-    setPomodoroDurations(next)
-    writeJSON(POMODORO_DURATIONS_KEY, next)
-  }, [])
+  const handlePomodoroDurationsChange = useCallback(
+    (next) => {
+      setPomodoroDurations(next)
+    },
+    [setPomodoroDurations],
+  )
 
   const handleAddCustomBackground = useCallback(async (record) => {
     const saved = await addCustomBackground(record)
@@ -286,6 +305,13 @@ function App() {
       setBackgroundId((current) => (current === id ? DEFAULT_BACKGROUND_ID : current))
     },
     [],
+  )
+
+  const handleOverlayStrengthChange = useCallback(
+    (value) => {
+      setOverlayStrength(clampOverlay(value))
+    },
+    [setOverlayStrength],
   )
 
   // Request notification permission once — only if not yet decided and not already asked.
@@ -357,6 +383,8 @@ function App() {
         calendarId={calendarId}
         calendarOptions={CALENDAR_OPTIONS}
         onCalendarChange={setCalendarId}
+        overlayStrength={clampOverlay(overlayStrength)}
+        onOverlayStrengthChange={handleOverlayStrengthChange}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
@@ -369,7 +397,9 @@ function App() {
               timezone={clockTimezone}
             />
             <SearchBar openInNewTab={openSearchInNewTab} />
-            {showQuote ? <Quote /> : null}
+            <div className="min-h-[2.5rem]">
+              {showQuote ? <Quote /> : null}
+            </div>
           </header>
         </div>
       </main>

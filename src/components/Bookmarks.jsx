@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { BOOKMARKS_KEY } from '../constants/storageKeys'
 import { readJSON, removeKey, writeJSON } from '../utils/storage'
+import WidgetCard from './ui/WidgetCard'
 
 const MAX_BOOKMARKS = 6
 
-const CARD_CLASSES =
-  'relative flex w-48 min-h-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/30 before:pointer-events-none before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:from-white/[0.12] before:via-white/[0.04] before:to-transparent before:opacity-80'
+const CARD_SIZE_CLASSES =
+  'relative w-48 min-h-48 before:pointer-events-none before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:from-white/[0.12] before:via-white/[0.04] before:to-transparent before:opacity-80 hover:border-white/30'
 
 /**
  * Favicon cache — persists the *working* favicon URL per hostname in
@@ -95,8 +96,10 @@ function getFaviconSources(url) {
 
   const sources = []
   uniqueHosts.forEach((entry) => {
-    sources.push(`https://www.google.com/s2/favicons?domain=${entry}&sz=64`)
+    // DuckDuckGo first — works just as well as Google's S2 endpoint without
+    // leaking the visited hostname to Google.
     sources.push(`https://icons.duckduckgo.com/ip3/${entry}.ico`)
+    sources.push(`https://www.google.com/s2/favicons?domain=${entry}&sz=64`)
   })
   if (origin) {
     sources.push(`${origin}/favicon.ico`)
@@ -405,7 +408,7 @@ export function Bookmarks() {
   )
 
   return (
-    <section className={CARD_CLASSES}>
+    <WidgetCard className={CARD_SIZE_CLASSES}>
       <div className="relative z-10 flex items-start justify-between gap-2">
         <div>
           <p className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-[color:var(--dashboard-text-70)]">
@@ -589,7 +592,7 @@ export function Bookmarks() {
           </div>
         )}
       </div>
-    </section>
+    </WidgetCard>
   )
 }
 

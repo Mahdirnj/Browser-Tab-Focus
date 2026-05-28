@@ -6,6 +6,7 @@ import {
   writeJSON,
   writeString,
 } from '../utils/storage'
+import WidgetCard from './ui/WidgetCard'
 
 import { CITY_KEY, WEATHER_CACHE_KEY } from '../constants/storageKeys'
 const CACHE_TTL = 30 * 60 * 1000
@@ -28,8 +29,7 @@ function readCachedWeather(city) {
   return null
 }
 
-const PANEL_CLASSES =
-  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+const CARD_SIZE_CLASSES = 'h-48 w-48'
 
 const WEATHER_VARIANTS = {
   clear: {
@@ -696,7 +696,7 @@ export function Weather({ apiKey: providedApiKey = '', isActive = true }) {
   }
 
   return (
-    <section className={PANEL_CLASSES}>
+    <WidgetCard className={CARD_SIZE_CLASSES}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-[color:var(--dashboard-text-60)]">
@@ -776,7 +776,7 @@ export function Weather({ apiKey: providedApiKey = '', isActive = true }) {
           {error}
         </p>
       ) : null}
-    </section>
+    </WidgetCard>
   )
 }
 

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { POMODORO_STATE_KEY } from '../constants/storageKeys'
 import { readJSON, writeJSON } from '../utils/storage'
+import WidgetCard from './ui/WidgetCard'
 
-const CARD_CLASSES =
-  'flex h-48 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+const CARD_SIZE_CLASSES = 'h-48 w-48'
 
 const DEFAULT_FOCUS_MIN = 25
 const DEFAULT_SHORT_MIN = 5
@@ -318,8 +318,8 @@ export function PomodoroTimer({ isObscured = false, pomodoroDurations }) {
         : 'shadow-[0_18px_35px_-20px_rgba(6,182,212,0.9)]'
 
   return (
-    <section
-      className={`${CARD_CLASSES} ${accentGlow}`}
+    <WidgetCard
+      className={`${CARD_SIZE_CLASSES} ${accentGlow}`}
       aria-hidden={isObscured ? 'true' : undefined}
       data-obscured={isObscured ? 'true' : 'false'}
     >
@@ -426,7 +426,7 @@ export function PomodoroTimer({ isObscured = false, pomodoroDurations }) {
         </button>
         <div />
       </div>
-    </section>
+    </WidgetCard>
   )
 }
 

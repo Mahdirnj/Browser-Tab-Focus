@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { readJSON, removeKey, writeJSON } from '../utils/storage'
 import { TODOS_KEY } from '../constants/storageKeys'
+import WidgetCard from './ui/WidgetCard'
 
 const MAX_TODOS = 5
 
@@ -70,8 +71,7 @@ function TrashIcon() {
   )
 }
 
-const CARD_CLASSES =
-  'flex h-90 w-48 flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.08] p-4 text-[color:var(--dashboard-text-100)] shadow-[0_30px_60px_-40px_rgba(15,23,42,0.85)] backdrop-blur-md transition duration-300 hover:border-white/25'
+const CARD_SIZE_CLASSES = 'h-90 w-48'
 
 export function TodoList() {
   const [todos, setTodos] = useState(() => readStoredTodos())
@@ -184,7 +184,7 @@ export function TodoList() {
   }
 
   return (
-    <section className={CARD_CLASSES}>
+    <WidgetCard className={CARD_SIZE_CLASSES}>
       <div className="flex items-center justify-between">
         <h2 className="text-[0.55rem] font-semibold uppercase tracking-[0.4em] text-[color:var(--dashboard-text-70)]">
           Todo List
@@ -276,7 +276,7 @@ export function TodoList() {
           ) : null}
         </div>
       </div>
-    </section>
+    </WidgetCard>
   )
 }
 

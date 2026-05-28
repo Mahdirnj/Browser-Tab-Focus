@@ -17,6 +17,7 @@ export const STORAGE_KEYS = {
   pomodoroDurations: 'focus_dashboard_pomodoroDurations',
   activeBackgroundData: 'focus_dashboard_activeBackgroundData',
   calendar: 'focus_dashboard_calendar',
+  overlayStrength: 'focus_dashboard_overlayStrength',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -37,3 +38,4 @@ export const FOCUS_DATE_KEY = STORAGE_KEYS.focusDate
 export const POMODORO_DURATIONS_KEY = STORAGE_KEYS.pomodoroDurations
 export const ACTIVE_BACKGROUND_DATA_KEY = STORAGE_KEYS.activeBackgroundData
 export const CALENDAR_KEY = STORAGE_KEYS.calendar
+export const OVERLAY_STRENGTH_KEY = STORAGE_KEYS.overlayStrength

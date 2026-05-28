@@ -10,6 +10,7 @@
   -moz-osx-font-smoothing: grayscale;
   --body-bg: #0f172a;
   --instant-background-image: none;
+  --background-overlay-opacity: 0.75;
   --dashboard-text-rgb: 248, 250, 252;
   --dashboard-text-100: rgba(var(--dashboard-text-rgb), 1);
   --dashboard-text-95: rgba(var(--dashboard-text-rgb), 0.95);

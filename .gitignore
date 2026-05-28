@@ -29,3 +29,6 @@ release/
 *.njsproj
 *.sln
 *.sw?
+
+# Tests
+src/tests/
