@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from 'react'
 import { getTodayQuote } from '../constants/quotes'
 
-export function Quote() {
-  const quote = useMemo(() => getTodayQuote(), [])
+export function Quote({ timezone }) {
+  const quote = useMemo(() => getTodayQuote(timezone), [timezone])
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -30,3 +30,5 @@ export function Quote() {
     </div>
   )
 }
+
+export default Quote

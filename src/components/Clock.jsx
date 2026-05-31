@@ -63,7 +63,7 @@ export function Clock({ timezone, calendarId = DEFAULT_CALENDAR_ID }) {
   const hasZone = Boolean(zoneLabel)
 
   return (
-    <div className="group flex flex-col items-center rounded-full border border-white/15 bg-white/[0.08] px-8 py-4 text-[color:var(--dashboard-text-95)] shadow-[0_25px_70px_-40px_rgba(11,20,45,0.7)] backdrop-blur-[1px] transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.015] hover:border-white/30 hover:bg-white/[0.12] hover:shadow-[0_30px_70px_-30px_rgba(11,20,45,0.85)] md:px-12">
+    <div className="clock-card group relative flex flex-col items-center rounded-full border border-white/15 bg-white/[0.08] px-8 py-4 text-[color:var(--dashboard-text-95)] shadow-[0_25px_70px_-40px_rgba(11,20,45,0.7)] backdrop-blur-[1px] md:px-12">
       <span className="tabular-nums text-6xl font-light tracking-tight transition-colors duration-300 group-hover:text-[color:var(--dashboard-text-100)] md:text-8xl">
         {displayTime}
       </span>

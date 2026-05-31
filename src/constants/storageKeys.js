@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   activeBackgroundData: 'focus_dashboard_activeBackgroundData',
   calendar: 'focus_dashboard_calendar',
   overlayStrength: 'focus_dashboard_overlayStrength',
+  greetingSubline: 'focus_dashboard_greetingSubline',
 }
 
 export const BACKGROUND_KEY = STORAGE_KEYS.background
@@ -39,3 +40,4 @@ export const POMODORO_DURATIONS_KEY = STORAGE_KEYS.pomodoroDurations
 export const ACTIVE_BACKGROUND_DATA_KEY = STORAGE_KEYS.activeBackgroundData
 export const CALENDAR_KEY = STORAGE_KEYS.calendar
 export const OVERLAY_STRENGTH_KEY = STORAGE_KEYS.overlayStrength
+export const GREETING_SUBLINE_KEY = STORAGE_KEYS.greetingSubline

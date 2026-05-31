@@ -26,6 +26,7 @@ import {
   BACKGROUND_KEY,
   CALENDAR_KEY,
   CLOCK_TIMEZONE_KEY,
+  GREETING_SUBLINE_KEY,
   OVERLAY_STRENGTH_KEY,
   POMODORO_DURATIONS_KEY,
   SEARCH_BEHAVIOR_KEY,
@@ -36,6 +37,10 @@ import {
 import { readString, removeKey, writeString } from './utils/storage'
 import { CALENDAR_OPTIONS, DEFAULT_CALENDAR_ID, getCalendarOption } from './utils/calendar'
 import { getDefaultTimezone } from './utils/timezone'
+import {
+  DEFAULT_GREETING_SUBLINE,
+  GREETING_SUBLINE_MODES,
+} from './utils/greetingSubline'
 import { useStoredState } from './hooks/useStoredState'
 import {
   isExtensionStorageAvailable,
@@ -143,6 +148,17 @@ function App() {
     OVERLAY_STRENGTH_KEY,
     DEFAULT_OVERLAY_STRENGTH,
     { sanitize: clampOverlay },
+  )
+  const [greetingSubline, setGreetingSubline] = useStoredState(
+    GREETING_SUBLINE_KEY,
+    DEFAULT_GREETING_SUBLINE,
+    {
+      kind: 'string',
+      sanitize: (raw) =>
+        Object.values(GREETING_SUBLINE_MODES).includes(raw)
+          ? raw
+          : DEFAULT_GREETING_SUBLINE,
+    },
   )
 
   // Search behavior — boolean derived from a 'new' | 'current' string.
@@ -385,6 +401,8 @@ function App() {
         onCalendarChange={setCalendarId}
         overlayStrength={clampOverlay(overlayStrength)}
         onOverlayStrengthChange={handleOverlayStrengthChange}
+        greetingSubline={greetingSubline}
+        onGreetingSublineChange={setGreetingSubline}
       />
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div
@@ -395,10 +413,11 @@ function App() {
               editSignal={nameEditSignal}
               onNameChange={setUserName}
               timezone={clockTimezone}
+              sublineMode={greetingSubline}
             />
             <SearchBar openInNewTab={openSearchInNewTab} />
             <div className="min-h-[2.5rem]">
-              {showQuote ? <Quote /> : null}
+              {showQuote ? <Quote timezone={clockTimezone} /> : null}
             </div>
           </header>
         </div>

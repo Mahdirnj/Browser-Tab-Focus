@@ -189,3 +189,85 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+
+@keyframes greetingSublineReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-greeting-subline {
+  animation: greetingSublineReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-greeting-subline {
+    animation: none !important;
+  }
+}
+
+/* ── Clock hover: a glowing arc that travels around the pill border ── */
+@property --clock-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.clock-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px; /* ring thickness */
+  background: conic-gradient(
+    from var(--clock-angle),
+    transparent 0deg,
+    transparent 250deg,
+    rgba(255, 255, 255, 0.35) 300deg,
+    rgba(255, 255, 255, 0.95) 340deg,
+    rgba(255, 255, 255, 0.35) 360deg
+  );
+  /* Clip the gradient to just the border ring */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  /* The arc travels continuously so the angle never resets on hover-in/out.
+     Only opacity reacts to hover, so the trace fades in/out from wherever
+     it currently is — never a sudden jump. */
+  animation: clockBorderTravel 2.4s linear infinite;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.clock-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes clockBorderTravel {
+  to {
+    --clock-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clock-card::before {
+    animation: none !important;
+    /* Keep a static soft ring instead of a moving one */
+    background: conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.25),
+      rgba(255, 255, 255, 0.25)
+    );
+  }
+}

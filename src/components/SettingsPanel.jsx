@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BackgroundSection from './settings/BackgroundSection'
 import BackupSection from './settings/BackupSection'
 import CalendarSection from './settings/CalendarSection'
+import GreetingSection from './settings/GreetingSection'
 import PomodoroSection from './settings/PomodoroSection'
 import ProfileSection from './settings/ProfileSection'
 import SearchSection from './settings/SearchSection'
@@ -46,6 +47,8 @@ export function SettingsPanel({
   onCalendarChange,
   overlayStrength,
   onOverlayStrengthChange,
+  greetingSubline,
+  onGreetingSublineChange,
 }) {
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -195,6 +198,10 @@ export function SettingsPanel({
                 <ProfileSection
                   currentName={currentName}
                   onNameEditRequest={onNameEditRequest}
+                />
+                <GreetingSection
+                  sublineMode={greetingSubline}
+                  onSublineModeChange={onGreetingSublineChange}
                 />
                 <WidgetsSection
                   widgetStates={widgetStates}

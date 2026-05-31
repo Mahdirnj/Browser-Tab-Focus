@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { USER_NAME_KEY } from '../constants/storageKeys'
 import { readString, removeKey, writeString } from '../utils/storage'
 import { getDefaultTimezone } from '../utils/timezone'
+import {
+  DEFAULT_GREETING_SUBLINE,
+  resolveGreetingSubline,
+} from '../utils/greetingSubline'
 
 const DEFAULT_TIMEZONE = getDefaultTimezone()
 
@@ -39,7 +43,7 @@ function greetingForHour(timeZone) {
   return 'Good night'
 }
 
-export function Greeting({ editSignal = 0, onNameChange, timezone }) {
+export function Greeting({ editSignal = 0, onNameChange, timezone, sublineMode = DEFAULT_GREETING_SUBLINE }) {
   const effectiveTimezone = timezone || DEFAULT_TIMEZONE
 
   const [name, setName] = useState(() => readString(USER_NAME_KEY, ''))
@@ -47,6 +51,9 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
   const [isEditing, setIsEditing] = useState(() => !readString(USER_NAME_KEY, ''))
   const [greeting, setGreeting] = useState(() =>
     greetingForHour(effectiveTimezone),
+  )
+  const [subline, setSubline] = useState(() =>
+    resolveGreetingSubline(sublineMode, effectiveTimezone),
   )
   const inputRef = useRef(null)
   const lastEditSignalRef = useRef(editSignal)
@@ -60,11 +67,14 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
   }, [name])
 
   useEffect(() => {
-    const tick = () => setGreeting(greetingForHour(effectiveTimezone))
+    const tick = () => {
+      setGreeting(greetingForHour(effectiveTimezone))
+      setSubline(resolveGreetingSubline(sublineMode, effectiveTimezone))
+    }
     tick()
     const id = window.setInterval(tick, 60 * 1000)
     return () => window.clearInterval(id)
-  }, [effectiveTimezone])
+  }, [effectiveTimezone, sublineMode])
 
   useEffect(() => {
     if (!isEditing) return
@@ -134,6 +144,14 @@ export function Greeting({ editSignal = 0, onNameChange, timezone }) {
           <h1 className="bg-gradient-to-r from-[color:var(--dashboard-text-100)] via-[color:var(--dashboard-text-95)] to-[color:var(--dashboard-text-80)] bg-clip-text text-4xl font-semibold text-transparent leading-tight drop-shadow-[0_12px_30px_rgba(15,23,42,0.4)] md:text-6xl md:leading-snug">
             {name ? `${greeting}, ${name}.` : greeting}
           </h1>
+          {subline ? (
+            <p
+              key={subline}
+              className="animate-greeting-subline max-w-md text-sm font-medium tracking-[0.02em] text-[color:var(--dashboard-text-60)] md:text-base"
+            >
+              {subline}
+            </p>
+          ) : null}
         </>
       )}
     </section>
