@@ -2,7 +2,7 @@
 
 > The mindful new-tab dashboard that keeps your search, widgets, and daily focus rituals right where you need them.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/releases)
+[![Version](https://img.shields.io/badge/version-2.7.0-blue?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/releases)
 [![Issues](https://img.shields.io/github/issues/Mahdirnj/Browser-Tab-Focus?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/issues)
 [![Stars](https://img.shields.io/github/stars/Mahdirnj/Browser-Tab-Focus?style=flat-square)](https://github.com/Mahdirnj/Browser-Tab-Focus/stargazers)
 [![Follow @Mahdirnj](https://img.shields.io/badge/GitHub-Mahdirnj-black?style=flat-square&logo=github)](https://github.com/Mahdirnj)
@@ -132,6 +132,36 @@ Head over to the [Releases Page](https://github.com/Mahdirnj/Browser-Tab-Focus/r
 Got a better idea? [Open an issue](https://github.com/Mahdirnj/Browser-Tab-Focus/issues/new) and let's talk.
 
 ## Changelog
+
+### V2.7.0
+
+**New Features**
+
+- Custom backgrounds — upload and manage your own wallpapers, persisted in IndexedDB with a localStorage shadow copy for instant paint on load (no flash before React boots)
+- Calendar selection — pick from multiple calendar systems, displayed directly on the Clock
+- Customizable greeting subline — choose a display mode (off, time, or focus) for the text under your greeting
+- Timezone-aware daily quotes — quotes are now selected and localized based on your timezone
+- Favicon caching for bookmarks — working favicon URLs are cached per hostname in localStorage and reload instantly
+
+**Improvements & Refactors**
+
+- Full Settings panel overhaul — the monolithic panel was broken into focused, composable sections (Profile, Widgets, Search, Pomodoro, Text Color, Weather API, Timezone, Background, Calendar, Greeting, Backup)
+- New reusable building blocks — `WidgetCard`, `ToggleSwitch`, `SectionShell`, `DurationInput`, and a `useStoredState` hook for storage-backed state
+- Settings backup utility — export/import your configuration
+- New `animate-brand-glow` animation on the BrandMark and refreshed Clock styling (`clock-card`)
+- Animated greeting subline with new keyframes
+- Improved image-resize and thumbnail-cache utilities for faster background processing
+
+**Changes**
+
+- Reduced max bookmarks from 30 to 6 for a denser, cleaner layout
+- Removed the bookmark folder/grouping system in favor of a simpler flat structure
+- Reorganized storage-key constants (added keys for calendar, active background, and greeting subline)
+
+**Tooling**
+
+- Added a testing setup (Vitest, Testing Library, jsdom) and wired Vite config for tests
+- ESLint now ignores extension build assets; `.gitignore` updated to exclude test files
 
 ### V2.0.0
 

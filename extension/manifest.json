@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FocusLoom Dashboard",
-  "version": "2.0.0",
+  "version": "2.7.0",
   "description": "Loads the FocusLoom dashboard locally when you open a new tab.",
   "chrome_url_overrides": {
     "newtab": "newtab/index.html"
