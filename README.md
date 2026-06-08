@@ -153,15 +153,7 @@ Got a better idea? [Open an issue](https://github.com/Mahdirnj/Browser-Tab-Focus
 - Improved image-resize and thumbnail-cache utilities for faster background processing
 
 **Changes**
-
-- Reduced max bookmarks from 30 to 6 for a denser, cleaner layout
-- Removed the bookmark folder/grouping system in favor of a simpler flat structure
 - Reorganized storage-key constants (added keys for calendar, active background, and greeting subline)
-
-**Tooling**
-
-- Added a testing setup (Vitest, Testing Library, jsdom) and wired Vite config for tests
-- ESLint now ignores extension build assets; `.gitignore` updated to exclude test files
 
 ### V2.0.0
 
